@@ -1,0 +1,65 @@
+\PassOptionsToPackage{rgb,table}{xcolor}
+
+% Activate if you want to compile slides.
+\documentclass{beamer}
+
+% Activate if you want to compile handout.
+%\documentclass[handout]{beamer}
+
+\usetheme{default}
+
+%% TeX Settings
+\input{../config/packages.tex}
+\input{../config/colors.tex}
+
+%% Meta Data and Variables
+\input{../config/meta.tex}
+\title{WORK IN PROGRESS \\ A smart contract for rental deposit accounts}
+
+%% Presentation Style Settings
+\input{../config/style.tex}
+\input{../config/titlepage.tex}
+
+%% Document
+\begin{document}
+  \begin{frame}[plain]
+    \titlepage
+  \end{frame}
+  
+\begin{frame}{Overview}{The Basic Strucutre of My Presentation}
+  \tableofcontents
+\end{frame}
+
+\section{Introduction}
+
+\subsection{The Problem}
+
+\begin{frame}{The Problem}{Actors and incentives}
+  \begin{itemize}
+    \item<1->{This is a simple bullet point.}
+    \item<2->{And another one.}
+  \end{itemize}
+  \vspace{1em}
+  \uncover<3->{
+    Something I'd like to uncover on slide 3.  
+  }
+\end{frame}
+
+
+\subsection{DAI and Interest}
+
+\begin{frame}{Dai}{Interest}
+  ...
+\end{frame}
+
+
+\section{The Contract}
+  \label{sec:contract}
+
+\subsection{Multisig}
+
+\begin{frame}{Slide in Section \ref{sec:contract}}{Random Subtitle}
+  Another slide.
+\end{frame}
+
+\end{document}

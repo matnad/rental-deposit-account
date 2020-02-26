@@ -1,0 +1,205 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Master Thesis Template by Fabian Schär %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Packages and Document Settings %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[12pt,a4paper,titlepage,oneside,english]{article}
+
+%%% Main Packages %%%
+\usepackage[english]{babel}
+%\usepackage[ngerman]{babel} % Use this option for German settings.
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+%%% Additional Packages %%%
+\usepackage{cite}
+\usepackage{framed}
+\usepackage{graphicx}
+%\usepackage[german]{fancyref}
+\usepackage[german,hidelinks]{hyperref} %hidelinks
+\usepackage{multirow}
+\usepackage[round]{natbib}
+\usepackage{setspace}
+\usepackage{geometry}
+\usepackage{pst-all} % Not working with Sweave!!!
+
+%%% Math Packages %%%
+\usepackage{amsmath}
+\usepackage{amstext}
+\usepackage{amssymb}
+\usepackage{theorem}
+\usepackage{epsfig}
+\usepackage{longtable}
+
+%%% Layout Specifications %%%
+\geometry{a4paper, top=35mm, left=40mm, right=40mm, bottom=45mm,
+headsep=10mm, footskip=12mm}
+
+%%% Parskip Settings %%%
+\setlength{\parskip}{3mm}
+\setlength{\parindent}{0mm}
+
+%%% Document Specifications %%%
+\title{A solidity smart contract for rental deposit accounts}
+\author{Matthias Nadler}
+
+
+%%%%%%%%%%%%%%%%%%
+%%% Title Page %%%
+%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+%\begin{titlepage}
+\begin{center}
+\vspace{1em}
+%\large{Seminar Paper}\\
+%\large{Bachelor Thesis}\\
+\large{Seminar Thesis}\\
+\huge A solidity smart contract \\
+for rental deposit accounts \\
+\Large \vspace{1em}
+Matthias Nadler
+\end{center}
+
+\vspace{1em}
+\normalsize
+\begin{flushleft}
+Supervised by:\\ 
+Prof. Dr. Fabian Schär \\
+Credit Suisse Asset Management (Schweiz) Professor for \\ 
+Distributed Ledger Technologies and Fintech \\
+Center for Innovative Finance, University of Basel
+\end{flushleft}
+
+\vspace{1em}
+\onehalfspacing
+\begin{center}
+\section*{Abstract}
+\end{center}
+TEMP: Analyze the incentive structure of the current rental deposit account situation and devise
+a DAI powered smart contract that will attempt to improve on it. \\
+\vfill
+\textbf{Keywords:} Ethereum, smart contract, DAI, rental deposit account.\\
+\noindent\textbf{JEL:} G21, G52, G19
+%\end{titlepage}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Inhaltsverzeichnis & Plagiatserklärung
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pagenumbering{gobble}
+
+\newpage
+\pagenumbering{Roman}
+\tableofcontents
+
+\vfill
+\begin{center}
+\includegraphics[width=4cm]{../assetlib/images/logo_cif.png}
+\end{center}
+\singlespacing
+\vspace{-1.5cm}
+\section*{Plagiatserklärung}
+Ich bezeuge mit meiner Unterschrift, dass meine Angaben über die bei der Abfassung meiner Arbeit benutzten Hilfsmittel sowie über die mir zuteil gewordene Hilfe in jeder Hinsicht der Wahrheit entsprechen und vollständig sind. Ich habe das Merkblatt zu Plagiat und Betrug vom 22. Februar 2011 gelesen und bin mir der Konsequenzen eines solchen Handelns bewusst.\\
+
+%% YOUR NAME HERE %%
+Matthias Nadler
+%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\onehalfspacing
+\pagenumbering{arabic}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Introduction
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}
+Short overview of the problem we try to solve. Mention Ethereum and DAI, but don't go in-depth.
+
+
+%%%%%%%%%%%%%%%%%%
+%%% Incentives %%%
+%%%%%%%%%%%%%%%%%%
+
+\section{Analysis of current incentive structure}
+Analyze current deposit account contracts and work out incentives for each party.
+\subsection{Tenant incentives}
+Discuss tenant incentives and areas to improve situation.
+\subsection{Landlord incentives}
+Discuss landlord incentives and areas to improve situation.
+\subsection{Trustee incentives}
+Discuss trustee (bank, notary, depositary, ...) incentives and areas to improve situation.
+
+
+%%%%%%%%%%%%%%%%
+%%% Multisig %%%
+%%%%%%%%%%%%%%%%
+
+\section{Multisig on Ethereum}
+Describe the problem of multisig on ethereum. And explore possible implementations.
+\subsection{Off-Chain implementation}
+Sign transactions off-chain and then send the signed data to the contract. SWOT analysis
+\subsection{On-Chain implementation}
+Multiple approaches exist
+\subsubsection{Transactions as struct}
+SWOT analysis, multiple transaction types (\cite{GNOSISLtd.2019})
+\subsubsection{Minimal state approach}
+SWOT analysis, work with signatures
+\subsection{Conclusion}
+Present selected approach with additional details.
+
+
+%%%%%%%%%%%%%%%%
+%%% Contract %%%
+%%%%%%%%%%%%%%%%
+
+\section{Designing the smart contract}
+Work out the functionality of the smart contract in pseudo code.
+\subsection{Multisig design}
+How we do multisig
+\subsection{Deposit account functionality}
+Functions related to the deposit account management
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+%%% Implementation %%%
+%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Implementation}
+Software development philosophy.
+\subsection{Environment}
+Tools used
+\subsection{Testing}
+Testing approach and coverage
+
+
+%%%%%%%%%%%%%%%%%%
+%%% Discussion %%%
+%%%%%%%%%%%%%%%%%%
+
+\section{Discussion}
+Discussion of result and potential applications
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Literaturverzeichnis %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\setcounter{page}{1}
+\pagenumbering{roman}
+\onehalfspacing
+\addcontentsline{toc}{section}{References}
+\bibliography{DepositAccount}
+\bibliographystyle{agsm}
+
+%\section{Appendix}
+\end{document}

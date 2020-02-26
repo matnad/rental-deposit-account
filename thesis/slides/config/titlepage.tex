@@ -1,0 +1,37 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Titlepage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usetikzlibrary{shapes,arrows}
+\setbeamerfont{author}{size=\Large, series=\bf}
+\setbeamerfont{institute}{size=\small}
+\setbeamerfont{title}{size=\Large, series=\bf}
+
+\let\otp\titlepage
+\renewcommand{\titlepage}{\otp\addtocounter{framenumber}{-1}}
+
+\setbeamertemplate{title page}{
+\begin{tikzpicture}[remember picture,overlay]
+\fill[mint](-5,-2.5) rectangle (11.3,3.4);
+  ([yshift=15pt]current page.west) rectangle (current page.north east);
+\node[anchor=west] 
+  at ([yshift=0pt, xshift=30pt]current page.west) (author)
+  {\parbox[t]{.6\paperwidth}{\raggedright
+    \usebeamerfont{author}\textcolor{black}{
+    \insertauthor}}};
+\node[anchor=west] 
+  at ([yshift=-27pt, xshift=30pt]current page.west) (institute)
+  {\parbox[t]{.78\paperwidth}{\raggedright
+    \usebeamerfont{institute}\textcolor{black}{\insertinstitute}}};
+\node[anchor=west]
+  at ([yshift=35pt,xshift=30pt]current page.west) (title)
+  {\parbox[t]{\textwidth}{\raggedright
+ \usebeamerfont{title}\textcolor{black}{
+    \inserttitle}}};
+\node[anchor=west] 
+  at ([yshift=94pt, xshift=0.1pt]current page.west) (logo)
+  {\parbox[t]{.2\paperwidth}{\raggedright
+   \usebeamercolor[fg]{titlegraphic}\inserttitlegraphic}};
+\end{tikzpicture}
+}
+
+\titlegraphic{\includegraphics[width=2.8cm]{../assetlib/images/logo_cif.png}}
