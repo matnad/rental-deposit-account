@@ -1,0 +1,19 @@
+{
+  "name": "rental_deposit_account",
+  "version": "0.0.1",
+  "description": "solidity smart contract for a multisig rental deposit account",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Matthias Nadler",
+  "license": "MIT",
+  "dependencies": {
+    "@makerdao/dai": "^0.26.0",
+    "@makerdao/dai-plugin-mcd": "^1.2.1",
+    "dotenv": "^8.2.0"
+  }
+}

@@ -1,9 +1,14 @@
 ## Gitignore for Seminar Thesis "Deposit Account"
 # Ignores JetBrains Webstorm files and unnecessary LaTeX files
 
-# Jetbrains
+## Jetbrains
 .DS_Store
 .idea
+
+## node
+/src/node_modules/
+# dotenv
+.env
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
@@ -240,3 +245,4 @@ TSWLatexianTemp*
 ## Editors:
 # LyX
 *.lyx~
+
