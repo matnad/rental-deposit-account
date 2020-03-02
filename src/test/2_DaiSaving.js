@@ -37,7 +37,6 @@ contract('DaiSaving', (accounts) => {
   })
 
   it(`lock ${lockAsDai} DAI in the pot`, async () => {
-    // will draw new dai up to targetDai if it drops below 50% of targetDai
     const daiToken = await Dai.at(daiAddress)
     const daiSaving = await DaiSaving.deployed()
 
@@ -50,7 +49,7 @@ contract('DaiSaving', (accounts) => {
     const lost = initialContractBalance - finalContractBalance
     console.log("       Contract DAI balance decrease: ", fromWei(lost.toString(), "ether"))
 
-    assert.equal(lost.toString(), lockAmount.toString(), `contract should have 0 DAI after locking it`)
+    assert.equal(lost.toString(), lockAmount.toString(), `the balance reduction must be equal to the locked amount`)
   })
 
   const passTime = 2
