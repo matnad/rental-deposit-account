@@ -47,24 +47,27 @@
       "type": "function"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.5.16+commit.9c3226ce\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":false,\"inputs\":[],\"name\":\"drip\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"tmp\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"wad\",\"type\":\"uint256\"}],\"name\":\"exit\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"wad\",\"type\":\"uint256\"}],\"name\":\"join\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/C/Users/Matthias/Documents/_uni/fs2020/seminar_blockchain/src/contracts/DaiSaving.sol\":\"PotLike\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/C/Users/Matthias/Documents/_uni/fs2020/seminar_blockchain/src/contracts/DaiSaving.sol\":{\"keccak256\":\"0xfe399088ea0bb295485f57b5620070dc47709e6d204676cdeba6450d1bd36fe7\",\"urls\":[\"bzz-raw://08e0463ec028e312f58d5a4064286846645b4b24606f5454480857a79cf47233\",\"dweb:/ipfs/QmNUR2MRP9j1Ymauv8WTn26zvgxg5xUK594sRMUbGhiswy\"]}},\"version\":1}",
+  "metadata": "{\"compiler\":{\"version\":\"0.5.16+commit.9c3226ce\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":false,\"inputs\":[],\"name\":\"drip\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"tmp\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"wad\",\"type\":\"uint256\"}],\"name\":\"exit\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"wad\",\"type\":\"uint256\"}],\"name\":\"join\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/C/Users/Matthias/Documents/_uni/fs2020/seminar_blockchain/src/contracts/DaiSaving.sol\":\"PotLike\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/C/Users/Matthias/Documents/_uni/fs2020/seminar_blockchain/src/contracts/DaiSaving.sol\":{\"keccak256\":\"0xb5e3f0dfb036086720957a9cf8867d073d001779612a4a84cb07abbc09a5092a\",\"urls\":[\"bzz-raw://4248908999da45475dfa6e3fde7e53cd7e160073213096803d65f0657c056c78\",\"dweb:/ipfs/QmPhTFA52ybTLUjxYJ5bP2FqZncy58KvYoMvmEgHQmRPTy\"]}},\"version\":1}",
   "bytecode": "0x",
   "deployedBytecode": "0x",
   "sourceMap": "",
   "deployedSourceMap": "",
-  "source": "pragma solidity >= 0.5.15  < 0.6.0;\r\n\r\n\r\ninterface PotLike {\r\n    function drip() external  returns (uint tmp);\r\n    function join(uint wad) external;\r\n    function exit(uint wad) external;\r\n}\r\n\r\n\r\ncontract DaiSaving {\r\n\r\n    uint public a;\r\n\r\n    function start() external {\r\n        PotLike pot = PotLike(0x19E602E0dC93749Ea7aFa0C88F4693d4C02102D3);\r\n        uint _a = pot.drip();\r\n        a = _a;\r\n    }\r\n\r\n    function getA() external view returns (uint) {\r\n        return a;\r\n    }\r\n\r\n//    function DsrCog(){\r\n//\r\n//    }\r\n}\r\n",
+  "source": "pragma solidity >= 0.5.15  < 0.6.0;\r\n\r\n\r\ninterface PotLike {\r\n    function drip() external  returns (uint tmp);\r\n    function join(uint wad) external;\r\n    function exit(uint wad) external;\r\n}\r\n\r\ncontract VatLike {\r\n    mapping(address => mapping (address => uint)) public can;\r\n}\r\n\r\n\r\ncontract DaiSaving {\r\n\r\n    function join(uint wad) external {\r\n        VatLike vat = VatLike(0x11C8d156E1b5FD883E31e9091874F2af80b02775);\r\n        PotLike pot = PotLike(0x19E602E0dC93749Ea7aFa0C88F4693d4C02102D3);\r\n        require(vat.can(address(this), 0x19E602E0dC93749Ea7aFa0C88F4693d4C02102D3) == 1, 'vat not authorized');\r\n        pot.drip();\r\n        // need to authorize the pot contract?\r\n        pot.join(wad);\r\n    }\r\n\r\n}\r\n",
   "sourcePath": "C:\\Users\\Matthias\\Documents\\_uni\\fs2020\\seminar_blockchain\\src\\contracts\\DaiSaving.sol",
   "ast": {
     "absolutePath": "/C/Users/Matthias/Documents/_uni/fs2020/seminar_blockchain/src/contracts/DaiSaving.sol",
     "exportedSymbols": {
       "DaiSaving": [
-        48
+        67
       ],
       "PotLike": [
         17
+      ],
+      "VatLike": [
+        24
       ]
     },
-    "id": 49,
+    "id": 68,
     "nodeType": "SourceUnit",
     "nodes": [
       {
@@ -257,7 +260,7 @@
             "visibility": "external"
           }
         ],
-        "scope": 49,
+        "scope": 68,
         "src": "41:151:0"
       },
       {
@@ -266,57 +269,204 @@
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 48,
+        "id": 24,
         "linearizedBaseContracts": [
-          48
+          24
+        ],
+        "name": "VatLike",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 23,
+            "name": "can",
+            "nodeType": "VariableDeclaration",
+            "scope": 24,
+            "src": "220:56:0",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_mapping$_t_address_$_t_mapping$_t_address_$_t_uint256_$_$",
+              "typeString": "mapping(address => mapping(address => uint256))"
+            },
+            "typeName": {
+              "id": 22,
+              "keyType": {
+                "id": 18,
+                "name": "address",
+                "nodeType": "ElementaryTypeName",
+                "src": "228:7:0",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                }
+              },
+              "nodeType": "Mapping",
+              "src": "220:45:0",
+              "typeDescriptions": {
+                "typeIdentifier": "t_mapping$_t_address_$_t_mapping$_t_address_$_t_uint256_$_$",
+                "typeString": "mapping(address => mapping(address => uint256))"
+              },
+              "valueType": {
+                "id": 21,
+                "keyType": {
+                  "id": 19,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "248:7:0",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "nodeType": "Mapping",
+                "src": "239:25:0",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
+                  "typeString": "mapping(address => uint256)"
+                },
+                "valueType": {
+                  "id": 20,
+                  "name": "uint",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "259:4:0",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                }
+              }
+            },
+            "value": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 68,
+        "src": "196:84:0"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 67,
+        "linearizedBaseContracts": [
+          67
         ],
         "name": "DaiSaving",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
-            "constant": false,
-            "id": 19,
-            "name": "a",
-            "nodeType": "VariableDeclaration",
-            "scope": 48,
-            "src": "226:13:0",
-            "stateVariable": true,
-            "storageLocation": "default",
-            "typeDescriptions": {
-              "typeIdentifier": "t_uint256",
-              "typeString": "uint256"
-            },
-            "typeName": {
-              "id": 18,
-              "name": "uint",
-              "nodeType": "ElementaryTypeName",
-              "src": "226:4:0",
-              "typeDescriptions": {
-                "typeIdentifier": "t_uint256",
-                "typeString": "uint256"
-              }
-            },
-            "value": null,
-            "visibility": "public"
-          },
-          {
             "body": {
-              "id": 38,
+              "id": 65,
               "nodeType": "Block",
-              "src": "274:132:0",
+              "src": "347:366:0",
               "statements": [
                 {
                   "assignments": [
-                    23
+                    30
                   ],
                   "declarations": [
                     {
                       "constant": false,
-                      "id": 23,
+                      "id": 30,
+                      "name": "vat",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 65,
+                      "src": "358:11:0",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_VatLike_$24",
+                        "typeString": "contract VatLike"
+                      },
+                      "typeName": {
+                        "contractScope": null,
+                        "id": 29,
+                        "name": "VatLike",
+                        "nodeType": "UserDefinedTypeName",
+                        "referencedDeclaration": 24,
+                        "src": "358:7:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_contract$_VatLike_$24",
+                          "typeString": "contract VatLike"
+                        }
+                      },
+                      "value": null,
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 34,
+                  "initialValue": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "hexValue": "307831314338643135364531623546443838334533316539303931383734463261663830623032373735",
+                        "id": 32,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "number",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "380:42:0",
+                        "subdenomination": null,
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address_payable",
+                          "typeString": "address payable"
+                        },
+                        "value": "0x11C8d156E1b5FD883E31e9091874F2af80b02775"
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_address_payable",
+                          "typeString": "address payable"
+                        }
+                      ],
+                      "id": 31,
+                      "name": "VatLike",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 24,
+                      "src": "372:7:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_type$_t_contract$_VatLike_$24_$",
+                        "typeString": "type(contract VatLike)"
+                      }
+                    },
+                    "id": 33,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "typeConversion",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "372:51:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_VatLike_$24",
+                      "typeString": "contract VatLike"
+                    }
+                  },
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "358:65:0"
+                },
+                {
+                  "assignments": [
+                    36
+                  ],
+                  "declarations": [
+                    {
+                      "constant": false,
+                      "id": 36,
                       "name": "pot",
                       "nodeType": "VariableDeclaration",
-                      "scope": 38,
-                      "src": "285:11:0",
+                      "scope": 65,
+                      "src": "434:11:0",
                       "stateVariable": false,
                       "storageLocation": "default",
                       "typeDescriptions": {
@@ -325,11 +475,11 @@
                       },
                       "typeName": {
                         "contractScope": null,
-                        "id": 22,
+                        "id": 35,
                         "name": "PotLike",
                         "nodeType": "UserDefinedTypeName",
                         "referencedDeclaration": 17,
-                        "src": "285:7:0",
+                        "src": "434:7:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_contract$_PotLike_$17",
                           "typeString": "contract PotLike"
@@ -339,21 +489,21 @@
                       "visibility": "internal"
                     }
                   ],
-                  "id": 27,
+                  "id": 40,
                   "initialValue": {
                     "argumentTypes": null,
                     "arguments": [
                       {
                         "argumentTypes": null,
                         "hexValue": "307831394536303245306443393337343945613761466130433838463436393364344330323130324433",
-                        "id": 25,
+                        "id": 38,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "kind": "number",
                         "lValueRequested": false,
                         "nodeType": "Literal",
-                        "src": "307:42:0",
+                        "src": "456:42:0",
                         "subdenomination": null,
                         "typeDescriptions": {
                           "typeIdentifier": "t_address_payable",
@@ -369,18 +519,18 @@
                           "typeString": "address payable"
                         }
                       ],
-                      "id": 24,
+                      "id": 37,
                       "name": "PotLike",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 17,
-                      "src": "299:7:0",
+                      "src": "448:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_type$_t_contract$_PotLike_$17_$",
                         "typeString": "type(contract PotLike)"
                       }
                     },
-                    "id": 26,
+                    "id": 39,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": true,
@@ -388,81 +538,226 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "299:51:0",
+                    "src": "448:51:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_contract$_PotLike_$17",
                       "typeString": "contract PotLike"
                     }
                   },
                   "nodeType": "VariableDeclarationStatement",
-                  "src": "285:65:0"
+                  "src": "434:65:0"
                 },
                 {
-                  "assignments": [
-                    29
-                  ],
-                  "declarations": [
-                    {
-                      "constant": false,
-                      "id": 29,
-                      "name": "_a",
-                      "nodeType": "VariableDeclaration",
-                      "scope": 38,
-                      "src": "361:7:0",
-                      "stateVariable": false,
-                      "storageLocation": "default",
-                      "typeDescriptions": {
-                        "typeIdentifier": "t_uint256",
-                        "typeString": "uint256"
-                      },
-                      "typeName": {
-                        "id": 28,
-                        "name": "uint",
-                        "nodeType": "ElementaryTypeName",
-                        "src": "361:4:0",
-                        "typeDescriptions": {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "commonType": {
                           "typeIdentifier": "t_uint256",
                           "typeString": "uint256"
-                        }
-                      },
-                      "value": null,
-                      "visibility": "internal"
-                    }
-                  ],
-                  "id": 33,
-                  "initialValue": {
-                    "argumentTypes": null,
-                    "arguments": [],
-                    "expression": {
-                      "argumentTypes": [],
-                      "expression": {
-                        "argumentTypes": null,
-                        "id": 30,
-                        "name": "pot",
-                        "nodeType": "Identifier",
-                        "overloadedDeclarations": [],
-                        "referencedDeclaration": 23,
-                        "src": "371:3:0",
+                        },
+                        "id": 50,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftExpression": {
+                          "argumentTypes": null,
+                          "arguments": [
+                            {
+                              "argumentTypes": null,
+                              "arguments": [
+                                {
+                                  "argumentTypes": null,
+                                  "id": 45,
+                                  "name": "this",
+                                  "nodeType": "Identifier",
+                                  "overloadedDeclarations": [],
+                                  "referencedDeclaration": 137,
+                                  "src": "534:4:0",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_contract$_DaiSaving_$67",
+                                    "typeString": "contract DaiSaving"
+                                  }
+                                }
+                              ],
+                              "expression": {
+                                "argumentTypes": [
+                                  {
+                                    "typeIdentifier": "t_contract$_DaiSaving_$67",
+                                    "typeString": "contract DaiSaving"
+                                  }
+                                ],
+                                "id": 44,
+                                "isConstant": false,
+                                "isLValue": false,
+                                "isPure": true,
+                                "lValueRequested": false,
+                                "nodeType": "ElementaryTypeNameExpression",
+                                "src": "526:7:0",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_type$_t_address_$",
+                                  "typeString": "type(address)"
+                                },
+                                "typeName": "address"
+                              },
+                              "id": 46,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "kind": "typeConversion",
+                              "lValueRequested": false,
+                              "names": [],
+                              "nodeType": "FunctionCall",
+                              "src": "526:13:0",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            {
+                              "argumentTypes": null,
+                              "hexValue": "307831394536303245306443393337343945613761466130433838463436393364344330323130324433",
+                              "id": 47,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "number",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "541:42:0",
+                              "subdenomination": null,
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address_payable",
+                                "typeString": "address payable"
+                              },
+                              "value": "0x19E602E0dC93749Ea7aFa0C88F4693d4C02102D3"
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": [
+                              {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              },
+                              {
+                                "typeIdentifier": "t_address_payable",
+                                "typeString": "address payable"
+                              }
+                            ],
+                            "expression": {
+                              "argumentTypes": null,
+                              "id": 42,
+                              "name": "vat",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 30,
+                              "src": "518:3:0",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_contract$_VatLike_$24",
+                                "typeString": "contract VatLike"
+                              }
+                            },
+                            "id": 43,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "memberName": "can",
+                            "nodeType": "MemberAccess",
+                            "referencedDeclaration": 23,
+                            "src": "518:7:0",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_external_view$_t_address_$_t_address_$returns$_t_uint256_$",
+                              "typeString": "function (address,address) view external returns (uint256)"
+                            }
+                          },
+                          "id": 48,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "kind": "functionCall",
+                          "lValueRequested": false,
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "518:66:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "nodeType": "BinaryOperation",
+                        "operator": "==",
+                        "rightExpression": {
+                          "argumentTypes": null,
+                          "hexValue": "31",
+                          "id": 49,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "number",
+                          "lValueRequested": false,
+                          "nodeType": "Literal",
+                          "src": "588:1:0",
+                          "subdenomination": null,
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_rational_1_by_1",
+                            "typeString": "int_const 1"
+                          },
+                          "value": "1"
+                        },
+                        "src": "518:71:0",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_PotLike_$17",
-                          "typeString": "contract PotLike"
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
                         }
                       },
-                      "id": 31,
-                      "isConstant": false,
-                      "isLValue": false,
-                      "isPure": false,
-                      "lValueRequested": false,
-                      "memberName": "drip",
-                      "nodeType": "MemberAccess",
-                      "referencedDeclaration": 6,
-                      "src": "371:8:0",
+                      {
+                        "argumentTypes": null,
+                        "hexValue": "766174206e6f7420617574686f72697a6564",
+                        "id": 51,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "string",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "591:20:0",
+                        "subdenomination": null,
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_stringliteral_f1dbd0377cd5d1e3a7d8d13cb883e953f1deab82f91482a02815f1dcc58538f6",
+                          "typeString": "literal_string \"vat not authorized\""
+                        },
+                        "value": "vat not authorized"
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        },
+                        {
+                          "typeIdentifier": "t_stringliteral_f1dbd0377cd5d1e3a7d8d13cb883e953f1deab82f91482a02815f1dcc58538f6",
+                          "typeString": "literal_string \"vat not authorized\""
+                        }
+                      ],
+                      "id": 41,
+                      "name": "require",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [
+                        122,
+                        123
+                      ],
+                      "referencedDeclaration": 123,
+                      "src": "510:7:0",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_function_external_nonpayable$__$returns$_t_uint256_$",
-                        "typeString": "function () external returns (uint256)"
+                        "typeIdentifier": "t_function_require_pure$_t_bool_$_t_string_memory_ptr_$returns$__$",
+                        "typeString": "function (bool,string memory) pure"
                       }
                     },
-                    "id": 32,
+                    "id": 52,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -470,139 +765,157 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "371:10:0",
+                    "src": "510:102:0",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
                     }
                   },
-                  "nodeType": "VariableDeclarationStatement",
-                  "src": "361:20:0"
+                  "id": 53,
+                  "nodeType": "ExpressionStatement",
+                  "src": "510:102:0"
                 },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 36,
+                    "arguments": [],
+                    "expression": {
+                      "argumentTypes": [],
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 54,
+                        "name": "pot",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 36,
+                        "src": "623:3:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_contract$_PotLike_$17",
+                          "typeString": "contract PotLike"
+                        }
+                      },
+                      "id": 56,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "drip",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 6,
+                      "src": "623:8:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_external_nonpayable$__$returns$_t_uint256_$",
+                        "typeString": "function () external returns (uint256)"
+                      }
+                    },
+                    "id": 57,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
+                    "kind": "functionCall",
                     "lValueRequested": false,
-                    "leftHandSide": {
-                      "argumentTypes": null,
-                      "id": 34,
-                      "name": "a",
-                      "nodeType": "Identifier",
-                      "overloadedDeclarations": [],
-                      "referencedDeclaration": 19,
-                      "src": "392:1:0",
-                      "typeDescriptions": {
-                        "typeIdentifier": "t_uint256",
-                        "typeString": "uint256"
-                      }
-                    },
-                    "nodeType": "Assignment",
-                    "operator": "=",
-                    "rightHandSide": {
-                      "argumentTypes": null,
-                      "id": 35,
-                      "name": "_a",
-                      "nodeType": "Identifier",
-                      "overloadedDeclarations": [],
-                      "referencedDeclaration": 29,
-                      "src": "396:2:0",
-                      "typeDescriptions": {
-                        "typeIdentifier": "t_uint256",
-                        "typeString": "uint256"
-                      }
-                    },
-                    "src": "392:6:0",
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "623:10:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
                     }
                   },
-                  "id": 37,
+                  "id": 58,
                   "nodeType": "ExpressionStatement",
-                  "src": "392:6:0"
-                }
-              ]
-            },
-            "documentation": null,
-            "id": 39,
-            "implemented": true,
-            "kind": "function",
-            "modifiers": [],
-            "name": "start",
-            "nodeType": "FunctionDefinition",
-            "parameters": {
-              "id": 20,
-              "nodeType": "ParameterList",
-              "parameters": [],
-              "src": "262:2:0"
-            },
-            "returnParameters": {
-              "id": 21,
-              "nodeType": "ParameterList",
-              "parameters": [],
-              "src": "274:0:0"
-            },
-            "scope": 48,
-            "src": "248:158:0",
-            "stateMutability": "nonpayable",
-            "superFunction": null,
-            "visibility": "external"
-          },
-          {
-            "body": {
-              "id": 46,
-              "nodeType": "Block",
-              "src": "459:27:0",
-              "statements": [
+                  "src": "623:10:0"
+                },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 44,
-                    "name": "a",
-                    "nodeType": "Identifier",
-                    "overloadedDeclarations": [],
-                    "referencedDeclaration": 19,
-                    "src": "477:1:0",
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "id": 62,
+                        "name": "wad",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 26,
+                        "src": "701:3:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 59,
+                        "name": "pot",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 36,
+                        "src": "692:3:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_contract$_PotLike_$17",
+                          "typeString": "contract PotLike"
+                        }
+                      },
+                      "id": 61,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "join",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 11,
+                      "src": "692:8:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_external_nonpayable$_t_uint256_$returns$__$",
+                        "typeString": "function (uint256) external"
+                      }
+                    },
+                    "id": 63,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "692:13:0",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
                     }
                   },
-                  "functionReturnParameters": 43,
-                  "id": 45,
-                  "nodeType": "Return",
-                  "src": "470:8:0"
+                  "id": 64,
+                  "nodeType": "ExpressionStatement",
+                  "src": "692:13:0"
                 }
               ]
             },
             "documentation": null,
-            "id": 47,
+            "id": 66,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
-            "name": "getA",
+            "name": "join",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 40,
-              "nodeType": "ParameterList",
-              "parameters": [],
-              "src": "427:2:0"
-            },
-            "returnParameters": {
-              "id": 43,
+              "id": 27,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 42,
-                  "name": "",
+                  "id": 26,
+                  "name": "wad",
                   "nodeType": "VariableDeclaration",
-                  "scope": 47,
-                  "src": "453:4:0",
+                  "scope": 66,
+                  "src": "328:8:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -610,10 +923,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 41,
+                    "id": 25,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
-                    "src": "453:4:0",
+                    "src": "328:4:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -623,32 +936,41 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "452:6:0"
+              "src": "327:10:0"
             },
-            "scope": 48,
-            "src": "414:72:0",
-            "stateMutability": "view",
+            "returnParameters": {
+              "id": 28,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "347:0:0"
+            },
+            "scope": 67,
+            "src": "314:399:0",
+            "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
           }
         ],
-        "scope": 49,
-        "src": "198:332:0"
+        "scope": 68,
+        "src": "286:432:0"
       }
     ],
-    "src": "0:532:0"
+    "src": "0:720:0"
   },
   "legacyAST": {
     "absolutePath": "/C/Users/Matthias/Documents/_uni/fs2020/seminar_blockchain/src/contracts/DaiSaving.sol",
     "exportedSymbols": {
       "DaiSaving": [
-        48
+        67
       ],
       "PotLike": [
         17
+      ],
+      "VatLike": [
+        24
       ]
     },
-    "id": 49,
+    "id": 68,
     "nodeType": "SourceUnit",
     "nodes": [
       {
@@ -841,7 +1163,7 @@
             "visibility": "external"
           }
         ],
-        "scope": 49,
+        "scope": 68,
         "src": "41:151:0"
       },
       {
@@ -850,57 +1172,204 @@
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 48,
+        "id": 24,
         "linearizedBaseContracts": [
-          48
+          24
+        ],
+        "name": "VatLike",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 23,
+            "name": "can",
+            "nodeType": "VariableDeclaration",
+            "scope": 24,
+            "src": "220:56:0",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_mapping$_t_address_$_t_mapping$_t_address_$_t_uint256_$_$",
+              "typeString": "mapping(address => mapping(address => uint256))"
+            },
+            "typeName": {
+              "id": 22,
+              "keyType": {
+                "id": 18,
+                "name": "address",
+                "nodeType": "ElementaryTypeName",
+                "src": "228:7:0",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                }
+              },
+              "nodeType": "Mapping",
+              "src": "220:45:0",
+              "typeDescriptions": {
+                "typeIdentifier": "t_mapping$_t_address_$_t_mapping$_t_address_$_t_uint256_$_$",
+                "typeString": "mapping(address => mapping(address => uint256))"
+              },
+              "valueType": {
+                "id": 21,
+                "keyType": {
+                  "id": 19,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "248:7:0",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "nodeType": "Mapping",
+                "src": "239:25:0",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_mapping$_t_address_$_t_uint256_$",
+                  "typeString": "mapping(address => uint256)"
+                },
+                "valueType": {
+                  "id": 20,
+                  "name": "uint",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "259:4:0",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                }
+              }
+            },
+            "value": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 68,
+        "src": "196:84:0"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 67,
+        "linearizedBaseContracts": [
+          67
         ],
         "name": "DaiSaving",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
-            "constant": false,
-            "id": 19,
-            "name": "a",
-            "nodeType": "VariableDeclaration",
-            "scope": 48,
-            "src": "226:13:0",
-            "stateVariable": true,
-            "storageLocation": "default",
-            "typeDescriptions": {
-              "typeIdentifier": "t_uint256",
-              "typeString": "uint256"
-            },
-            "typeName": {
-              "id": 18,
-              "name": "uint",
-              "nodeType": "ElementaryTypeName",
-              "src": "226:4:0",
-              "typeDescriptions": {
-                "typeIdentifier": "t_uint256",
-                "typeString": "uint256"
-              }
-            },
-            "value": null,
-            "visibility": "public"
-          },
-          {
             "body": {
-              "id": 38,
+              "id": 65,
               "nodeType": "Block",
-              "src": "274:132:0",
+              "src": "347:366:0",
               "statements": [
                 {
                   "assignments": [
-                    23
+                    30
                   ],
                   "declarations": [
                     {
                       "constant": false,
-                      "id": 23,
+                      "id": 30,
+                      "name": "vat",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 65,
+                      "src": "358:11:0",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_VatLike_$24",
+                        "typeString": "contract VatLike"
+                      },
+                      "typeName": {
+                        "contractScope": null,
+                        "id": 29,
+                        "name": "VatLike",
+                        "nodeType": "UserDefinedTypeName",
+                        "referencedDeclaration": 24,
+                        "src": "358:7:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_contract$_VatLike_$24",
+                          "typeString": "contract VatLike"
+                        }
+                      },
+                      "value": null,
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 34,
+                  "initialValue": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "hexValue": "307831314338643135364531623546443838334533316539303931383734463261663830623032373735",
+                        "id": 32,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "number",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "380:42:0",
+                        "subdenomination": null,
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address_payable",
+                          "typeString": "address payable"
+                        },
+                        "value": "0x11C8d156E1b5FD883E31e9091874F2af80b02775"
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_address_payable",
+                          "typeString": "address payable"
+                        }
+                      ],
+                      "id": 31,
+                      "name": "VatLike",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 24,
+                      "src": "372:7:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_type$_t_contract$_VatLike_$24_$",
+                        "typeString": "type(contract VatLike)"
+                      }
+                    },
+                    "id": 33,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": true,
+                    "kind": "typeConversion",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "372:51:0",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_VatLike_$24",
+                      "typeString": "contract VatLike"
+                    }
+                  },
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "358:65:0"
+                },
+                {
+                  "assignments": [
+                    36
+                  ],
+                  "declarations": [
+                    {
+                      "constant": false,
+                      "id": 36,
                       "name": "pot",
                       "nodeType": "VariableDeclaration",
-                      "scope": 38,
-                      "src": "285:11:0",
+                      "scope": 65,
+                      "src": "434:11:0",
                       "stateVariable": false,
                       "storageLocation": "default",
                       "typeDescriptions": {
@@ -909,11 +1378,11 @@
                       },
                       "typeName": {
                         "contractScope": null,
-                        "id": 22,
+                        "id": 35,
                         "name": "PotLike",
                         "nodeType": "UserDefinedTypeName",
                         "referencedDeclaration": 17,
-                        "src": "285:7:0",
+                        "src": "434:7:0",
                         "typeDescriptions": {
                           "typeIdentifier": "t_contract$_PotLike_$17",
                           "typeString": "contract PotLike"
@@ -923,21 +1392,21 @@
                       "visibility": "internal"
                     }
                   ],
-                  "id": 27,
+                  "id": 40,
                   "initialValue": {
                     "argumentTypes": null,
                     "arguments": [
                       {
                         "argumentTypes": null,
                         "hexValue": "307831394536303245306443393337343945613761466130433838463436393364344330323130324433",
-                        "id": 25,
+                        "id": 38,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
                         "kind": "number",
                         "lValueRequested": false,
                         "nodeType": "Literal",
-                        "src": "307:42:0",
+                        "src": "456:42:0",
                         "subdenomination": null,
                         "typeDescriptions": {
                           "typeIdentifier": "t_address_payable",
@@ -953,18 +1422,18 @@
                           "typeString": "address payable"
                         }
                       ],
-                      "id": 24,
+                      "id": 37,
                       "name": "PotLike",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
                       "referencedDeclaration": 17,
-                      "src": "299:7:0",
+                      "src": "448:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_type$_t_contract$_PotLike_$17_$",
                         "typeString": "type(contract PotLike)"
                       }
                     },
-                    "id": 26,
+                    "id": 39,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": true,
@@ -972,81 +1441,226 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "299:51:0",
+                    "src": "448:51:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_contract$_PotLike_$17",
                       "typeString": "contract PotLike"
                     }
                   },
                   "nodeType": "VariableDeclarationStatement",
-                  "src": "285:65:0"
+                  "src": "434:65:0"
                 },
                 {
-                  "assignments": [
-                    29
-                  ],
-                  "declarations": [
-                    {
-                      "constant": false,
-                      "id": 29,
-                      "name": "_a",
-                      "nodeType": "VariableDeclaration",
-                      "scope": 38,
-                      "src": "361:7:0",
-                      "stateVariable": false,
-                      "storageLocation": "default",
-                      "typeDescriptions": {
-                        "typeIdentifier": "t_uint256",
-                        "typeString": "uint256"
-                      },
-                      "typeName": {
-                        "id": 28,
-                        "name": "uint",
-                        "nodeType": "ElementaryTypeName",
-                        "src": "361:4:0",
-                        "typeDescriptions": {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "commonType": {
                           "typeIdentifier": "t_uint256",
                           "typeString": "uint256"
-                        }
-                      },
-                      "value": null,
-                      "visibility": "internal"
-                    }
-                  ],
-                  "id": 33,
-                  "initialValue": {
-                    "argumentTypes": null,
-                    "arguments": [],
-                    "expression": {
-                      "argumentTypes": [],
-                      "expression": {
-                        "argumentTypes": null,
-                        "id": 30,
-                        "name": "pot",
-                        "nodeType": "Identifier",
-                        "overloadedDeclarations": [],
-                        "referencedDeclaration": 23,
-                        "src": "371:3:0",
+                        },
+                        "id": 50,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftExpression": {
+                          "argumentTypes": null,
+                          "arguments": [
+                            {
+                              "argumentTypes": null,
+                              "arguments": [
+                                {
+                                  "argumentTypes": null,
+                                  "id": 45,
+                                  "name": "this",
+                                  "nodeType": "Identifier",
+                                  "overloadedDeclarations": [],
+                                  "referencedDeclaration": 137,
+                                  "src": "534:4:0",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_contract$_DaiSaving_$67",
+                                    "typeString": "contract DaiSaving"
+                                  }
+                                }
+                              ],
+                              "expression": {
+                                "argumentTypes": [
+                                  {
+                                    "typeIdentifier": "t_contract$_DaiSaving_$67",
+                                    "typeString": "contract DaiSaving"
+                                  }
+                                ],
+                                "id": 44,
+                                "isConstant": false,
+                                "isLValue": false,
+                                "isPure": true,
+                                "lValueRequested": false,
+                                "nodeType": "ElementaryTypeNameExpression",
+                                "src": "526:7:0",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_type$_t_address_$",
+                                  "typeString": "type(address)"
+                                },
+                                "typeName": "address"
+                              },
+                              "id": 46,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "kind": "typeConversion",
+                              "lValueRequested": false,
+                              "names": [],
+                              "nodeType": "FunctionCall",
+                              "src": "526:13:0",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            {
+                              "argumentTypes": null,
+                              "hexValue": "307831394536303245306443393337343945613761466130433838463436393364344330323130324433",
+                              "id": 47,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "number",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "541:42:0",
+                              "subdenomination": null,
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address_payable",
+                                "typeString": "address payable"
+                              },
+                              "value": "0x19E602E0dC93749Ea7aFa0C88F4693d4C02102D3"
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": [
+                              {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              },
+                              {
+                                "typeIdentifier": "t_address_payable",
+                                "typeString": "address payable"
+                              }
+                            ],
+                            "expression": {
+                              "argumentTypes": null,
+                              "id": 42,
+                              "name": "vat",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 30,
+                              "src": "518:3:0",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_contract$_VatLike_$24",
+                                "typeString": "contract VatLike"
+                              }
+                            },
+                            "id": 43,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "memberName": "can",
+                            "nodeType": "MemberAccess",
+                            "referencedDeclaration": 23,
+                            "src": "518:7:0",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_external_view$_t_address_$_t_address_$returns$_t_uint256_$",
+                              "typeString": "function (address,address) view external returns (uint256)"
+                            }
+                          },
+                          "id": 48,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "kind": "functionCall",
+                          "lValueRequested": false,
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "518:66:0",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "nodeType": "BinaryOperation",
+                        "operator": "==",
+                        "rightExpression": {
+                          "argumentTypes": null,
+                          "hexValue": "31",
+                          "id": 49,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": true,
+                          "kind": "number",
+                          "lValueRequested": false,
+                          "nodeType": "Literal",
+                          "src": "588:1:0",
+                          "subdenomination": null,
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_rational_1_by_1",
+                            "typeString": "int_const 1"
+                          },
+                          "value": "1"
+                        },
+                        "src": "518:71:0",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_PotLike_$17",
-                          "typeString": "contract PotLike"
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
                         }
                       },
-                      "id": 31,
-                      "isConstant": false,
-                      "isLValue": false,
-                      "isPure": false,
-                      "lValueRequested": false,
-                      "memberName": "drip",
-                      "nodeType": "MemberAccess",
-                      "referencedDeclaration": 6,
-                      "src": "371:8:0",
+                      {
+                        "argumentTypes": null,
+                        "hexValue": "766174206e6f7420617574686f72697a6564",
+                        "id": 51,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "string",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "591:20:0",
+                        "subdenomination": null,
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_stringliteral_f1dbd0377cd5d1e3a7d8d13cb883e953f1deab82f91482a02815f1dcc58538f6",
+                          "typeString": "literal_string \"vat not authorized\""
+                        },
+                        "value": "vat not authorized"
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        },
+                        {
+                          "typeIdentifier": "t_stringliteral_f1dbd0377cd5d1e3a7d8d13cb883e953f1deab82f91482a02815f1dcc58538f6",
+                          "typeString": "literal_string \"vat not authorized\""
+                        }
+                      ],
+                      "id": 41,
+                      "name": "require",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [
+                        122,
+                        123
+                      ],
+                      "referencedDeclaration": 123,
+                      "src": "510:7:0",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_function_external_nonpayable$__$returns$_t_uint256_$",
-                        "typeString": "function () external returns (uint256)"
+                        "typeIdentifier": "t_function_require_pure$_t_bool_$_t_string_memory_ptr_$returns$__$",
+                        "typeString": "function (bool,string memory) pure"
                       }
                     },
-                    "id": 32,
+                    "id": 52,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1054,139 +1668,157 @@
                     "lValueRequested": false,
                     "names": [],
                     "nodeType": "FunctionCall",
-                    "src": "371:10:0",
+                    "src": "510:102:0",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
                     }
                   },
-                  "nodeType": "VariableDeclarationStatement",
-                  "src": "361:20:0"
+                  "id": 53,
+                  "nodeType": "ExpressionStatement",
+                  "src": "510:102:0"
                 },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 36,
+                    "arguments": [],
+                    "expression": {
+                      "argumentTypes": [],
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 54,
+                        "name": "pot",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 36,
+                        "src": "623:3:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_contract$_PotLike_$17",
+                          "typeString": "contract PotLike"
+                        }
+                      },
+                      "id": 56,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "drip",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 6,
+                      "src": "623:8:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_external_nonpayable$__$returns$_t_uint256_$",
+                        "typeString": "function () external returns (uint256)"
+                      }
+                    },
+                    "id": 57,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
+                    "kind": "functionCall",
                     "lValueRequested": false,
-                    "leftHandSide": {
-                      "argumentTypes": null,
-                      "id": 34,
-                      "name": "a",
-                      "nodeType": "Identifier",
-                      "overloadedDeclarations": [],
-                      "referencedDeclaration": 19,
-                      "src": "392:1:0",
-                      "typeDescriptions": {
-                        "typeIdentifier": "t_uint256",
-                        "typeString": "uint256"
-                      }
-                    },
-                    "nodeType": "Assignment",
-                    "operator": "=",
-                    "rightHandSide": {
-                      "argumentTypes": null,
-                      "id": 35,
-                      "name": "_a",
-                      "nodeType": "Identifier",
-                      "overloadedDeclarations": [],
-                      "referencedDeclaration": 29,
-                      "src": "396:2:0",
-                      "typeDescriptions": {
-                        "typeIdentifier": "t_uint256",
-                        "typeString": "uint256"
-                      }
-                    },
-                    "src": "392:6:0",
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "623:10:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
                     }
                   },
-                  "id": 37,
+                  "id": 58,
                   "nodeType": "ExpressionStatement",
-                  "src": "392:6:0"
-                }
-              ]
-            },
-            "documentation": null,
-            "id": 39,
-            "implemented": true,
-            "kind": "function",
-            "modifiers": [],
-            "name": "start",
-            "nodeType": "FunctionDefinition",
-            "parameters": {
-              "id": 20,
-              "nodeType": "ParameterList",
-              "parameters": [],
-              "src": "262:2:0"
-            },
-            "returnParameters": {
-              "id": 21,
-              "nodeType": "ParameterList",
-              "parameters": [],
-              "src": "274:0:0"
-            },
-            "scope": 48,
-            "src": "248:158:0",
-            "stateMutability": "nonpayable",
-            "superFunction": null,
-            "visibility": "external"
-          },
-          {
-            "body": {
-              "id": 46,
-              "nodeType": "Block",
-              "src": "459:27:0",
-              "statements": [
+                  "src": "623:10:0"
+                },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 44,
-                    "name": "a",
-                    "nodeType": "Identifier",
-                    "overloadedDeclarations": [],
-                    "referencedDeclaration": 19,
-                    "src": "477:1:0",
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "id": 62,
+                        "name": "wad",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 26,
+                        "src": "701:3:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 59,
+                        "name": "pot",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 36,
+                        "src": "692:3:0",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_contract$_PotLike_$17",
+                          "typeString": "contract PotLike"
+                        }
+                      },
+                      "id": 61,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "join",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 11,
+                      "src": "692:8:0",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_external_nonpayable$_t_uint256_$returns$__$",
+                        "typeString": "function (uint256) external"
+                      }
+                    },
+                    "id": 63,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "692:13:0",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
                     }
                   },
-                  "functionReturnParameters": 43,
-                  "id": 45,
-                  "nodeType": "Return",
-                  "src": "470:8:0"
+                  "id": 64,
+                  "nodeType": "ExpressionStatement",
+                  "src": "692:13:0"
                 }
               ]
             },
             "documentation": null,
-            "id": 47,
+            "id": 66,
             "implemented": true,
             "kind": "function",
             "modifiers": [],
-            "name": "getA",
+            "name": "join",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 40,
-              "nodeType": "ParameterList",
-              "parameters": [],
-              "src": "427:2:0"
-            },
-            "returnParameters": {
-              "id": 43,
+              "id": 27,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 42,
-                  "name": "",
+                  "id": 26,
+                  "name": "wad",
                   "nodeType": "VariableDeclaration",
-                  "scope": 47,
-                  "src": "453:4:0",
+                  "scope": 66,
+                  "src": "328:8:0",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -1194,10 +1826,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 41,
+                    "id": 25,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
-                    "src": "453:4:0",
+                    "src": "328:4:0",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -1207,20 +1839,26 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "452:6:0"
+              "src": "327:10:0"
             },
-            "scope": 48,
-            "src": "414:72:0",
-            "stateMutability": "view",
+            "returnParameters": {
+              "id": 28,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "347:0:0"
+            },
+            "scope": 67,
+            "src": "314:399:0",
+            "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
           }
         ],
-        "scope": 49,
-        "src": "198:332:0"
+        "scope": 68,
+        "src": "286:432:0"
       }
     ],
-    "src": "0:532:0"
+    "src": "0:720:0"
   },
   "compiler": {
     "name": "solc",
@@ -1228,7 +1866,7 @@
   },
   "networks": {},
   "schemaVersion": "3.0.23",
-  "updatedAt": "2020-02-28T08:20:13.014Z",
+  "updatedAt": "2020-03-02T09:33:49.074Z",
   "devdoc": {
     "methods": {}
   },

@@ -1,39 +1,89 @@
-const BN = web3.utils.BN;
-const toWei = web3.utils.toWei;
-const fromWei = web3.utils.fromWei;
+const BN = web3.utils.BN
+const toWei = web3.utils.toWei
+const fromWei = web3.utils.fromWei
 
-const DaiSaving = artifacts.require("DaiSaving");
-const Dai = artifacts.require("Dai");
+// const DaiSaving = artifacts.require("DaiSaving")
+const DaiSaving = artifacts.require("TestWrapperDaiSaving")
+const Dai = artifacts.require("Dai")
+
+// testchain addresses
+const daiAddress = "0x8d68d36d45a34a6ff368069bd0baa32ad49a6092"
 
 contract('DaiSaving', (accounts) => {
-  const acc = accounts[0];
-  const lockAmount = new BN(toWei("0.5", "ether"))
+  const acc = accounts[0]
+  const lockAsDai = 0.1 // amount of dai to lock and unlock
+  const lockAmount = new BN(toWei(lockAsDai.toString(), "ether"))
 
-  it(`assure 0.5 DAI is owned.`, async  () => {
-    const dai = await Dai.at("0x8d68d36d45a34a6ff368069bd0baa32ad49a6092")
-    let daiBalance = await dai.balanceOf.call(acc)
-    console.log("DAI balance: ", fromWei(daiBalance.toString(), "ether"))
-    assert.equal(fromWei(daiBalance.toString(), "ether") >=  0.5, true,
-      `Need 0.5 or more DAI, but got ${daiBalance.toString()}`)
+
+  it(`assure ${lockAsDai} DAI is owned.`, async  () => {
+    const daiToken = await Dai.at(daiAddress)
+
+    let daiBalance = fromWei((await daiToken.balanceOf.call(acc)).toString(), "ether")
+    console.log("        DAI balance: ", daiBalance)
+
+    assert.equal(daiBalance >=  lockAsDai, true,
+      `Need ${lockAsDai} or more DAI, but got ${daiBalance.toString()}`)
   })
 
-  it('transfer 0.5 dai to savings contract', async () => {
-    const dai = await Dai.at("0x8d68d36d45a34a6ff368069bd0baa32ad49a6092")
+  it(`transfer ${lockAsDai} dai to savings contract`, async () => {
+    const daiToken = await Dai.at(daiAddress)
     const daiSaving = await DaiSaving.deployed()
-    await dai.transfer(daiSaving.address, lockAmount.toString())
-    const balance = await dai.balanceOf(daiSaving.address)
-    assert.equal(balance.toString(), lockAmount.toString(), `wrong amount of dai on savings contract`)
+
+    await daiToken.transfer(daiSaving.address, lockAmount.toString())
+    const balance = await daiToken.balanceOf(daiSaving.address)
+
+    assert.equal(balance.toString(), lockAmount.toString(), `wrong amount of DAI on savings contract`)
   })
 
-  it(`lock 0.5 DAI in the Pot.`, async () => {
+  it(`lock ${lockAsDai} DAI in the pot`, async () => {
     // will draw new dai up to targetDai if it drops below 50% of targetDai
-    const dai = await Dai.at("0x8d68d36d45a34a6ff368069bd0baa32ad49a6092")
+    const daiToken = await Dai.at(daiAddress)
     const daiSaving = await DaiSaving.deployed()
 
-    let daiBalance = await dai.balanceOf.call(acc)
-    console.log("DAI balance: ", fromWei(daiBalance.toString(), "ether"))
+    const initialContractBalance = await daiToken.balanceOf(daiSaving.address)
+    console.log("       locking DAI...")
 
-    const tx = await daiSaving.join(lockAmount.toString())
-    console.log(tx)
-  });
-});
+    await daiSaving.join_(lockAmount)
+
+    const finalContractBalance = await daiToken.balanceOf(daiSaving.address)
+    const lost = initialContractBalance - finalContractBalance
+    console.log("       Contract DAI balance decrease: ", fromWei(lost.toString(), "ether"))
+
+    assert.equal(lost.toString(), lockAmount.toString(), `contract should have 0 DAI after locking it`)
+  })
+
+  const passTime = 2
+  it(`pass ${passTime} seconds of time to accrue interest`, async () => {
+    // To accrue some interest on the locked DAI
+    await new Promise(resolve => setTimeout(resolve, passTime * 1000))
+  })
+
+  it(`exit ${lockAsDai} DAI from the pot`, async () => {
+    const daiToken = await Dai.at(daiAddress)
+    const daiSaving = await DaiSaving.deployed()
+
+    const initialContractBalance = await daiToken.balanceOf(daiSaving.address)
+    console.log("       exiting DAI...")
+    await daiSaving.exit_(lockAmount)
+    const finalContractBalance = await daiToken.balanceOf(daiSaving.address)
+    const gained = finalContractBalance - initialContractBalance
+
+    console.log("       Contract DAI balance increase: ", fromWei(gained.toString(), "ether"))
+    assert.equal(gained.toString(), lockAmount.toString(), `contract should have gained ${lockAsDai}` )
+
+  })
+
+  it(`exit all remaining DAI from the pot (interest)`, async () => {
+    const daiToken = await Dai.at(daiAddress)
+    const daiSaving = await DaiSaving.deployed()
+
+    const initialContractBalance = await daiToken.balanceOf(daiSaving.address)
+    console.log("       exiting DAI...")
+    await daiSaving.exitAll_()
+    const finalContractBalance = await daiToken.balanceOf(daiSaving.address)
+    const gained = finalContractBalance - initialContractBalance
+
+    console.log("       Contract DAI balance increase: ", fromWei(gained.toString(), "ether"))
+    assert.equal(gained.toString() > lockAmount.toString(), true, 'should have more dai than we joined')
+  })
+})
