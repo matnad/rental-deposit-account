@@ -85,6 +85,6 @@ contract('DaiSaving', (accounts) => {
     const gained = finalContractBalance - initialContractBalance
 
     console.log("       Contract DAI balance increase: ", fromWei(gained.toString(), "ether"))
-    assert.equal(gained.toString() > lockAmount.toString(), true, 'should have more dai than we joined')
+    assert.equal(gained > 0, true, 'should have gained some DAI from interest')
   })
 })
