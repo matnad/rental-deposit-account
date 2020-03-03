@@ -42,15 +42,15 @@
       "type": "function"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.5.16+commit.9c3226ce\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"exit\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"join\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/C/Users/Matthias/Documents/_uni/fs2020/seminar_blockchain/src/contracts/DaiSaving.sol\":\"JoinLike\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/C/Users/Matthias/Documents/_uni/fs2020/seminar_blockchain/src/contracts/DaiSaving.sol\":{\"keccak256\":\"0xd72fd3e28513e04df2c2245e660eb87f248a3a64b7985d7dcfebe831bf957004\",\"urls\":[\"bzz-raw://782a2e447baa2db76dfff4fe8d5346c42b3a907745c0a7eac9d0969cdf71acf5\",\"dweb:/ipfs/QmYbjha8iTxULu5VyqLYxvgsscfXJJjggeZnJES6ENgrrC\"]}},\"version\":1}",
+  "metadata": "{\"compiler\":{\"version\":\"0.5.16+commit.9c3226ce\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"exit\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"join\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/C/Users/Labor/WebstormProjects/rental-deposit-account/src/contracts/DaiSaving.sol\":\"JoinLike\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/C/Users/Labor/WebstormProjects/rental-deposit-account/src/contracts/DaiSaving.sol\":{\"keccak256\":\"0xd72fd3e28513e04df2c2245e660eb87f248a3a64b7985d7dcfebe831bf957004\",\"urls\":[\"bzz-raw://782a2e447baa2db76dfff4fe8d5346c42b3a907745c0a7eac9d0969cdf71acf5\",\"dweb:/ipfs/QmYbjha8iTxULu5VyqLYxvgsscfXJJjggeZnJES6ENgrrC\"]}},\"version\":1}",
   "bytecode": "0x",
   "deployedBytecode": "0x",
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "pragma solidity >= 0.5.15  < 0.6.0;\r\n\r\n\r\ninterface PotLike {\r\n    function chi() external returns (uint256);\r\n    function rho() external returns (uint256);\r\n    function drip() external  returns (uint256);\r\n    function join(uint256) external;\r\n    function exit(uint256) external;\r\n    function pie(address) external view returns (uint256);\r\n}\r\n\r\ninterface JoinLike {\r\n    function join(address, uint) external;\r\n    function exit(address, uint) external;\r\n}\r\n\r\ninterface VatLike {\r\n    function hope(address) external;\r\n    function dai(address) external view returns (uint256);\r\n}\r\n\r\ninterface GemLike {\r\n    function approve(address,uint) external returns (bool);\r\n}\r\n\r\n\r\n\r\ncontract DaiSaving {\r\n    // --- MakerDao contracts ---\r\n    VatLike vat = VatLike(0x11C8d156E1b5FD883E31e9091874F2af80b02775);\r\n    PotLike pot = PotLike(0x19E602E0dC93749Ea7aFa0C88F4693d4C02102D3);\r\n    JoinLike daiJoin = JoinLike(0x8C4Be23DE45F82a4feC7a93F69929Bd2A13A4777);\r\n    GemLike daiToken = GemLike(0x8D68d36D45A34A6Ff368069bD0baa32ad49A6092);\r\n\r\n    // --- Math ---\r\n    uint constant RAY = 10 ** 27;\r\n    function add(uint x, uint y) internal pure returns (uint z) {\r\n        require((z = x + y) >= x);\r\n    }\r\n    function sub(uint x, uint y) internal pure returns (uint z) {\r\n        require((z = x - y) <= x);\r\n    }\r\n    function mul(uint x, uint y) internal pure returns (uint z) {\r\n        require(y == 0 || (z = x * y) / y == x);\r\n    }\r\n    function rdiv(uint x, uint y) internal pure returns (uint z) {\r\n        // always rounds down\r\n        z = mul(x, RAY) / y;\r\n    }\r\n    function rdivup(uint x, uint y) internal pure returns (uint z) {\r\n        // always rounds up\r\n        z = add(mul(x, RAY), sub(y, 1)) / y;\r\n    }\r\n\r\n    function join(uint wad) internal {\r\n        // Authorize pot and daiJoin\r\n        vat.hope(address(pot));\r\n        vat.hope(address(daiJoin));\r\n        daiToken.approve(address(daiJoin), uint(-1));\r\n\r\n        // Perform the join\r\n        uint chi = (now > pot.rho()) ? pot.drip() : pot.chi();\r\n        uint pie = rdiv(wad, chi);\r\n        daiJoin.join(address(this), wad);\r\n        pot.join(pie);\r\n    }\r\n\r\n    function exit(uint wad) internal {\r\n        uint chi = (now > pot.rho()) ? pot.drip() : pot.chi();\r\n        uint pie = rdivup(wad, chi);\r\n        pot.exit(pie);\r\n        daiJoin.exit(address(this), wad);\r\n    }\r\n\r\n    function exitAll() internal {\r\n        if (now > pot.rho()) pot.drip();\r\n        pot.exit(pot.pie(address(this)));\r\n        daiJoin.exit(address(this), vat.dai(address(this)) / RAY);\r\n    }\r\n\r\n}\r\n",
-  "sourcePath": "C:\\Users\\Matthias\\Documents\\_uni\\fs2020\\seminar_blockchain\\src\\contracts\\DaiSaving.sol",
+  "sourcePath": "C:\\Users\\Labor\\WebstormProjects\\rental-deposit-account\\src\\contracts\\DaiSaving.sol",
   "ast": {
-    "absolutePath": "/C/Users/Matthias/Documents/_uni/fs2020/seminar_blockchain/src/contracts/DaiSaving.sol",
+    "absolutePath": "/C/Users/Labor/WebstormProjects/rental-deposit-account/src/contracts/DaiSaving.sol",
     "exportedSymbols": {
       "DaiSaving": [
         369
@@ -1473,10 +1473,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        583,
-                        584
+                        1207,
+                        1208
                       ],
-                      "referencedDeclaration": 583,
+                      "referencedDeclaration": 1207,
                       "src": "1168:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -1752,10 +1752,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        583,
-                        584
+                        1207,
+                        1208
                       ],
-                      "referencedDeclaration": 583,
+                      "referencedDeclaration": 1207,
                       "src": "1278:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -2132,10 +2132,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        583,
-                        584
+                        1207,
+                        1208
                       ],
-                      "referencedDeclaration": 583,
+                      "referencedDeclaration": 1207,
                       "src": "1388:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -3327,7 +3327,7 @@
                             "name": "now",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 582,
+                            "referencedDeclaration": 1206,
                             "src": "1981:3:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_uint256",
@@ -3624,7 +3624,7 @@
                             "name": "this",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 602,
+                            "referencedDeclaration": 1226,
                             "src": "2090:4:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_contract$_DaiSaving_$369",
@@ -3921,7 +3921,7 @@
                             "name": "now",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 582,
+                            "referencedDeclaration": 1206,
                             "src": "2197:3:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_uint256",
@@ -4288,7 +4288,7 @@
                             "name": "this",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 602,
+                            "referencedDeclaration": 1226,
                             "src": "2332:4:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_contract$_DaiSaving_$369",
@@ -4478,7 +4478,7 @@
                       "name": "now",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 582,
+                      "referencedDeclaration": 1206,
                       "src": "2402:3:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint256",
@@ -4611,7 +4611,7 @@
                                 "name": "this",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 602,
+                                "referencedDeclaration": 1226,
                                 "src": "2465:4:0",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_contract$_DaiSaving_$369",
@@ -4768,7 +4768,7 @@
                             "name": "this",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 602,
+                            "referencedDeclaration": 1226,
                             "src": "2504:4:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_contract$_DaiSaving_$369",
@@ -4833,7 +4833,7 @@
                                   "name": "this",
                                   "nodeType": "Identifier",
                                   "overloadedDeclarations": [],
-                                  "referencedDeclaration": 602,
+                                  "referencedDeclaration": 1226,
                                   "src": "2527:4:0",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_contract$_DaiSaving_$369",
@@ -5037,7 +5037,7 @@
     "src": "0:2555:0"
   },
   "legacyAST": {
-    "absolutePath": "/C/Users/Matthias/Documents/_uni/fs2020/seminar_blockchain/src/contracts/DaiSaving.sol",
+    "absolutePath": "/C/Users/Labor/WebstormProjects/rental-deposit-account/src/contracts/DaiSaving.sol",
     "exportedSymbols": {
       "DaiSaving": [
         369
@@ -6460,10 +6460,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        583,
-                        584
+                        1207,
+                        1208
                       ],
-                      "referencedDeclaration": 583,
+                      "referencedDeclaration": 1207,
                       "src": "1168:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -6739,10 +6739,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        583,
-                        584
+                        1207,
+                        1208
                       ],
-                      "referencedDeclaration": 583,
+                      "referencedDeclaration": 1207,
                       "src": "1278:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -7119,10 +7119,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        583,
-                        584
+                        1207,
+                        1208
                       ],
-                      "referencedDeclaration": 583,
+                      "referencedDeclaration": 1207,
                       "src": "1388:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -8314,7 +8314,7 @@
                             "name": "now",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 582,
+                            "referencedDeclaration": 1206,
                             "src": "1981:3:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_uint256",
@@ -8611,7 +8611,7 @@
                             "name": "this",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 602,
+                            "referencedDeclaration": 1226,
                             "src": "2090:4:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_contract$_DaiSaving_$369",
@@ -8908,7 +8908,7 @@
                             "name": "now",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 582,
+                            "referencedDeclaration": 1206,
                             "src": "2197:3:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_uint256",
@@ -9275,7 +9275,7 @@
                             "name": "this",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 602,
+                            "referencedDeclaration": 1226,
                             "src": "2332:4:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_contract$_DaiSaving_$369",
@@ -9465,7 +9465,7 @@
                       "name": "now",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 582,
+                      "referencedDeclaration": 1206,
                       "src": "2402:3:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint256",
@@ -9598,7 +9598,7 @@
                                 "name": "this",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 602,
+                                "referencedDeclaration": 1226,
                                 "src": "2465:4:0",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_contract$_DaiSaving_$369",
@@ -9755,7 +9755,7 @@
                             "name": "this",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 602,
+                            "referencedDeclaration": 1226,
                             "src": "2504:4:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_contract$_DaiSaving_$369",
@@ -9820,7 +9820,7 @@
                                   "name": "this",
                                   "nodeType": "Identifier",
                                   "overloadedDeclarations": [],
-                                  "referencedDeclaration": 602,
+                                  "referencedDeclaration": 1226,
                                   "src": "2527:4:0",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_contract$_DaiSaving_$369",
@@ -10029,7 +10029,7 @@
   },
   "networks": {},
   "schemaVersion": "3.0.23",
-  "updatedAt": "2020-03-02T18:25:54.124Z",
+  "updatedAt": "2020-03-03T16:31:18.723Z",
   "devdoc": {
     "methods": {}
   },

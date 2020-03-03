@@ -1,15 +1,15 @@
 {
   "contractName": "DaiSaving",
   "abi": [],
-  "metadata": "{\"compiler\":{\"version\":\"0.5.16+commit.9c3226ce\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/C/Users/Matthias/Documents/_uni/fs2020/seminar_blockchain/src/contracts/DaiSaving.sol\":\"DaiSaving\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/C/Users/Matthias/Documents/_uni/fs2020/seminar_blockchain/src/contracts/DaiSaving.sol\":{\"keccak256\":\"0xd72fd3e28513e04df2c2245e660eb87f248a3a64b7985d7dcfebe831bf957004\",\"urls\":[\"bzz-raw://782a2e447baa2db76dfff4fe8d5346c42b3a907745c0a7eac9d0969cdf71acf5\",\"dweb:/ipfs/QmYbjha8iTxULu5VyqLYxvgsscfXJJjggeZnJES6ENgrrC\"]}},\"version\":1}",
-  "bytecode": "0x60806040527311c8d156e1b5fd883e31e9091874f2af80b027756000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055507319e602e0dc93749ea7afa0c88f4693d4c02102d3600160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550738c4be23de45f82a4fec7a93f69929bd2a13a4777600260006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550738d68d36d45a34a6ff368069bd0baa32ad49a6092600360006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555034801561016357600080fd5b50603e806101726000396000f3fe6080604052600080fdfea265627a7a7231582018a09886ada4c7b8cf77d42204dba3a6c1adf6ef3b335e14ca61bcf24aec139264736f6c63430005100032",
-  "deployedBytecode": "0x6080604052600080fdfea265627a7a7231582018a09886ada4c7b8cf77d42204dba3a6c1adf6ef3b335e14ca61bcf24aec139264736f6c63430005100032",
+  "metadata": "{\"compiler\":{\"version\":\"0.5.16+commit.9c3226ce\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/C/Users/Labor/WebstormProjects/rental-deposit-account/src/contracts/DaiSaving.sol\":\"DaiSaving\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/C/Users/Labor/WebstormProjects/rental-deposit-account/src/contracts/DaiSaving.sol\":{\"keccak256\":\"0xd72fd3e28513e04df2c2245e660eb87f248a3a64b7985d7dcfebe831bf957004\",\"urls\":[\"bzz-raw://782a2e447baa2db76dfff4fe8d5346c42b3a907745c0a7eac9d0969cdf71acf5\",\"dweb:/ipfs/QmYbjha8iTxULu5VyqLYxvgsscfXJJjggeZnJES6ENgrrC\"]}},\"version\":1}",
+  "bytecode": "0x60806040527311c8d156e1b5fd883e31e9091874f2af80b027756000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055507319e602e0dc93749ea7afa0c88f4693d4c02102d3600160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550738c4be23de45f82a4fec7a93f69929bd2a13a4777600260006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550738d68d36d45a34a6ff368069bd0baa32ad49a6092600360006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555034801561016357600080fd5b50603e806101726000396000f3fe6080604052600080fdfea265627a7a723158202f74fa4e61ed82404a0e5dc70321e6439f46e81b22248caa2ba019fb75c0539664736f6c63430005100032",
+  "deployedBytecode": "0x6080604052600080fdfea265627a7a723158202f74fa4e61ed82404a0e5dc70321e6439f46e81b22248caa2ba019fb75c0539664736f6c63430005100032",
   "sourceMap": "679:1874:0:-;;;762:42;740:65;;;;;;;;;;;;;;;;;;;;834:42;812:65;;;;;;;;;;;;;;;;;;;;912:42;884:71;;;;;;;;;;;;;;;;;;;;989:42;962:70;;;;;;;;;;;;;;;;;;;;679:1874;8:9:-1;5:2;;;30:1;27;20:12;5:2;679:1874:0;;;;;;;",
   "deployedSourceMap": "679:1874:0:-;;;;;",
   "source": "pragma solidity >= 0.5.15  < 0.6.0;\r\n\r\n\r\ninterface PotLike {\r\n    function chi() external returns (uint256);\r\n    function rho() external returns (uint256);\r\n    function drip() external  returns (uint256);\r\n    function join(uint256) external;\r\n    function exit(uint256) external;\r\n    function pie(address) external view returns (uint256);\r\n}\r\n\r\ninterface JoinLike {\r\n    function join(address, uint) external;\r\n    function exit(address, uint) external;\r\n}\r\n\r\ninterface VatLike {\r\n    function hope(address) external;\r\n    function dai(address) external view returns (uint256);\r\n}\r\n\r\ninterface GemLike {\r\n    function approve(address,uint) external returns (bool);\r\n}\r\n\r\n\r\n\r\ncontract DaiSaving {\r\n    // --- MakerDao contracts ---\r\n    VatLike vat = VatLike(0x11C8d156E1b5FD883E31e9091874F2af80b02775);\r\n    PotLike pot = PotLike(0x19E602E0dC93749Ea7aFa0C88F4693d4C02102D3);\r\n    JoinLike daiJoin = JoinLike(0x8C4Be23DE45F82a4feC7a93F69929Bd2A13A4777);\r\n    GemLike daiToken = GemLike(0x8D68d36D45A34A6Ff368069bD0baa32ad49A6092);\r\n\r\n    // --- Math ---\r\n    uint constant RAY = 10 ** 27;\r\n    function add(uint x, uint y) internal pure returns (uint z) {\r\n        require((z = x + y) >= x);\r\n    }\r\n    function sub(uint x, uint y) internal pure returns (uint z) {\r\n        require((z = x - y) <= x);\r\n    }\r\n    function mul(uint x, uint y) internal pure returns (uint z) {\r\n        require(y == 0 || (z = x * y) / y == x);\r\n    }\r\n    function rdiv(uint x, uint y) internal pure returns (uint z) {\r\n        // always rounds down\r\n        z = mul(x, RAY) / y;\r\n    }\r\n    function rdivup(uint x, uint y) internal pure returns (uint z) {\r\n        // always rounds up\r\n        z = add(mul(x, RAY), sub(y, 1)) / y;\r\n    }\r\n\r\n    function join(uint wad) internal {\r\n        // Authorize pot and daiJoin\r\n        vat.hope(address(pot));\r\n        vat.hope(address(daiJoin));\r\n        daiToken.approve(address(daiJoin), uint(-1));\r\n\r\n        // Perform the join\r\n        uint chi = (now > pot.rho()) ? pot.drip() : pot.chi();\r\n        uint pie = rdiv(wad, chi);\r\n        daiJoin.join(address(this), wad);\r\n        pot.join(pie);\r\n    }\r\n\r\n    function exit(uint wad) internal {\r\n        uint chi = (now > pot.rho()) ? pot.drip() : pot.chi();\r\n        uint pie = rdivup(wad, chi);\r\n        pot.exit(pie);\r\n        daiJoin.exit(address(this), wad);\r\n    }\r\n\r\n    function exitAll() internal {\r\n        if (now > pot.rho()) pot.drip();\r\n        pot.exit(pot.pie(address(this)));\r\n        daiJoin.exit(address(this), vat.dai(address(this)) / RAY);\r\n    }\r\n\r\n}\r\n",
-  "sourcePath": "C:\\Users\\Matthias\\Documents\\_uni\\fs2020\\seminar_blockchain\\src\\contracts\\DaiSaving.sol",
+  "sourcePath": "C:\\Users\\Labor\\WebstormProjects\\rental-deposit-account\\src\\contracts\\DaiSaving.sol",
   "ast": {
-    "absolutePath": "/C/Users/Matthias/Documents/_uni/fs2020/seminar_blockchain/src/contracts/DaiSaving.sol",
+    "absolutePath": "/C/Users/Labor/WebstormProjects/rental-deposit-account/src/contracts/DaiSaving.sol",
     "exportedSymbols": {
       "DaiSaving": [
         369
@@ -1432,10 +1432,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        583,
-                        584
+                        1207,
+                        1208
                       ],
-                      "referencedDeclaration": 583,
+                      "referencedDeclaration": 1207,
                       "src": "1168:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -1711,10 +1711,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        583,
-                        584
+                        1207,
+                        1208
                       ],
-                      "referencedDeclaration": 583,
+                      "referencedDeclaration": 1207,
                       "src": "1278:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -2091,10 +2091,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        583,
-                        584
+                        1207,
+                        1208
                       ],
-                      "referencedDeclaration": 583,
+                      "referencedDeclaration": 1207,
                       "src": "1388:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -3286,7 +3286,7 @@
                             "name": "now",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 582,
+                            "referencedDeclaration": 1206,
                             "src": "1981:3:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_uint256",
@@ -3583,7 +3583,7 @@
                             "name": "this",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 602,
+                            "referencedDeclaration": 1226,
                             "src": "2090:4:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_contract$_DaiSaving_$369",
@@ -3880,7 +3880,7 @@
                             "name": "now",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 582,
+                            "referencedDeclaration": 1206,
                             "src": "2197:3:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_uint256",
@@ -4247,7 +4247,7 @@
                             "name": "this",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 602,
+                            "referencedDeclaration": 1226,
                             "src": "2332:4:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_contract$_DaiSaving_$369",
@@ -4437,7 +4437,7 @@
                       "name": "now",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 582,
+                      "referencedDeclaration": 1206,
                       "src": "2402:3:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint256",
@@ -4570,7 +4570,7 @@
                                 "name": "this",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 602,
+                                "referencedDeclaration": 1226,
                                 "src": "2465:4:0",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_contract$_DaiSaving_$369",
@@ -4727,7 +4727,7 @@
                             "name": "this",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 602,
+                            "referencedDeclaration": 1226,
                             "src": "2504:4:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_contract$_DaiSaving_$369",
@@ -4792,7 +4792,7 @@
                                   "name": "this",
                                   "nodeType": "Identifier",
                                   "overloadedDeclarations": [],
-                                  "referencedDeclaration": 602,
+                                  "referencedDeclaration": 1226,
                                   "src": "2527:4:0",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_contract$_DaiSaving_$369",
@@ -4996,7 +4996,7 @@
     "src": "0:2555:0"
   },
   "legacyAST": {
-    "absolutePath": "/C/Users/Matthias/Documents/_uni/fs2020/seminar_blockchain/src/contracts/DaiSaving.sol",
+    "absolutePath": "/C/Users/Labor/WebstormProjects/rental-deposit-account/src/contracts/DaiSaving.sol",
     "exportedSymbols": {
       "DaiSaving": [
         369
@@ -6419,10 +6419,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        583,
-                        584
+                        1207,
+                        1208
                       ],
-                      "referencedDeclaration": 583,
+                      "referencedDeclaration": 1207,
                       "src": "1168:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -6698,10 +6698,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        583,
-                        584
+                        1207,
+                        1208
                       ],
-                      "referencedDeclaration": 583,
+                      "referencedDeclaration": 1207,
                       "src": "1278:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -7078,10 +7078,10 @@
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        583,
-                        584
+                        1207,
+                        1208
                       ],
-                      "referencedDeclaration": 583,
+                      "referencedDeclaration": 1207,
                       "src": "1388:7:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
@@ -8273,7 +8273,7 @@
                             "name": "now",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 582,
+                            "referencedDeclaration": 1206,
                             "src": "1981:3:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_uint256",
@@ -8570,7 +8570,7 @@
                             "name": "this",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 602,
+                            "referencedDeclaration": 1226,
                             "src": "2090:4:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_contract$_DaiSaving_$369",
@@ -8867,7 +8867,7 @@
                             "name": "now",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 582,
+                            "referencedDeclaration": 1206,
                             "src": "2197:3:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_uint256",
@@ -9234,7 +9234,7 @@
                             "name": "this",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 602,
+                            "referencedDeclaration": 1226,
                             "src": "2332:4:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_contract$_DaiSaving_$369",
@@ -9424,7 +9424,7 @@
                       "name": "now",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 582,
+                      "referencedDeclaration": 1206,
                       "src": "2402:3:0",
                       "typeDescriptions": {
                         "typeIdentifier": "t_uint256",
@@ -9557,7 +9557,7 @@
                                 "name": "this",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 602,
+                                "referencedDeclaration": 1226,
                                 "src": "2465:4:0",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_contract$_DaiSaving_$369",
@@ -9714,7 +9714,7 @@
                             "name": "this",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 602,
+                            "referencedDeclaration": 1226,
                             "src": "2504:4:0",
                             "typeDescriptions": {
                               "typeIdentifier": "t_contract$_DaiSaving_$369",
@@ -9779,7 +9779,7 @@
                                   "name": "this",
                                   "nodeType": "Identifier",
                                   "overloadedDeclarations": [],
-                                  "referencedDeclaration": 602,
+                                  "referencedDeclaration": 1226,
                                   "src": "2527:4:0",
                                   "typeDescriptions": {
                                     "typeIdentifier": "t_contract$_DaiSaving_$369",
@@ -9995,7 +9995,7 @@
     }
   },
   "schemaVersion": "3.0.23",
-  "updatedAt": "2020-03-02T18:25:54.114Z",
+  "updatedAt": "2020-03-03T16:31:18.710Z",
   "devdoc": {
     "methods": {}
   },

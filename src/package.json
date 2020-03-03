@@ -7,13 +7,17 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "truffle test",
+    "test_ensuredai": "truffle test test/1_EnsureDai.js",
+    "test_daisaving": "truffle test test/2_DaiSaving.js",
+    "test_multisig": "truffle test test/3_Multisig.js"
   },
   "author": "Matthias Nadler",
   "license": "MIT",
   "dependencies": {
     "@makerdao/dai": "^0.26.0",
     "@makerdao/dai-plugin-mcd": "^1.2.1",
-    "dotenv": "^8.2.0"
+    "dotenv": "^8.2.0",
+    "truffle-assertions": "^0.9.2"
   }
 }
