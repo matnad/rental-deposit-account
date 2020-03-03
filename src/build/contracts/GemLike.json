@@ -1,5 +1,5 @@
 {
-  "contractName": "VatLike",
+  "contractName": "GemLike",
   "abi": [
     {
       "constant": false,
@@ -8,37 +8,27 @@
           "internalType": "address",
           "name": "",
           "type": "address"
-        }
-      ],
-      "name": "hope",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "dai",
-      "outputs": [
+        },
         {
           "internalType": "uint256",
           "name": "",
           "type": "uint256"
         }
       ],
+      "name": "approve",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
       "payable": false,
-      "stateMutability": "view",
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.5.16+commit.9c3226ce\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":true,\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"dai\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"},{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"hope\",\"outputs\":[],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/C/Users/Matthias/Documents/_uni/fs2020/seminar_blockchain/src/contracts/DaiSaving.sol\":\"VatLike\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/C/Users/Matthias/Documents/_uni/fs2020/seminar_blockchain/src/contracts/DaiSaving.sol\":{\"keccak256\":\"0xd72fd3e28513e04df2c2245e660eb87f248a3a64b7985d7dcfebe831bf957004\",\"urls\":[\"bzz-raw://782a2e447baa2db76dfff4fe8d5346c42b3a907745c0a7eac9d0969cdf71acf5\",\"dweb:/ipfs/QmYbjha8iTxULu5VyqLYxvgsscfXJJjggeZnJES6ENgrrC\"]}},\"version\":1}",
+  "metadata": "{\"compiler\":{\"version\":\"0.5.16+commit.9c3226ce\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"constant\":false,\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/C/Users/Matthias/Documents/_uni/fs2020/seminar_blockchain/src/contracts/DaiSaving.sol\":\"GemLike\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/C/Users/Matthias/Documents/_uni/fs2020/seminar_blockchain/src/contracts/DaiSaving.sol\":{\"keccak256\":\"0xd72fd3e28513e04df2c2245e660eb87f248a3a64b7985d7dcfebe831bf957004\",\"urls\":[\"bzz-raw://782a2e447baa2db76dfff4fe8d5346c42b3a907745c0a7eac9d0969cdf71acf5\",\"dweb:/ipfs/QmYbjha8iTxULu5VyqLYxvgsscfXJJjggeZnJES6ENgrrC\"]}},\"version\":1}",
   "bytecode": "0x",
   "deployedBytecode": "0x",
   "sourceMap": "",
@@ -10025,7 +10015,7 @@
   },
   "networks": {},
   "schemaVersion": "3.0.23",
-  "updatedAt": "2020-03-02T18:25:54.132Z",
+  "updatedAt": "2020-03-02T18:25:54.119Z",
   "devdoc": {
     "methods": {}
   },
