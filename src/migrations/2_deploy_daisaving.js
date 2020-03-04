@@ -1,5 +1,5 @@
-const DaiSaving = artifacts.require("DaiSaving");
+const SavingDai = artifacts.require("SavingDai");
 
 module.exports = function(deployer) {
-  deployer.deploy(DaiSaving);
+  deployer.deploy(SavingDai);
 };

@@ -1,15 +1,13 @@
-pragma solidity >= 0.5.15  < 0.6.0;
+pragma solidity 0.6.3;
 
-contract MultisigRDA {
+import "./SavingDai.sol";
 
-    // --- Events ---
-    event Confirmation(address indexed sender, uint indexed txnId);
-    event Revocation(address indexed sender, uint indexed txnId);
-    event Submission(uint indexed txnId);
-    event Execution(uint indexed txnId);
-    event ExecutionFailure(uint indexed txnId);
+contract MultisigRDA is SavingDai {
+
+    // --- Constants ---
 
     // --- Storage ---
+    uint trusteeFee;
     mapping(uint => Transaction) public transactions;
     mapping(uint => mapping(address => bool)) public confirmations;
     address[3] public participants;
@@ -25,6 +23,12 @@ contract MultisigRDA {
         uint value;
     }
 
+    // --- Events ---
+    event Confirmation(address indexed sender, uint indexed txnId);
+    event Revocation(address indexed sender, uint indexed txnId);
+    event Submission(uint indexed txnId);
+    event Execution(uint indexed txnId);
+    event ExecutionFailure(uint indexed txnId);
 
     // --- Modifiers ---
     modifier onlyParticipant() {
@@ -52,49 +56,54 @@ contract MultisigRDA {
         _;
     }
 
-    modifier transactionTypeExists(TransactionType txnType) {
-        require(uint(txnType) < 3, 'RDA/invalid-txn-type');
-        _;
-    }
-
     // --- Functions ---
 
-    /// @dev Transaction to return the deposit. Takes no further arguments.
+    // ** Constructor **
+    constructor(address tenant, address landlord, address trustee, uint _trusteeFee) public {
+        require(
+            tenant != address(0) && landlord != address(0) && trustee != address(0),
+            'RDA/empty-address'
+        );
+        participants = [tenant, landlord, trustee];
+        isParticipant[tenant] = true;
+        isParticipant[landlord] = true;
+        isParticipant[trustee] = true;
+        trusteeFee = _trusteeFee;
+    }
+
+    // ** External Functions **
+
+    // Transaction to return the deposit. Takes no further arguments.
     function submitTransaction(TransactionType txnType)
-        public
-        transactionTypeExists(txnType)
+        external
+        onlyParticipant
         returns (uint txnId)
     {
         require(txnType == TransactionType.ReturnDeposit, 'RDA/invalid-arguments');
         txnId = submitTransaction(txnType, address(0), 0);
     }
 
-    /// @dev Transaction to pay the landlord.
+    // Transaction to pay the landlord.
     function submitTransaction(TransactionType txnType, uint value)
-        public
+        external
+        onlyParticipant
         returns (uint txnId)
     {
         require(txnType == TransactionType.PayDamages, 'RDA/invalid-arguments');
         txnId = submitTransaction(txnType, address(0), value);
     }
 
-    /// @dev Transaction to migrate the contract.
+    // Transaction to migrate the contract.
     function submitTransaction(TransactionType txnType, address dest)
-        public
+        external
+        onlyParticipant
         returns (uint txnId)
     {
         require(txnType == TransactionType.Migrate, 'RDA/invalid-arguments');
         txnId = submitTransaction(txnType, dest, 0);
     }
 
-    /// @dev INTERNAL transaction builder. Unifies all the overloaded functions
-    function submitTransaction(TransactionType txnType, address dest, uint value)
-        internal
-        returns (uint txnId)
-    {
-        txnId = addTransaction(txnType, dest, value);
-        confirmTransaction(txnId);
-    }
+    // ** Public Functions **
 
     function confirmTransaction(uint txnId)
         public
@@ -160,9 +169,31 @@ contract MultisigRDA {
         }
     }
 
+    function getTenant() public view returns(address) {
+        return participants[0];
+    }
+
+    function getLandlord() public view returns(address) {
+        return participants[1];
+    }
+
+    function getTrustee() public view returns(address) {
+        return participants[2];
+    }
+
+    // ** Internal State Functions **
+
+    /// @dev Transaction builder. Unifies all the overloaded functions.
+    function submitTransaction(TransactionType txnType, address dest, uint value)
+        internal
+        returns (uint txnId)
+    {
+        txnId = addTransaction(txnType, dest, value);
+        confirmTransaction(txnId);
+    }
+
     function addTransaction(TransactionType txnType, address dest, uint value)
         internal
-        onlyParticipant
         returns (uint txnId)
     {
         txnId = txnCount;
@@ -177,16 +208,7 @@ contract MultisigRDA {
         emit Submission(txnId);
     }
 
-    constructor(address one, address two, address three)
-        public
-    {
-        participants = [one, two, three];
-        isParticipant[one] = true;
-        isParticipant[two] = true;
-        isParticipant[three] = true;
-    }
-
-    // --- Executed Transactions ---
+    // ** Internal Logic Functions **
 
     function returnDeposit()
         internal
@@ -218,7 +240,9 @@ contract MultisigRDA {
         success = true;
     }
 
-    // --- Web3 call functions ---
+
+    // ** Web3 call functions (Public & View) **
+
     function getConfirmationCount(uint txnId)
         public
         view
@@ -253,9 +277,7 @@ contract MultisigRDA {
         uint count = 0;
         uint i;
         for (i = 0; i < txnCount; i++) {
-            if (pending && !transactions[i].executed
-            || executed && transactions[i].executed)
-            {
+            if (pending && !transactions[i].executed || executed && transactions[i].executed) {
                 txnIdsTemp[count] = i;
                 count += 1;
             }

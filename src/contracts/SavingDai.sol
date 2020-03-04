@@ -1,5 +1,4 @@
-pragma solidity >= 0.5.15  < 0.6.0;
-
+pragma solidity 0.6.3;
 
 interface PotLike {
     function chi() external returns (uint256);
@@ -24,9 +23,10 @@ interface GemLike {
     function approve(address,uint) external returns (bool);
 }
 
+contract SavingDai {
+    // --- Storage ---
+    bool isAuthorized;
 
-
-contract DaiSaving {
     // --- MakerDao contracts ---
     VatLike vat = VatLike(0x11C8d156E1b5FD883E31e9091874F2af80b02775);
     PotLike pot = PotLike(0x19E602E0dC93749Ea7aFa0C88F4693d4C02102D3);
@@ -53,27 +53,39 @@ contract DaiSaving {
         z = add(mul(x, RAY), sub(y, 1)) / y;
     }
 
-    function join(uint wad) internal {
-        // Authorize pot and daiJoin
-        vat.hope(address(pot));
-        vat.hope(address(daiJoin));
-        daiToken.approve(address(daiJoin), uint(-1));
+    // --- Modifiers ---
+    modifier authorized() {
+        require(isAuthorized, 'DSR/not-authorized');
+        _;
+    }
 
-        // Perform the join
+    // --- Logic Functions ---
+
+    /// Needs to be called once before the other functions can be used
+    function authorize() internal {
+        if (!isAuthorized) {
+            vat.hope(address(pot));
+            vat.hope(address(daiJoin));
+            daiToken.approve(address(daiJoin), uint(-1));
+            isAuthorized = true;
+        }
+    }
+
+    function join(uint wad) internal authorized {
         uint chi = (now > pot.rho()) ? pot.drip() : pot.chi();
         uint pie = rdiv(wad, chi);
         daiJoin.join(address(this), wad);
         pot.join(pie);
     }
 
-    function exit(uint wad) internal {
+    function exit(uint wad) internal authorized {
         uint chi = (now > pot.rho()) ? pot.drip() : pot.chi();
         uint pie = rdivup(wad, chi);
         pot.exit(pie);
         daiJoin.exit(address(this), wad);
     }
 
-    function exitAll() internal {
+    function exitAll() internal authorized {
         if (now > pot.rho()) pot.drip();
         pot.exit(pot.pie(address(this)));
         daiJoin.exit(address(this), vat.dai(address(this)) / RAY);

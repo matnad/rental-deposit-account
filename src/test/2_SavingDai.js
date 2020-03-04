@@ -4,13 +4,13 @@ const toWei = web3.utils.toWei
 const fromWei = web3.utils.fromWei
 
 // import artifacts
-const DaiSaving = artifacts.require("TestWrapperDaiSaving")
+const SavingDai = artifacts.require("TestWrapperSavingDai")
 const Dai = artifacts.require("Dai")
 
 // testchain addresses
 const daiAddress = "0x8d68d36d45a34a6ff368069bd0baa32ad49a6092"
 
-contract('DaiSaving', (accounts) => {
+contract('SavingDai', (accounts) => {
   const acc = accounts[0]
   const lockAsDai = 0.1 // amount of dai to lock and unlock
   const lockAmount = new BN(toWei(lockAsDai.toString(), "ether"))
@@ -28,24 +28,24 @@ contract('DaiSaving', (accounts) => {
 
   it(`transfer ${lockAsDai} dai to savings contract`, async () => {
     const daiToken = await Dai.at(daiAddress)
-    const daiSaving = await DaiSaving.deployed()
+    const savingDai = await SavingDai.deployed()
 
-    await daiToken.transfer(daiSaving.address, lockAmount.toString())
-    const balance = await daiToken.balanceOf(daiSaving.address)
+    await daiToken.transfer(savingDai.address, lockAmount.toString())
+    const balance = await daiToken.balanceOf(savingDai.address)
 
     assert.equal(balance.toString(), lockAmount.toString(), `wrong amount of DAI on savings contract`)
   })
 
   it(`lock ${lockAsDai} DAI in the pot`, async () => {
     const daiToken = await Dai.at(daiAddress)
-    const daiSaving = await DaiSaving.deployed()
+    const savingDai = await SavingDai.deployed()
 
-    const initialContractBalance = await daiToken.balanceOf(daiSaving.address)
+    const initialContractBalance = await daiToken.balanceOf(savingDai.address)
     console.log("       locking DAI...")
 
-    await daiSaving.join_(lockAmount)
+    await savingDai.join_(lockAmount)
 
-    const finalContractBalance = await daiToken.balanceOf(daiSaving.address)
+    const finalContractBalance = await daiToken.balanceOf(savingDai.address)
     const lost = initialContractBalance - finalContractBalance
     console.log("       Contract DAI balance decrease: ", fromWei(lost.toString(), "ether"))
 
@@ -60,12 +60,12 @@ contract('DaiSaving', (accounts) => {
 
   it(`exit ${lockAsDai} DAI from the pot`, async () => {
     const daiToken = await Dai.at(daiAddress)
-    const daiSaving = await DaiSaving.deployed()
+    const savingDai = await SavingDai.deployed()
 
-    const initialContractBalance = await daiToken.balanceOf(daiSaving.address)
+    const initialContractBalance = await daiToken.balanceOf(savingDai.address)
     console.log("       exiting DAI...")
-    await daiSaving.exit_(lockAmount)
-    const finalContractBalance = await daiToken.balanceOf(daiSaving.address)
+    await savingDai.exit_(lockAmount)
+    const finalContractBalance = await daiToken.balanceOf(savingDai.address)
     const gained = finalContractBalance - initialContractBalance
 
     console.log("       Contract DAI balance increase: ", fromWei(gained.toString(), "ether"))
@@ -75,12 +75,12 @@ contract('DaiSaving', (accounts) => {
 
   it(`exit all remaining DAI from the pot (interest)`, async () => {
     const daiToken = await Dai.at(daiAddress)
-    const daiSaving = await DaiSaving.deployed()
+    const savingDai = await SavingDai.deployed()
 
-    const initialContractBalance = await daiToken.balanceOf(daiSaving.address)
+    const initialContractBalance = await daiToken.balanceOf(savingDai.address)
     console.log("       exiting DAI...")
-    await daiSaving.exitAll_()
-    const finalContractBalance = await daiToken.balanceOf(daiSaving.address)
+    await savingDai.exitAll_()
+    const finalContractBalance = await daiToken.balanceOf(savingDai.address)
     const gained = finalContractBalance - initialContractBalance
 
     console.log("       Contract DAI balance increase: ", fromWei(gained.toString(), "ether"))

@@ -1,5 +1,5 @@
-const TestWrapperDaiSaving = artifacts.require("TestWrapperDaiSaving");
+const TestWrapperSavingDai = artifacts.require("TestWrapperSavingDai");
 
 module.exports = function(deployer) {
-  deployer.deploy(TestWrapperDaiSaving);
+  deployer.deploy(TestWrapperSavingDai);
 };

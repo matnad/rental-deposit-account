@@ -9,7 +9,7 @@
   "scripts": {
     "test": "truffle test",
     "test_ensuredai": "truffle test test/1_EnsureDai.js",
-    "test_daisaving": "truffle test test/2_DaiSaving.js",
+    "test_savingdai": "truffle test test/2_SavingDai.js",
     "test_multisig": "truffle test test/3_Multisig.js"
   },
   "author": "Matthias Nadler",
