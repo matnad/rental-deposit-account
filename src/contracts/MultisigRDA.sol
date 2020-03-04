@@ -7,7 +7,9 @@ contract MultisigRDA is SavingDai {
     // --- Constants ---
 
     // --- Storage ---
-    uint trusteeFee;
+    uint public trusteeFee;
+    uint public trusteeFeePaid;
+    uint public deposit;
     mapping(uint => Transaction) public transactions;
     mapping(uint => mapping(address => bool)) public confirmations;
     address[3] public participants;
@@ -29,30 +31,36 @@ contract MultisigRDA is SavingDai {
     event Submission(uint indexed txnId);
     event Execution(uint indexed txnId);
     event ExecutionFailure(uint indexed txnId);
+    event Withdrawal(address indexed sender, address indexed receiver, uint value);
 
     // --- Modifiers ---
+    modifier active() {
+        require(deposit > 0, "RDA/not-active");
+        _;
+    }
+
     modifier onlyParticipant() {
-        require(isParticipant[msg.sender], 'RDA/not-allowed');
+        require(isParticipant[msg.sender], "RDA/not-allowed");
         _;
     }
 
     modifier transactionExists(uint txnId) {
-        require(transactions[txnId].owner != address(0), 'RDA/invalid-txn');
+        require(transactions[txnId].owner != address(0), "RDA/txn-invalid");
         _;
     }
 
     modifier confirmed(uint txnId, address participant) {
-        require(confirmations[txnId][participant], 'RDA/txn-not-confirmed');
+        require(confirmations[txnId][participant], "RDA/txn-not-confirmed");
         _;
     }
 
     modifier notConfirmed(uint txnId, address participant) {
-        require(!confirmations[txnId][participant], 'RDA/txn-confirmed');
+        require(!confirmations[txnId][participant], "RDA/txn-confirmed");
         _;
     }
 
     modifier notExecuted(uint txnId) {
-        require(!transactions[txnId].executed, 'RDA/txn-executed');
+        require(!transactions[txnId].executed, "RDA/txn-executed");
         _;
     }
 
@@ -62,7 +70,7 @@ contract MultisigRDA is SavingDai {
     constructor(address tenant, address landlord, address trustee, uint _trusteeFee) public {
         require(
             tenant != address(0) && landlord != address(0) && trustee != address(0),
-            'RDA/empty-address'
+            "RDA/empty-address"
         );
         participants = [tenant, landlord, trustee];
         isParticipant[tenant] = true;
@@ -73,13 +81,24 @@ contract MultisigRDA is SavingDai {
 
     // ** External Functions **
 
+    // Start contract. Can only be executed once, the deposit is immutable once started.
+    function start() external onlyParticipant {
+        require(deposit == 0, "RDA/already-started");
+        uint balance = daiToken.balanceOf(address(this));
+        require(balance > 0, "RDA/no-dai-owned");
+        deposit = balance;
+        if (!dsrAuthorize() || !dsrJoin(balance)) {
+            deposit = 0;
+        }
+    }
+
     // Transaction to return the deposit. Takes no further arguments.
     function submitTransaction(TransactionType txnType)
         external
         onlyParticipant
         returns (uint txnId)
     {
-        require(txnType == TransactionType.ReturnDeposit, 'RDA/invalid-arguments');
+        require(txnType == TransactionType.ReturnDeposit, "RDA/invalid-arguments");
         txnId = submitTransaction(txnType, address(0), 0);
     }
 
@@ -89,7 +108,7 @@ contract MultisigRDA is SavingDai {
         onlyParticipant
         returns (uint txnId)
     {
-        require(txnType == TransactionType.PayDamages, 'RDA/invalid-arguments');
+        require(txnType == TransactionType.PayDamages, "RDA/invalid-arguments");
         txnId = submitTransaction(txnType, address(0), value);
     }
 
@@ -99,7 +118,7 @@ contract MultisigRDA is SavingDai {
         onlyParticipant
         returns (uint txnId)
     {
-        require(txnType == TransactionType.Migrate, 'RDA/invalid-arguments');
+        require(txnType == TransactionType.Migrate, "RDA/invalid-arguments");
         txnId = submitTransaction(txnType, dest, 0);
     }
 
@@ -154,6 +173,49 @@ contract MultisigRDA is SavingDai {
         }
     }
 
+    function withdrawTrusteeFee()
+        onlyParticipant
+        active
+        public
+    {
+        if (trusteeFeePaid < trusteeFee) {
+            uint remainingFee = trusteeFee - trusteeFeePaid;
+            uint balance = daiToken.balanceOf(address(this));
+            uint withdraw;
+            uint payout;
+
+            if (remainingFee > balance) {
+                if (now > pot.rho()) pot.drip();
+                withdraw = remainingFee - balance;
+                payout += balance;
+                uint interest = currentInterest();
+                if (withdraw > interest) {
+                    withdraw = interest;
+                }
+            } else {
+                payout = remainingFee;
+            }
+
+            payout += withdraw;
+            trusteeFeePaid += payout;
+            if (withdraw > 0) {
+                if(!dsrExit(withdraw)) {
+                    trusteeFeePaid -= payout; // refund if the exit failed
+                }
+            }
+            if (!daiToken.transfer(getTrustee(), payout)) {
+                trusteeFeePaid -= payout; // refund if the transfer failed
+            }
+        }
+    }
+
+    function currentInterest() public view returns(uint interest) {
+        uint totalDsrBalance = dsrBalance();
+        if (totalDsrBalance > deposit) {
+            interest = totalDsrBalance - deposit;
+        }
+    }
+
     //noinspection NoReturn (will return false by default)
     function isConfirmed(uint txnId)
         public
@@ -194,6 +256,7 @@ contract MultisigRDA is SavingDai {
 
     function addTransaction(TransactionType txnType, address dest, uint value)
         internal
+        active
         returns (uint txnId)
     {
         txnId = txnCount;

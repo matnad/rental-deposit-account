@@ -4,13 +4,18 @@ const toWei = web3.utils.toWei
 const fromWei = web3.utils.fromWei
 
 const Multisig = artifacts.require("MultisigRDA")
+const Dai = artifacts.require("Dai")
 
-contract("Multisig", (accounts) => {
+// testchain addresses
+const daiAddress = "0x8d68d36d45a34a6ff368069bd0baa32ad49a6092"
+
+contract("MultisigRDA: Multisig", (accounts) => {
     let returnDepositId, payDamagesId, migrateId
     const senders = [0,1,2] // accounts that add the transactions in this order
 
-    it(`check if contract is properly initialized`, async () => {
-        multisig = await Multisig.deployed()
+    it(`check if contract is properly initialized and start it`, async () => {
+        const daiToken = await Dai.at(daiAddress)
+        const multisig = await Multisig.deployed()
 
         assert.equal(await multisig.participants.call(0), accounts[senders[0]], "acc1 failed to init")
         assert.equal(await multisig.participants.call(1), accounts[senders[1]], "acc2 failed to init")
@@ -20,6 +25,10 @@ contract("Multisig", (accounts) => {
         assert.equal(await multisig.isParticipant.call(accounts[senders[1]]), true)
         assert.equal(await multisig.isParticipant.call(accounts[senders[2]]), true)
         assert.equal(await multisig.isParticipant.call(accounts[5]), false)
+
+        // send some dai and activate the contract, this functionality is tested in multiple other tests
+        await daiToken.transfer(multisig.address, toWei("0.1", "ether"), {from: accounts[senders[0]]})
+        await multisig.start({from: accounts[senders[0]]})
     })
 
     it(`add a "Return Deposit" transaction`, async () => {

@@ -6,18 +6,18 @@ import "./SavingDai.sol";
 contract TestWrapperSavingDai is SavingDai {
 
     constructor() public {
-        authorize();
+        dsrAuthorize();
     }
 
     function join_(uint wad) external {
-        join(wad);
+        dsrJoin(wad);
     }
 
     function exit_(uint wad) external {
-        exit(wad);
+        dsrExit(wad);
     }
 
     function exitAll_() external {
-        exitAll();
+        dsrExitAll();
     }
 }
