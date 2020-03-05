@@ -163,20 +163,20 @@ contract("MultisigRDA: Multisig", (accounts) => {
         // wrong function for event types
         await truffleAssert.reverts(
             multisig.methods["submitTransaction(uint8)"](1, {from: accounts[senders[0]]}),
-            "RDA/invalid-arguments",
+            "RDA/invalid-arguments"
         )
         await truffleAssert.reverts(
             multisig.methods["submitTransaction(uint8,uint256)"](2, 100, {from: accounts[senders[0]]}),
-            "RDA/invalid-arguments",
+            "RDA/invalid-arguments"
         )
         await truffleAssert.reverts(
             multisig.methods["submitTransaction(uint8,address)"](0, accounts[6], {from: accounts[senders[0]]}),
-            "RDA/invalid-arguments",
+            "RDA/invalid-arguments"
         )
         // invalid event type
-        await truffleAssert.fails(
+        await truffleAssert.reverts(
             multisig.methods["submitTransaction(uint8)"](4, {from: accounts[senders[0]]}),
-            "status 0",
+            "RDA/invalid-arguments"
         )
     })
 

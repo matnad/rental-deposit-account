@@ -67,6 +67,7 @@ contract MultisigRDA is SavingDai {
     // --- Functions ---
 
     // ** Constructor **
+
     constructor(address tenant, address landlord, address trustee, uint _trusteeFee) public {
         require(
             tenant != address(0) && landlord != address(0) && trustee != address(0),
@@ -93,33 +94,33 @@ contract MultisigRDA is SavingDai {
     }
 
     // Transaction to return the deposit. Takes no further arguments.
-    function submitTransaction(TransactionType txnType)
+    function submitTransaction(uint8 txnType)
         external
         onlyParticipant
         returns (uint txnId)
     {
-        require(txnType == TransactionType.ReturnDeposit, "RDA/invalid-arguments");
-        txnId = submitTransaction(txnType, address(0), 0);
+        require(txnType == uint8(TransactionType.ReturnDeposit), "RDA/invalid-arguments");
+        txnId = submitTransaction(TransactionType(txnType), address(0), 0);
     }
 
     // Transaction to pay the landlord.
-    function submitTransaction(TransactionType txnType, uint value)
+    function submitTransaction(uint8 txnType, uint value)
         external
         onlyParticipant
         returns (uint txnId)
     {
-        require(txnType == TransactionType.PayDamages, "RDA/invalid-arguments");
-        txnId = submitTransaction(txnType, address(0), value);
+        require(txnType == uint8(TransactionType.PayDamages), "RDA/invalid-arguments");
+        txnId = submitTransaction(TransactionType(txnType), address(0), value);
     }
 
     // Transaction to migrate the contract.
-    function submitTransaction(TransactionType txnType, address dest)
+    function submitTransaction(uint8 txnType, address dest)
         external
         onlyParticipant
         returns (uint txnId)
     {
-        require(txnType == TransactionType.Migrate, "RDA/invalid-arguments");
-        txnId = submitTransaction(txnType, dest, 0);
+        require(txnType == uint8(TransactionType.Migrate), "RDA/invalid-arguments");
+        txnId = submitTransaction(TransactionType(txnType), dest, 0);
     }
 
     // ** Public Functions **
