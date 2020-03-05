@@ -36,18 +36,14 @@ contract("MultisigRDA: Multisig", (accounts) => {
         const txnType = 0 // Return Deposit
         multisig = await Multisig.deployed()
 
-        // access the correct overloaded function since javascript does not natively support function overloading
-        returnDepositId = await multisig.methods["submitTransaction(uint8)"].call(txnType, {from: accounts[sender]}) // get return value, no state change
-        const result = await multisig.methods["submitTransaction(uint8)"](txnType, {from: accounts[sender]}) // execute transaction
-
+        const result = await multisig.submitTransactionReturnDeposit({from: accounts[sender]})
+        returnDepositId = result.logs[0].args['txnId']
         // assert submission and confirmation events
         truffleAssert.eventEmitted(result, 'Submission', { txnId: returnDepositId })
         truffleAssert.eventEmitted(result, 'Confirmation', { sender: accounts[sender], txnId: returnDepositId })
 
-        // retrieve the submitted transaction
+        // retrieve the submitted transaction and verify it
         const txn = await multisig.transactions.call(returnDepositId)
-        // console.log(txn)
-
         assert.equal(txn.owner, accounts[sender], "owner mismatch")
         assert.equal(txn.txnType, txnType, "TransactionType mismatch")
         assert.equal(txn.dest, "0x0000000000000000000000000000000000000000", "destination mismatch")
@@ -67,17 +63,8 @@ contract("MultisigRDA: Multisig", (accounts) => {
         const amount = 50 // in DAI
         multisig = await Multisig.deployed()
 
-        // access the correct overloaded function since javascript does not natively support function overloading
-        payDamagesId = await multisig.methods["submitTransaction(uint8,uint256)"].call(
-            txnType,
-            toWei(amount.toString(), "ether"),
-            {from: accounts[sender]}
-        )
-        const result = await multisig.methods["submitTransaction(uint8,uint256)"](
-            txnType,
-            toWei(amount.toString(), "ether"),
-            {from: accounts[sender]}
-        )
+        const result = await multisig.submitTransactionPayDamages(toWei(amount.toString(), "ether"), {from: accounts[sender]})
+        payDamagesId = result.logs[0].args['txnId']
 
         // assert submission and confirmation events
         truffleAssert.eventEmitted(result, 'Submission', { txnId: payDamagesId })
@@ -85,7 +72,6 @@ contract("MultisigRDA: Multisig", (accounts) => {
 
         // retrieve the submitted transaction
         const txn = await multisig.transactions.call(payDamagesId)
-
         // assert the transaction
         assert.equal(txn.owner, accounts[sender], "owner mismatch")
         assert.equal(txn.txnType, txnType, "TransactionType mismatch")
@@ -106,19 +92,8 @@ contract("MultisigRDA: Multisig", (accounts) => {
         const dest = accounts[9] // address of new contract or address to migrate to
         multisig = await Multisig.deployed()
 
-        // access the correct overloaded function since javascript does not natively support function overloading
-        // First operation does not modify state and saves return value
-        migrateId = await multisig.methods["submitTransaction(uint8,address)"].call(
-            txnType,
-            dest,
-            {from: accounts[sender]}
-        )
-        // Second operation modifies state and returns the transaction hash
-        const result = await multisig.methods["submitTransaction(uint8,address)"](
-            txnType,
-            dest,
-            {from: accounts[sender]}
-        )
+        const result = await multisig.submitTransactionMigrate(dest, {from: accounts[sender]})
+        migrateId = result.logs[0].args['txnId']
 
         // assert submission and confirmation events
         truffleAssert.eventEmitted(result, 'Submission', { txnId: migrateId })
@@ -143,41 +118,19 @@ contract("MultisigRDA: Multisig", (accounts) => {
 
     it(`attempt to create each transaction type from a non-participant account`, async () => {
         await truffleAssert.reverts(
-            multisig.methods["submitTransaction(uint8)"](0, {from: accounts[6]}),
+            multisig.submitTransactionReturnDeposit({from: accounts[6]}),
             "RDA/not-allowed",
         )
         await truffleAssert.reverts(
-            multisig.methods["submitTransaction(uint8,uint256)"](1, 100, {from: accounts[7]}),
+            multisig.submitTransactionPayDamages(100, {from: accounts[7]}),
             "RDA/not-allowed",
         )
         await truffleAssert.reverts(
-            multisig.methods["submitTransaction(uint8,address)"](2, accounts[5], {from: accounts[8]}),
+            multisig.submitTransactionMigrate(accounts[5], {from: accounts[8]}),
             "RDA/not-allowed",
         )
-        // validate that there are 3 transactions
+        // validate that there are 3 pending transactions
         assert.equal((await multisig.getTransactionIds.call(true, false)).length, 3, 'wrong number of pending transactions')
-
-    })
-
-    it(`attempt to create transactions with invalid data`, async () => {
-        // wrong function for event types
-        await truffleAssert.reverts(
-            multisig.methods["submitTransaction(uint8)"](1, {from: accounts[senders[0]]}),
-            "RDA/invalid-arguments"
-        )
-        await truffleAssert.reverts(
-            multisig.methods["submitTransaction(uint8,uint256)"](2, 100, {from: accounts[senders[0]]}),
-            "RDA/invalid-arguments"
-        )
-        await truffleAssert.reverts(
-            multisig.methods["submitTransaction(uint8,address)"](0, accounts[6], {from: accounts[senders[0]]}),
-            "RDA/invalid-arguments"
-        )
-        // invalid event type
-        await truffleAssert.reverts(
-            multisig.methods["submitTransaction(uint8)"](4, {from: accounts[senders[0]]}),
-            "RDA/invalid-arguments"
-        )
     })
 
     it(`revoke confirmation for "Return Deposit" transaction`, async () => {

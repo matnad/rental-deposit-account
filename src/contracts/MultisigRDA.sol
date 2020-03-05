@@ -2,6 +2,9 @@ pragma solidity 0.6.3;
 
 import "./SavingDai.sol";
 
+/// @title Rental Deposit Account with multisig and DSR locking
+/// @author Matthias Nadler, University of Basel
+/// @notice Lock a DAI deposit, gain interest and manage the deposit with help of a trustee
 contract MultisigRDA is SavingDai {
 
     // --- Constants ---
@@ -68,6 +71,10 @@ contract MultisigRDA is SavingDai {
 
     // ** Constructor **
 
+    /// @dev Initializes the contract with the addresses. These values can never be changed.
+    /// @param tenant The owner of the deposit that earns the interest
+    /// @param landlord Can receive payments for damages up to the original deposit amount
+    /// @param trustee Earns a fee for enforcing off-chain contracts via multisig
     constructor(address tenant, address landlord, address trustee, uint _trusteeFee) public {
         require(
             tenant != address(0) && landlord != address(0) && trustee != address(0),
@@ -82,7 +89,8 @@ contract MultisigRDA is SavingDai {
 
     // ** External Functions **
 
-    // Start contract. Can only be executed once, the deposit is immutable once started.
+    /// @dev Sets the contract active and allows for further interaction. Will lock all DAI in DSR.
+    ///      The deposit is equal to the DAI balance when this function is called and can never be changed.
     function start() external onlyParticipant {
         require(deposit == 0, "RDA/already-started");
         uint balance = daiToken.balanceOf(address(this));
@@ -93,38 +101,42 @@ contract MultisigRDA is SavingDai {
         }
     }
 
-    // Transaction to return the deposit. Takes no further arguments.
-    function submitTransaction(uint8 txnType)
+    /// @dev Submit a Transaction to return the deposit to the tenant. Requires two confirmations
+    /// @return txnId The unique identifier of the transaction
+    function submitTransactionReturnDeposit()
         external
         onlyParticipant
         returns (uint txnId)
     {
-        require(txnType == uint8(TransactionType.ReturnDeposit), "RDA/invalid-arguments");
-        txnId = submitTransaction(TransactionType(txnType), address(0), 0);
+        txnId = submitTransaction(TransactionType.ReturnDeposit, address(0), 0);
     }
 
-    // Transaction to pay the landlord.
-    function submitTransaction(uint8 txnType, uint value)
+    /// @dev Submit a Transaction to pay damages to the landlord. Requires two confirmations
+    /// @param value The amount of DAI (in wei denominations) to transfer to the landlord
+    /// @return txnId The unique identifier of the transaction
+    function submitTransactionPayDamages(uint value)
         external
         onlyParticipant
         returns (uint txnId)
     {
-        require(txnType == uint8(TransactionType.PayDamages), "RDA/invalid-arguments");
-        txnId = submitTransaction(TransactionType(txnType), address(0), value);
+        txnId = submitTransaction(TransactionType.PayDamages, address(0), value);
     }
 
-    // Transaction to migrate the contract.
-    function submitTransaction(uint8 txnType, address dest)
+    /// @dev Submit a Transaction to Migrate the funds to a new address. Requires two confirmations
+    /// @param dest The destination address to send the DAI funds
+    /// @return txnId The unique identifier of the transaction
+    function submitTransactionMigrate(address dest)
         external
         onlyParticipant
         returns (uint txnId)
     {
-        require(txnType == uint8(TransactionType.Migrate), "RDA/invalid-arguments");
-        txnId = submitTransaction(TransactionType(txnType), dest, 0);
+        txnId = submitTransaction(TransactionType.Migrate, dest, 0);
     }
 
     // ** Public Functions **
 
+    /// @dev Confirms a transaction if possible
+    /// @param txnId The unique identifier of the transaction
     function confirmTransaction(uint txnId)
         public
         onlyParticipant
@@ -136,6 +148,8 @@ contract MultisigRDA is SavingDai {
         emit Confirmation(msg.sender, txnId);
     }
 
+    /// @dev Undoes a confirmation if possible
+    /// @param txnId The unique identifier of the transaction
     function revokeConfirmation(uint txnId)
         public
         onlyParticipant
@@ -147,6 +161,8 @@ contract MultisigRDA is SavingDai {
         emit Revocation(msg.sender, txnId);
     }
 
+    /// @dev Execute a transaction that has two or more confirmations
+    /// @param txnId The unique identifier of the transaction
     function executeTransaction(uint txnId)
         public
         onlyParticipant // this is conservative
@@ -174,6 +190,8 @@ contract MultisigRDA is SavingDai {
         }
     }
 
+    /// @dev Withdraw an amount up to the trusteeFee to the account of the trustee
+    ///      This can only withdraw contract balance and accrued interest above the initial deposit value
     function withdrawTrusteeFee()
         onlyParticipant
         active
@@ -199,17 +217,19 @@ contract MultisigRDA is SavingDai {
 
             payout += withdraw;
             trusteeFeePaid += payout;
+            bool isWithdrawn = true;
             if (withdraw > 0) {
-                if(!dsrExit(withdraw)) {
-                    trusteeFeePaid -= payout; // refund if the exit failed
-                }
+                isWithdrawn = dsrExit(withdraw);
             }
-            if (!daiToken.transfer(getTrustee(), payout)) {
-                trusteeFeePaid -= payout; // refund if the transfer failed
+            if (!isWithdrawn || !daiToken.transfer(getTrustee(), payout)) {
+                trusteeFeePaid -= payout; // refund if something failed
             }
         }
     }
 
+    /// @dev Calculates the amount of DAI (in wei denomination) on the locked DSR position
+    ///      that exceeds the initial deposit. This amount can not be negative
+    /// @return interest accrued value on the locked DSR position that can be withdrawn
     function currentInterest() public view returns(uint interest) {
         uint totalDsrBalance = dsrBalance();
         if (totalDsrBalance > deposit) {
@@ -217,7 +237,9 @@ contract MultisigRDA is SavingDai {
         }
     }
 
-    //noinspection NoReturn (will return false by default)
+    /// @dev Check if a transaction has two or more confirmations and is ready to be executed
+    /// @param txnId The unique identifier of the transaction
+    /// returns true if the transaction is confirmed, false otherwise
     function isConfirmed(uint txnId)
         public
         view
@@ -225,10 +247,12 @@ contract MultisigRDA is SavingDai {
     {
         uint count = 0;
         for (uint i = 0; i < 3; i++) {
-            if (confirmations[txnId][participants[i]])
+            if (confirmations[txnId][participants[i]]) {
                 count += 1;
-            if (count == 2)
+            }
+            if (count == 2) {
                 return true;
+            }
         }
     }
 
@@ -246,7 +270,7 @@ contract MultisigRDA is SavingDai {
 
     // ** Internal State Functions **
 
-    /// @dev Transaction builder. Unifies all the overloaded functions.
+    /// @dev Transaction builder. Can't be invoked directly
     function submitTransaction(TransactionType txnType, address dest, uint value)
         internal
         returns (uint txnId)
@@ -307,6 +331,9 @@ contract MultisigRDA is SavingDai {
 
     // ** Web3 call functions (Public & View) **
 
+    /// @dev Get the number of confirmations for a transaction
+    /// @param txnId The unique identifier of the transaction
+    /// @return count number of confirmations [0, 3]
     function getConfirmationCount(uint txnId)
         public
         view
@@ -319,6 +346,10 @@ contract MultisigRDA is SavingDai {
         }
     }
 
+    /// @dev Calculates the confirmed status for every participant of a transaction.
+    /// @param txnId The unique identifier of the transaction.
+    /// @return confirmationStatus as a boolean array like [true, false, true]
+    ///         where the order is [tenant, landlord, trustee]
     function getConfirmationStatus(uint txnId)
         public
         view
@@ -332,6 +363,10 @@ contract MultisigRDA is SavingDai {
         }
     }
 
+    /// @dev Get a list of all transaction IDs that match the filter arguments
+    /// @param pending will include non-completed transactions if set to true
+    /// @param pending will include completed transactions if set to true
+    /// @return txnIds an array with all the transaction IDs that match the arguments
     function getTransactionIds(bool pending, bool executed)
         public
         view
