@@ -57,9 +57,14 @@ contract("MultisigRDA: Withdraws", (accounts) => {
     const remain = weiFee[contract] - paid
     console.log("       Remaining Fee (Mwei) : ", toMwei(remain))
     const initialTrusteeBalance = await daiToken.balanceOf(participants[2])
-    await rda.withdrawTrusteeFee({from: participants[2]})
+    const result = await rda.withdrawTrusteeFee({from: participants[2]})
     const trusteeBalance = await daiToken.balanceOf(participants[2])
     const gained = trusteeBalance - initialTrusteeBalance
+    truffleAssert.eventEmitted(
+      result,
+      'Withdrawal',
+      {initiator: participants[2], receiver: participants[2]}
+    )
     console.log("       Withdraw gained (Mwei): ", toMwei(gained))
     assert.equal(gained > 0 , true, 'could not withdraw any dai')
 
@@ -133,7 +138,7 @@ contract("MultisigRDA: Withdraws", (accounts) => {
     let paid = await rda.trusteeFeePaid.call()
     let remain = weiFee[contract] - paid
     // send all but 200 Mwei
-    await daiToken.transfer(rda.address, weiFee[contract] - 200 * Math.pow(10,6), {from: participants[0]})
+    await daiToken.transfer(rda.address, weiFee[contract] - 300 * Math.pow(10,6), {from: participants[0]})
     let daiBalance = await daiToken.balanceOf.call(rda.address)
     console.log("       Dai on RDA (Gwei)      : ", toGwei(daiBalance))
     console.log("       Remaining Fee (Gwei)   : ", toGwei(remain))

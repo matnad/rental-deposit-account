@@ -12,7 +12,8 @@
     "test_savingdai": "truffle test test/2_SavingDai.js",
     "test_multisig": "truffle test test/3_Multisig.js",
     "test_rdadsrintegration": "truffle test test/4_RdaDsrIntegration.js",
-    "test_rdawithdraw": "truffle test test/5_RdaWithdraw.js"
+    "test_rdawithdraw": "truffle test test/5_RdaWithdraw.js",
+    "test_rdareturndeposit": "truffle test test/6_RdaReturnDeposit.js"
   },
   "author": "Matthias Nadler",
   "license": "MIT",

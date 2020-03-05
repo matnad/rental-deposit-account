@@ -34,7 +34,7 @@ contract MultisigRDA is SavingDai {
     event Submission(uint indexed txnId);
     event Execution(uint indexed txnId);
     event ExecutionFailure(uint indexed txnId);
-    event Withdrawal(address indexed sender, address indexed receiver, uint value);
+    event Withdrawal(address indexed initiator, address indexed receiver, uint value);
 
     // --- Modifiers ---
     modifier active() {
@@ -217,11 +217,12 @@ contract MultisigRDA is SavingDai {
 
             payout += withdraw;
             trusteeFeePaid += payout;
-            bool isWithdrawn = true;
             if (withdraw > 0) {
-                isWithdrawn = dsrExit(withdraw);
+                dsrExit(withdraw);
             }
-            if (!isWithdrawn || !daiToken.transfer(getTrustee(), payout)) {
+            if (daiToken.transfer(getTrustee(), payout)) {
+                emit Withdrawal(msg.sender, getTrustee(), payout);
+            } else {
                 trusteeFeePaid -= payout; // refund if something failed
             }
         }
@@ -268,7 +269,7 @@ contract MultisigRDA is SavingDai {
         return participants[2];
     }
 
-    // ** Internal State Functions **
+    // ** Internal Multisig Functions **
 
     /// @dev Transaction builder. Can't be invoked directly
     function submitTransaction(TransactionType txnType, address dest, uint value)
@@ -296,16 +297,22 @@ contract MultisigRDA is SavingDai {
         emit Submission(txnId);
     }
 
-    // ** Internal Logic Functions **
+    // ** Internal RDA Logic Functions **
 
+    /// @dev Transfers All remaining funds except for outstanding fees to the tenant.
+    /// @return success is false only if the DAI transfer failed, true otherwise
+    ///         even if no DAI was transferred (empty balance or locked fee)
     function returnDeposit()
         internal
-        pure // temp
         returns (bool success)
     {
-        // will return deposit to the tenant
-        // function is not yet implemented
         success = true;
+        uint remainingFee = trusteeFee - trusteeFeePaid;
+        dsrExitAll();
+        uint balance = daiToken.balanceOf(address(this));
+        if (balance > remainingFee) {
+            success = daiToken.transfer(getTenant(), balance - remainingFee);
+        }
     }
 
     function payDamages(uint value)

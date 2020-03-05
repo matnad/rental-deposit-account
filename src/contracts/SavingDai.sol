@@ -19,10 +19,10 @@ interface VatLike {
     function dai(address) external view returns (uint);
 }
 
-abstract contract GemLike {
-    mapping(address => uint) public balanceOf;
-    function approve(address, uint) external virtual returns (bool);
-    function transfer(address, uint) external virtual returns (bool);
+interface GemLike {
+    function balanceOf(address) external returns (uint);
+    function approve(address, uint) external returns (bool);
+    function transfer(address, uint) external returns (bool);
 }
 
 contract SavingDai {
