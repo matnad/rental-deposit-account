@@ -1,3 +1,5 @@
+const truffleAssert = require("truffle-assertions")
+
 const BN = web3.utils.BN
 const toWei = web3.utils.toWei
 const fromWei = web3.utils.fromWei
@@ -23,6 +25,11 @@ contract("MultisigRDA: DSR", (accounts) => {
 
     assert.equal(daiBalance >= lockAsDai, true,
       `Need ${lockAsDai} or more DAI, but got ${daiBalance.toString()}`)
+  })
+
+  it(`try to start the empty contract and fail`, async () => {
+    const multisigRDA = await MultisigRDA.deployed()
+    await truffleAssert.reverts(multisigRDA.start({from: acc}),"RDA/no-dai-found")
   })
 
   it(`transfer ${lockAsDai} dai to RDA contract`, async () => {

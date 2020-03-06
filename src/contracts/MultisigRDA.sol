@@ -95,7 +95,7 @@ contract MultisigRDA is SavingDai {
     function start() external onlyParticipant {
         require(deposit == 0, "RDA/already-started");
         uint balance = daiToken.balanceOf(address(this));
-        require(balance > 0, "RDA/no-dai-owned");
+        require(balance > 0, "RDA/no-dai-found");
         deposit = balance;
         if (!dsrAuthorize() || !dsrJoin(balance)) {
             deposit = 0;
@@ -333,11 +333,15 @@ contract MultisigRDA is SavingDai {
         returns (bool success)
     {
         success = true;
-        uint remainingFee = trusteeFee - trusteeFeePaid;
+        uint remainingFee = sub(trusteeFee, trusteeFeePaid);
         dsrExitAll();
         uint balance = daiToken.balanceOf(address(this));
         if (balance > remainingFee) {
-            success = daiToken.transfer(getTenant(), balance - remainingFee);
+            uint payout = balance - remainingFee;
+            success = daiToken.transfer(getTenant(), payout);
+            if (success) {
+                emit Withdrawal(msg.sender, getTenant(), payout);
+            }
         }
     }
 
@@ -351,19 +355,21 @@ contract MultisigRDA is SavingDai {
         returns (bool success)
     {
         success = true;
-        uint maxPayout = deposit - landlordDamagePaid;
+        uint maxPayout = sub(deposit, landlordDamagePaid);
         if (maxPayout > 0) {
             uint payout = value;
             if (payout > maxPayout) {
                 payout = maxPayout;
             }
             uint contractBalance = daiToken.balanceOf(address(this));
-            landlordDamagePaid += payout;
-            if (contractBalance < payout) {
+            landlordDamagePaid = add(landlordDamagePaid, payout);
+            if (payout > contractBalance) {
                 dsrExit(payout - contractBalance);
             }
             success = daiToken.transfer(getLandlord(), payout);
-            if (!success) {
+            if (success) {
+                emit Withdrawal(msg.sender, getLandlord(), payout);
+            } else {
                 landlordDamagePaid -= payout;
             }
         }
