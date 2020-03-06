@@ -1,0 +1,3 @@
+RPC_URL=http://domain.example/path
+RPC_HOST=domain.example/path
+RPC_PORT=80
