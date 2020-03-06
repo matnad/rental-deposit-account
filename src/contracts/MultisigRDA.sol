@@ -12,6 +12,7 @@ contract MultisigRDA is SavingDai {
     // --- Storage ---
     uint public trusteeFee;
     uint public trusteeFeePaid;
+    uint public landlordDamagesPaid;
     uint public deposit;
     mapping(uint => Transaction) public transactions;
     mapping(uint => mapping(address => bool)) public confirmations;
@@ -315,14 +316,32 @@ contract MultisigRDA is SavingDai {
         }
     }
 
+    /// @dev Transfers an amount of DAI to the landlord as compensation.
+    ///      This amount can be up to the value of the initial deposit.
+    /// @param value of the DAI (in wei denomination) to transfer
+    /// @return success is false only if the DAI transfer failed, true otherwise
+    ///         even if no DAI was transferred (empty balance or no more claims)
     function payDamages(uint value)
         internal
-        pure // temp
         returns (bool success)
     {
-        // will transfer min(value, balance) DAI to the landlord
-        // function is not yet implemented and will throw compiler warnings (ignore them)
         success = true;
+        uint maxPayout = deposit - landlordDamagesPaid;
+        if (maxPayout > 0) {
+            uint payout = value;
+            if (payout > maxPayout) {
+                payout = maxPayout;
+            }
+            uint contractBalance = daiToken.balanceOf(address(this));
+            landlordDamagesPaid += payout;
+            if (contractBalance < payout) {
+                dsrExit(payout - contractBalance);
+            }
+            success = daiToken.transfer(getLandlord(), payout);
+            if (!success) {
+                landlordDamagesPaid -= payout;
+            }
+        }
     }
 
     function migrate(address dest)
