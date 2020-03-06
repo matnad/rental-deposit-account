@@ -1,21 +1,22 @@
 {
   "name": "rental_deposit_account",
-  "version": "0.0.1",
-  "description": "solidity smart contract for a multisig rental deposit account",
+  "version": "0.5.0",
+  "description": "solidity smart contract for a multisig rental deposit account with interest",
   "main": "truffle-config.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
     "test": "truffle test",
-    "test_ensuredai": "truffle test test/1_EnsureDai.js",
-    "test_savingdai": "truffle test test/2_SavingDai.js",
-    "test_multisig": "truffle test test/3_Multisig.js",
-    "test_rdadsrintegration": "truffle test test/4_RdaDsrIntegration.js",
-    "test_rdawithdraw": "truffle test test/5_RdaWithdraw.js",
-    "test_rdareturndeposit": "truffle test test/6_RdaReturnDeposit.js",
-    "test_rdapaydamages": "truffle test test/7_RdaPayDamages.js",
-    "test_rdamigrate": "truffle test test/8_RdaMigrate.js"
+    "test_ensuredai": "truffle test test/00_EnsureDai.js",
+    "test_savingdai": "truffle test test/10_SavingDai.js",
+    "test_multisig": "truffle test test/11_Multisig.js",
+    "test_rdadsrintegration": "truffle test test/20_RdaDsrIntegration.js",
+    "test_rdawithdraw": "truffle test test/21_RdaWithdraw.js",
+    "test_rdareturndeposit": "truffle test test/22_RdaReturnDeposit.js",
+    "test_rdapaydamages": "truffle test test/23_RdaPayDamages.js",
+    "test_rdamigrate": "truffle test test/24_RdaMigrate.js",
+    "test_rdawithdrawinterest": "truffle test test/25_RdaWithdrawInterest.js"
   },
   "author": "Matthias Nadler",
   "license": "MIT",
@@ -23,7 +24,7 @@
     "@makerdao/dai": "^0.26.0",
     "@makerdao/dai-plugin-mcd": "^1.2.1",
     "dotenv": "^8.2.0",
-    "truffle-assertions": "^0.9.2",
-    "eth-gas-reporter": "^0.2.15"
+    "eth-gas-reporter": "^0.2.15",
+    "truffle-assertions": "^0.9.2"
   }
 }

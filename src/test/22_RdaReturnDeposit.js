@@ -5,7 +5,7 @@ const toWei = web3.utils.toWei
 const fromWei = web3.utils.fromWei
 
 const MultisigRDA = artifacts.require("MultisigRDA")
-const Dai = artifacts.require("Dai")
+const gemLike = artifacts.require("GemLike")
 
 // testchain addresses
 const daiAddress = "0x8d68d36d45a34a6ff368069bd0baa32ad49a6092"
@@ -42,7 +42,7 @@ contract("MultisigRDA: Return Deposit", (accounts) => {
   ]
 
   it(`setup contracts with deposits`, async () => {
-    const daiToken = await Dai.at(daiAddress)
+    const daiToken = await gemLike.at(daiAddress)
     let neededBalance = new BN(0)
     for (let i = 0; i < nContracts; i++) {
       neededBalance.iadd(weiDeposit[i])
@@ -65,7 +65,7 @@ contract("MultisigRDA: Return Deposit", (accounts) => {
   it(`C0:: return deposit with outstanding fee smaller than remaining funds`, async () => {
     const contract = 0
     const rda = multisigRDA[contract]
-    const daiToken = await Dai.at(daiAddress)
+    const daiToken = await gemLike.at(daiAddress)
 
     // pay fee from interest
     await new Promise(resolve => setTimeout(resolve, 1000))
@@ -95,7 +95,7 @@ contract("MultisigRDA: Return Deposit", (accounts) => {
   it(`C1:: return deposit after fee has been fully paid off`, async () => {
     const contract = 1
     const rda = multisigRDA[contract]
-    const daiToken = await Dai.at(daiAddress)
+    const daiToken = await gemLike.at(daiAddress)
 
     await rda.withdrawTrusteeFee({from: participants[2]})
     const paidFee = await rda.trusteeFeePaid.call()
@@ -119,7 +119,7 @@ contract("MultisigRDA: Return Deposit", (accounts) => {
   it(`C2:: try to return deposit when fee is larger than deposit`, async () => {
     const contract = 2
     const rda = multisigRDA[contract]
-    const daiToken = await Dai.at(daiAddress)
+    const daiToken = await gemLike.at(daiAddress)
 
     const paidFee = await rda.trusteeFeePaid.call()
     const remainingFee = weiFee[contract].sub(paidFee)
@@ -146,7 +146,7 @@ contract("MultisigRDA: Return Deposit", (accounts) => {
   it(`C2:: try the same thing again (there will be nothing to exit)`, async () => {
     const contract = 2
     const rda = multisigRDA[contract]
-    const daiToken = await Dai.at(daiAddress)
+    const daiToken = await gemLike.at(daiAddress)
 
     const paidFee = await rda.trusteeFeePaid.call()
     const remainingFee = weiFee[contract].sub(paidFee)

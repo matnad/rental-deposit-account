@@ -5,7 +5,7 @@ const toWei = web3.utils.toWei
 const fromWei = web3.utils.fromWei
 
 const MultisigRDA = artifacts.require("MultisigRDA")
-const Dai = artifacts.require("Dai")
+const gemLike = artifacts.require("GemLike")
 
 // testchain addresses
 const daiAddress = "0x8d68d36d45a34a6ff368069bd0baa32ad49a6092"
@@ -15,7 +15,7 @@ const toGwei = (wei) => fromWei(wei.toString(), "gwei")
 const toMwei = (wei) => fromWei(wei.toString(), "mwei")
 
 
-contract("MultisigRDA: Withdraws", (accounts) => {
+contract("MultisigRDA: Withdraw Fee", (accounts) => {
   const participants = [accounts[0], accounts[1], accounts[2]]
   const lockAsDai = 0.1 // amount of dai to lock and unlock per contract
   const lockAmount = new BN(toWei(lockAsDai.toString(), "ether"))
@@ -30,7 +30,7 @@ contract("MultisigRDA: Withdraws", (accounts) => {
 
 
   it(`setup contracts with deposits`, async () => {
-    const daiToken = await Dai.at(daiAddress)
+    const daiToken = await gemLike.at(daiAddress)
 
     let daiBalance = fromWei((await daiToken.balanceOf.call(participants[0])).toString(), "ether")
     assert.equal(daiBalance > lockAsDai * nContracts, true,
@@ -51,14 +51,14 @@ contract("MultisigRDA: Withdraws", (accounts) => {
 
   it(`C0:: try to withdraw fee to the trustee`, async () => {
     const contract = 0
-    const daiToken = await Dai.at(daiAddress)
+    const daiToken = await gemLike.at(daiAddress)
     const rda = multisigRDA[contract]
     const paid = await rda.trusteeFeePaid.call()
     const remain = weiFee[contract] - paid
     console.log("       Remaining Fee (Mwei) : ", toMwei(remain))
-    const initialTrusteeBalance = await daiToken.balanceOf(participants[2])
+    const initialTrusteeBalance = await daiToken.balanceOf.call(participants[2])
     const result = await rda.withdrawTrusteeFee({from: participants[2]})
-    const trusteeBalance = await daiToken.balanceOf(participants[2])
+    const trusteeBalance = await daiToken.balanceOf.call(participants[2])
     const gained = trusteeBalance - initialTrusteeBalance
     truffleAssert.eventEmitted(
       result,
@@ -72,15 +72,15 @@ contract("MultisigRDA: Withdraws", (accounts) => {
 
   it(`C0:: wait and withdraw until fee is covered`, async () => {
     const contract = 0
-    const daiToken = await Dai.at(daiAddress)
+    const daiToken = await gemLike.at(daiAddress)
     const rda = multisigRDA[contract]
     let paid = await rda.trusteeFeePaid.call()
     let remain = weiFee[contract] - paid
     while (remain > 0) {
       console.log("       Remaining Fee (Mwei) : ", toMwei(remain))
-      const initialTrusteeBalance = await daiToken.balanceOf(participants[2])
+      const initialTrusteeBalance = await daiToken.balanceOf.call(participants[2])
       await rda.withdrawTrusteeFee({from: participants[2]})
-      const trusteeBalance = await daiToken.balanceOf(participants[2])
+      const trusteeBalance = await daiToken.balanceOf.call(participants[2])
       const gained = trusteeBalance - initialTrusteeBalance
       console.log("       Withdraw gained (Mwei): ", toMwei(gained))
       await new Promise(resolve => setTimeout(resolve, 1000))
@@ -91,16 +91,16 @@ contract("MultisigRDA: Withdraws", (accounts) => {
 
   it(`C1:: should have enough to withdraw in one step`, async () => {
     const contract = 1
-    const daiToken = await Dai.at(daiAddress)
+    const daiToken = await gemLike.at(daiAddress)
     const rda = multisigRDA[contract]
     let paid = await rda.trusteeFeePaid.call()
     let remain = weiFee[contract] - paid
     await new Promise(resolve => setTimeout(resolve, 2000))
     console.log("       Remaining Fee (Mwei) : ", toMwei(remain))
-    const initialTrusteeBalance = await daiToken.balanceOf(participants[2])
+    const initialTrusteeBalance = await daiToken.balanceOf.call(participants[2])
     await rda.withdrawTrusteeFee({from: participants[2]})
-    const remainingInterest = await rda.currentInterest.call()
-    const trusteeBalance = await daiToken.balanceOf(participants[2])
+    const remainingInterest =  (await rda.dsrBalance.call()).sub(lockAmount)
+    const trusteeBalance = await daiToken.balanceOf.call(participants[2])
     const gained = trusteeBalance - initialTrusteeBalance
     console.log("       Withdraw gained (Mwei): ", toMwei(gained))
     console.log("       Left   interest (Mwei): ", toMwei(remainingInterest))
@@ -109,7 +109,7 @@ contract("MultisigRDA: Withdraws", (accounts) => {
 
   it(`C2:: send enough dai to contract to cover the fee`, async () => {
     const contract = 2
-    const daiToken = await Dai.at(daiAddress)
+    const daiToken = await gemLike.at(daiAddress)
     const rda = multisigRDA[contract]
     let paid = await rda.trusteeFeePaid.call()
     let remain = weiFee[contract] - paid
@@ -118,10 +118,10 @@ contract("MultisigRDA: Withdraws", (accounts) => {
     console.log("       Dai (Mwei) on RDA    : ", toMwei(daiBalance))
     assert.equal(daiBalance, 2 * weiFee[contract], 'wrong balance')
     console.log("       Remaining Fee (Mwei) : ", toMwei(remain))
-    const initialTrusteeBalance = await daiToken.balanceOf(participants[2])
+    const initialTrusteeBalance = await daiToken.balanceOf.call(participants[2])
     await rda.withdrawTrusteeFee({from: participants[2]})
-    const remainingInterest = await rda.currentInterest.call()
-    const trusteeBalance = await daiToken.balanceOf(participants[2])
+    const remainingInterest = (await rda.dsrBalance.call()).sub(lockAmount)
+    const trusteeBalance = await daiToken.balanceOf.call(participants[2])
     const gained = trusteeBalance - initialTrusteeBalance
     console.log("       Withdraw gained (Mwei): ", toMwei(gained))
     assert.equal(gained, weiFee[contract], 'wrong withdraw amount')
@@ -133,7 +133,7 @@ contract("MultisigRDA: Withdraws", (accounts) => {
 
   it(`C3:: set fee high and send a bit less dai to force a split from balance and withdraw`, async () => {
     const contract = 3
-    const daiToken = await Dai.at(daiAddress)
+    const daiToken = await gemLike.at(daiAddress)
     const rda = multisigRDA[contract]
     let paid = await rda.trusteeFeePaid.call()
     let remain = weiFee[contract] - paid
@@ -142,12 +142,12 @@ contract("MultisigRDA: Withdraws", (accounts) => {
     let daiBalance = await daiToken.balanceOf.call(rda.address)
     console.log("       Dai on RDA (Gwei)      : ", toGwei(daiBalance))
     console.log("       Remaining Fee (Gwei)   : ", toGwei(remain))
-    const previousInterest = await rda.currentInterest.call()
+    const previousInterest =  (await rda.dsrBalance.call()).sub(lockAmount)
     console.log("       Current interest (Gwei): ", toGwei(previousInterest))
-    const initialTrusteeBalance = await daiToken.balanceOf(participants[2])
+    const initialTrusteeBalance = await daiToken.balanceOf.call(participants[2])
     await rda.withdrawTrusteeFee({from: participants[2]})
-    const remainingInterest = await rda.currentInterest.call()
-    const trusteeBalance = await daiToken.balanceOf(participants[2])
+    const remainingInterest =  (await rda.dsrBalance.call()).sub(lockAmount)
+    const trusteeBalance = await daiToken.balanceOf.call(participants[2])
     const gained = trusteeBalance - initialTrusteeBalance
     console.log("       Withdraw gained (Gwei): ", toGwei(gained))
     console.log("       Remaining interest (Gwei): ", toGwei(remainingInterest))

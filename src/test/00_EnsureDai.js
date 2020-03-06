@@ -8,7 +8,7 @@ const BN = web3.utils.BN;
 const toWei = web3.utils.toWei;
 const fromWei = web3.utils.fromWei;
 
-const Mdai = artifacts.require("Dai");
+const gemLike = artifacts.require("GemLike");
 
 contract('Set Up Dai', (accounts) => {
   const acc = accounts[0];
@@ -24,8 +24,8 @@ contract('Set Up Dai', (accounts) => {
     })
     await maker.authenticate()
 
-    const Dai = await Mdai.at("0x8d68d36d45a34a6ff368069bd0baa32ad49a6092");
-    let daiBalance = await Dai.balanceOf.call(acc);
+    const daiToken = await gemLike.at("0x8d68d36d45a34a6ff368069bd0baa32ad49a6092");
+    let daiBalance = await daiToken.balanceOf.call(acc);
     console.log("DAI balance: ", fromWei(daiBalance.toString(), "ether"));
     const targetDaiBN = new BN(toWei(targetDai.toString(), "ether"));
     if (daiBalance < targetDaiBN / 2) {
@@ -41,7 +41,7 @@ contract('Set Up Dai', (accounts) => {
       console.log('Collateral amount: '+cdp.collateralAmount.toString());
       console.log('Debt Value: '+cdp.debtValue.toString());
 
-      daiBalance = await Dai.balanceOf.call(acc);
+      daiBalance = await daiToken.balanceOf.call(acc);
     }
 
     assert.equal(daiBalance.toString() >=  (targetDaiBN/2).toString(), true,

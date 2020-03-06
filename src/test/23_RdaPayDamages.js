@@ -5,14 +5,14 @@ const toWei = web3.utils.toWei
 const fromWei = web3.utils.fromWei
 
 const MultisigRDA = artifacts.require("MultisigRDA")
-const GemLike = artifacts.require("GemLike")
+const gemLike = artifacts.require("GemLike")
 
 // testchain addresses
 const daiAddress = "0x8d68d36d45a34a6ff368069bd0baa32ad49a6092"
 
 const toEth = (wei) => fromWei(wei.toString(), "ether")
 
-contract("MultisigRDA: Return Deposit", (accounts) => {
+contract("MultisigRDA: Pay Damages", (accounts) => {
   const participants = [accounts[0], accounts[1], accounts[2]]
   const multisigRDA = []
   const nContracts = 2
@@ -30,7 +30,7 @@ contract("MultisigRDA: Return Deposit", (accounts) => {
   ]
 
   it(`setup contracts with deposits`, async () => {
-    const daiToken = await GemLike.at(daiAddress)
+    const daiToken = await gemLike.at(daiAddress)
     let neededBalance = new BN(0)
     for (let i = 0; i < nContracts; i++) {
       neededBalance.iadd(weiDeposit[i])
@@ -53,7 +53,7 @@ contract("MultisigRDA: Return Deposit", (accounts) => {
   it(`C0:: pay damages equal to half the deposit amount`, async () => {
     const contract = 0
     const rda = multisigRDA[contract]
-    const daiToken = await GemLike.at(daiAddress)
+    const daiToken = await gemLike.at(daiAddress)
 
     const initialLandlordDaiBalance = await daiToken.balanceOf.call(participants[1])
     const result = await rda.submitTransactionPayDamages((weiDeposit[contract] / 2).toString(), {from: participants[1]})
@@ -64,7 +64,7 @@ contract("MultisigRDA: Return Deposit", (accounts) => {
     const gained = (await daiToken.balanceOf.call(participants[1])).sub(initialLandlordDaiBalance)
     const RDABalanceRemaining = await daiToken.balanceOf.call(rda.address)
     const RDADSRBalance = await rda.dsrBalance.call({from: participants[1]})
-    const damagesPaid = await rda.landlordDamagesPaid.call({from: participants[1]})
+    const damagesPaid = await rda.landlordDamagePaid.call({from: participants[1]})
     console.log("       Initial Deposit  : ", toEth(weiDeposit[contract]))
     console.log("       Landlord gained  : ", toEth(gained))
     console.log("       Damages Paid     : ", toEth(damagesPaid))
@@ -79,10 +79,10 @@ contract("MultisigRDA: Return Deposit", (accounts) => {
   it(`C0:: Try to withdraw the full deposit amount (double of what is allowed)`, async () => {
     const contract = 0
     const rda = multisigRDA[contract]
-    const daiToken = await GemLike.at(daiAddress)
+    const daiToken = await gemLike.at(daiAddress)
 
     const initialLandlordDaiBalance = await daiToken.balanceOf.call(participants[1])
-    const initialDamagesPaid = await rda.landlordDamagesPaid.call({from: participants[1]})
+    const initialDamagesPaid = await rda.landlordDamagePaid.call({from: participants[1]})
     const result = await rda.submitTransactionPayDamages(weiDeposit[contract].toString(), {from: participants[1]})
     const txnId = result.logs[0].args['txnId']
     await rda.confirmTransaction(txnId, {from: participants[2]})
@@ -91,7 +91,7 @@ contract("MultisigRDA: Return Deposit", (accounts) => {
     const gained = (await daiToken.balanceOf.call(participants[1])).sub(initialLandlordDaiBalance)
     const RDABalanceRemaining = await daiToken.balanceOf.call(rda.address)
     const RDADSRBalance = await rda.dsrBalance.call({from: participants[1]})
-    const damagesPaid = await rda.landlordDamagesPaid.call({from: participants[1]})
+    const damagesPaid = await rda.landlordDamagePaid.call({from: participants[1]})
     console.log("       Initial Deposit     : ", toEth(weiDeposit[contract]))
     console.log("       Initial Damages Paid: ", toEth(initialDamagesPaid))
     console.log("       Landlord gained     : ", toEth(gained))
@@ -107,11 +107,11 @@ contract("MultisigRDA: Return Deposit", (accounts) => {
   it(`C1:: Send some DAI to the contract before trying to withdraw full deposit.`, async () => {
     const contract = 1
     const rda = multisigRDA[contract]
-    const daiToken = await GemLike.at(daiAddress)
+    const daiToken = await gemLike.at(daiAddress)
 
     await daiToken.transfer(rda.address, (weiDeposit[contract] / 5).toString(), {from: participants[0]})
     const initialLandlordDaiBalance = await daiToken.balanceOf.call(participants[1])
-    const initialDamagesPaid = await rda.landlordDamagesPaid.call({from: participants[1]})
+    const initialDamagesPaid = await rda.landlordDamagePaid.call({from: participants[1]})
     const initialRDABalance = await daiToken.balanceOf.call(rda.address)
     const result = await rda.submitTransactionPayDamages(weiDeposit[contract].toString(), {from: participants[1]})
     const txnId = result.logs[0].args['txnId']
@@ -121,7 +121,7 @@ contract("MultisigRDA: Return Deposit", (accounts) => {
     const gained = (await daiToken.balanceOf.call(participants[1])).sub(initialLandlordDaiBalance)
     const RDABalanceRemaining = await daiToken.balanceOf.call(rda.address)
     const RDADSRBalance = await rda.dsrBalance.call({from: participants[1]})
-    const damagesPaid = await rda.landlordDamagesPaid.call({from: participants[1]})
+    const damagesPaid = await rda.landlordDamagePaid.call({from: participants[1]})
     console.log("       Initial Deposit     : ", toEth(weiDeposit[contract]))
     console.log("       Initial Damages Paid: ", toEth(initialDamagesPaid))
     console.log("       Initial Balance     : ", toEth(initialRDABalance))

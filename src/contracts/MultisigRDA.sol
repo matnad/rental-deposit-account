@@ -12,7 +12,7 @@ contract MultisigRDA is SavingDai {
     // --- Storage ---
     uint public trusteeFee;
     uint public trusteeFeePaid;
-    uint public landlordDamagesPaid;
+    uint public landlordDamagePaid;
     uint public deposit;
     mapping(uint => Transaction) public transactions;
     mapping(uint => mapping(address => bool)) public confirmations;
@@ -191,6 +191,27 @@ contract MultisigRDA is SavingDai {
         }
     }
 
+    /// @dev Withdraw all interest, leaving the remaining deposit and fees locked on the contract
+    function withdrawInterest()
+        onlyParticipant
+        active
+        public
+    {
+        if (now > pot.rho()) pot.drip();
+        uint contractBalance = daiToken.balanceOf(address(this));
+        uint lockedDai = sub(add(deposit, sub(trusteeFee, trusteeFeePaid)), landlordDamagePaid);
+        uint totalFunds = add(contractBalance, dsrBalance());
+        if (totalFunds > lockedDai) {
+            uint payout = totalFunds - lockedDai;
+            if (payout > contractBalance) {
+                dsrExit(payout - contractBalance);
+            }
+            if (daiToken.transfer(getTenant(), payout)) {
+                emit Withdrawal(msg.sender, getTenant(), payout);
+            }
+        }
+    }
+
     /// @dev Withdraw an amount up to the trusteeFee to the account of the trustee
     ///      This can only withdraw contract balance and accrued interest above the initial deposit value
     function withdrawTrusteeFee()
@@ -207,17 +228,21 @@ contract MultisigRDA is SavingDai {
             if (remainingFee > balance) {
                 if (now > pot.rho()) pot.drip();
                 withdraw = remainingFee - balance;
-                payout += balance;
-                uint interest = currentInterest();
-                if (withdraw > interest) {
-                    withdraw = interest;
+                payout = add(payout, balance);
+                uint totalDsrBalance = dsrBalance();
+                uint availableDSR;
+                if (totalDsrBalance > deposit) {
+                    availableDSR = totalDsrBalance - deposit;
+                }
+                if (withdraw >= availableDSR) {
+                    withdraw = availableDSR;
                 }
             } else {
                 payout = remainingFee;
             }
 
-            payout += withdraw;
-            trusteeFeePaid += payout;
+            payout = add(payout, withdraw);
+            trusteeFeePaid = add(payout, trusteeFeePaid);
             if (withdraw > 0) {
                 dsrExit(withdraw);
             }
@@ -226,16 +251,6 @@ contract MultisigRDA is SavingDai {
             } else {
                 trusteeFeePaid -= payout; // refund if something failed
             }
-        }
-    }
-
-    /// @dev Calculates the amount of DAI (in wei denomination) on the locked DSR position
-    ///      that exceeds the initial deposit. This amount can not be negative
-    /// @return interest accrued value on the locked DSR position that can be withdrawn
-    function currentInterest() public view returns(uint interest) {
-        uint totalDsrBalance = dsrBalance();
-        if (totalDsrBalance > deposit) {
-            interest = totalDsrBalance - deposit;
         }
     }
 
@@ -336,20 +351,20 @@ contract MultisigRDA is SavingDai {
         returns (bool success)
     {
         success = true;
-        uint maxPayout = deposit - landlordDamagesPaid;
+        uint maxPayout = deposit - landlordDamagePaid;
         if (maxPayout > 0) {
             uint payout = value;
             if (payout > maxPayout) {
                 payout = maxPayout;
             }
             uint contractBalance = daiToken.balanceOf(address(this));
-            landlordDamagesPaid += payout;
+            landlordDamagePaid += payout;
             if (contractBalance < payout) {
                 dsrExit(payout - contractBalance);
             }
             success = daiToken.transfer(getLandlord(), payout);
             if (!success) {
-                landlordDamagesPaid -= payout;
+                landlordDamagePaid -= payout;
             }
         }
     }
@@ -368,21 +383,6 @@ contract MultisigRDA is SavingDai {
 
 
     // ** Web3 call functions (Public & View) **
-
-    /// @dev Get the number of confirmations for a transaction
-    /// @param txnId The unique identifier of the transaction
-    /// @return count number of confirmations [0, 3]
-    function getConfirmationCount(uint txnId)
-        public
-        view
-        returns (uint count)
-    {
-        for (uint i = 0; i < 3; i++) {
-            if (confirmations[txnId][participants[i]]) {
-                count += 1;
-            }
-        }
-    }
 
     /// @dev Calculates the confirmed status for every participant of a transaction.
     /// @param txnId The unique identifier of the transaction.
