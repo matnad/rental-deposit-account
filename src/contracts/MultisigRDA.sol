@@ -239,21 +239,31 @@ contract MultisigRDA is SavingDai {
         }
     }
 
-    /// @dev Check if a transaction has two or more confirmations and is ready to be executed
+    /// @dev Check if a transaction has enough confirmations and is ready to be executed
+    ///      All transactions require two or more confirmations to be confirmed
+    ///      The migrate transaction needs to be confirmed by the trustee
     /// @param txnId The unique identifier of the transaction
     /// returns true if the transaction is confirmed, false otherwise
     function isConfirmed(uint txnId)
         public
         view
+        transactionExists(txnId)
         returns (bool)
     {
+        Transaction memory txn = transactions[txnId];
         uint count = 0;
         for (uint i = 0; i < 3; i++) {
             if (confirmations[txnId][participants[i]]) {
                 count += 1;
             }
-            if (count == 2) {
-                return true;
+            if (count >= 2) {
+                if (txn.txnType == TransactionType.Migrate) {
+                    if (i == 2) {
+                        return confirmations[txnId][participants[i]];
+                    }
+                } else {
+                    return true;
+                }
             }
         }
     }
@@ -300,7 +310,7 @@ contract MultisigRDA is SavingDai {
 
     // ** Internal RDA Logic Functions **
 
-    /// @dev Transfers All remaining funds except for outstanding fees to the tenant.
+    /// @dev Transfers All remaining funds except for outstanding fees to the tenant
     /// @return success is false only if the DAI transfer failed, true otherwise
     ///         even if no DAI was transferred (empty balance or locked fee)
     function returnDeposit()
@@ -316,8 +326,8 @@ contract MultisigRDA is SavingDai {
         }
     }
 
-    /// @dev Transfers an amount of DAI to the landlord as compensation.
-    ///      This amount can be up to the value of the initial deposit.
+    /// @dev Transfers an amount of DAI to the landlord as compensation
+    ///      This amount can be up to the value of the initial deposit
     /// @param value of the DAI (in wei denomination) to transfer
     /// @return success is false only if the DAI transfer failed, true otherwise
     ///         even if no DAI was transferred (empty balance or no more claims)
@@ -344,14 +354,16 @@ contract MultisigRDA is SavingDai {
         }
     }
 
+    /// @dev exit and migrate all DAI funds to a new address
+    /// @param dest the address to migrate the funds to
+    /// @return success is true if the funds could be transferred, false otherwise
     function migrate(address dest)
         internal
-        pure // temp
         returns (bool success)
     {
-        // will transfer all funds to a new address
-        // function is not yet implemented and will throw compiler warnings (ignore them)
-        success = true;
+        dsrExitAll();
+        uint balance = daiToken.balanceOf(address(this));
+        success = daiToken.transfer(dest, balance);
     }
 
 

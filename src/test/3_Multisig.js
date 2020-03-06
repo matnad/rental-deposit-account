@@ -87,7 +87,7 @@ contract("MultisigRDA: Multisig", (accounts) => {
     })
 
     it(`add a "Migrate" transaction`, async () => {
-        const sender = senders[2]
+        const sender = senders[0]
         const txnType = 2 // Migrate
         const dest = accounts[9] // address of new contract or address to migrate to
         multisig = await Multisig.deployed()
@@ -274,8 +274,19 @@ contract("MultisigRDA: Multisig", (accounts) => {
         result = await multisig.confirmTransaction(migrateId, {from: accounts[senders[1]]})
         truffleAssert.eventEmitted(result, 'Confirmation', { sender: accounts[senders[1]], txnId: migrateId })
 
+        // cant be executed with just tenant and landlord confirming
+        result = await multisig.executeTransaction(migrateId, {from: accounts[senders[0]]})
+        truffleAssert.eventNotEmitted(result, 'Execution');
+        txn = await multisig.transactions.call(migrateId)
+        assert.equal(txn.executed, false, 'transaction should not be executed')
+
+        // it is possible with 2 confirmations if trustee is involved
+        result = await multisig.revokeConfirmation(migrateId, {from: accounts[senders[1]]})
+        truffleAssert.eventEmitted(result, 'Revocation', { sender: accounts[senders[1]], txnId: migrateId })
+        result = await multisig.confirmTransaction(migrateId, {from: accounts[senders[2]]})
+        truffleAssert.eventEmitted(result, 'Confirmation', { sender: accounts[senders[2]], txnId: migrateId })
         result = await multisig.executeTransaction(migrateId, {from: accounts[senders[2]]})
-        truffleAssert.eventEmitted(result, 'Execution', { txnId: migrateId })
+        truffleAssert.eventEmitted(result, 'Execution', { txnId: migrateId });
         txn = await multisig.transactions.call(migrateId)
         assert.equal(txn.executed, true, 'transaction should be executed')
 
