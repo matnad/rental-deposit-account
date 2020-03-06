@@ -112,7 +112,7 @@ contract("Behaviour: Damage", (accounts) => {
     assert(gains[trustee].toString(), fee.toString(), "Trustee should gain the fee exactly.")
   })
 
-  it(`Trustee tries to steal interest`, async () => {
+  it(`Trustee tries to steal interest and fails`, async () => {
     const balance = await daiToken.balanceOf.call(trustee)
     const result = await rda.withdrawTrusteeFee({from: trustee})
     const gained = (await daiToken.balanceOf.call(trustee)).sub(balance)
@@ -120,7 +120,7 @@ contract("Behaviour: Damage", (accounts) => {
     assert.equal(gained.toString(), "0", 'Trustee already claimed fee')
   })
 
-  it(`Tenant withdraws his interest and fails`, async () => {
+  it(`Tenant withdraws his interest`, async () => {
     const balance = await daiToken.balanceOf.call(tenant)
     const result = await rda.withdrawInterest({from: tenant})
     const gained = (await daiToken.balanceOf.call(tenant)).sub(balance)

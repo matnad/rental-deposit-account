@@ -61,6 +61,8 @@ truffle exec scripts/<nameOfFile.js>
 ```
 
 ## Documentation for tests
+**Do not run `truffle test`.** Run tests individually, e.g. `truffle test test/30_Expected.js` or, preferably, use the prepared NPM scripts, e.g. `npm run test_expected`.
+
 The tests are separated into different categories with the first digit of the file name specifying the category.
 
 ### Category: Setup (00-09)
