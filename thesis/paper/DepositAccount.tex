@@ -82,7 +82,7 @@ Center for Innovative Finance, University of Basel
 \section*{Abstract}
 \end{center}
 TEMP: Analyze the incentive structure of the current rental deposit account situation and devise
-a DAI powered smart contract that will attempt to improve on it. \\
+a DAI powered smart contract that will invest the locked funds. \\
 \vfill
 \textbf{Keywords:} Ethereum, smart contract, DAI, rental deposit account.\\
 \noindent\textbf{JEL:} G21, G52, G19
@@ -122,7 +122,38 @@ Matthias Nadler
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Introduction}
-Short overview of the problem we try to solve. Mention Ethereum and DAI, but don't go in-depth.
+\label{sec:introduction}
+In Switzerland, according to the code of obligations (\textit{dt. Obligationenrecht, OR})  Art. 257e para. 3, a rental deposit needs to be placed in a (savings-) account at a bank, or in a deposit on the tenants name. The interest rate for a rental deposit account at one of Switzerland's largest three banks is between 0\% (UBS, Credit Suisse) and 0.05\% (Raiffeisen).\footnote{As of March 8th 2020, according to the official rates published by the banks.}
+
+Setup, changes and release or restitution related to the deposit account all have to be handled in paper forms and require the signatures of both the tenant and the renter. These are time consuming processes for all involved parties.
+
+The presented rental deposit account smart contract attempts to solve both problems, allowing for higher interest rates and for immediate, digital transactions between the parties. All while keeping the same level of security and improving transparency. 
+
+\subsection{Smart Contracts}
+\label{sub:smart-contracts}
+Smart contracts are similar to traditional contracts, but they are written in a computer language and deployed on a system that is accessible to all contract parties. When interacting with a smart contract program or protocol, the code is able verify your instructions and enforce the resulting actions.
+
+There are a few issues and questions that arise with the implementation of smart contracts. Most of these can be elegantly solved by deploying the smart contract on a public blockchain\footnote{It is assumed that the reader is familiar with blockchain and accompanying terminology. For an in-depth introduction to the topic the author recommends \cite{Schaer2017} (in German) or \cite{Lewis2018} (in English).} with a Turing complete language\footnote{A touring complete programming language has all the necessary instructions to solve any computational problem given enough resources. Bitcoin for example does not have a touring complete language, therefore no universal smart contracts can be deployed on this blockchain.}.
+
+
+\begin{description}
+	\item[Availability] A public blockchain is always online and accessible from everywhere. Each smart contract is deployed at a fixed address on the blockchain.
+	\item[Authentication] Blockchains use private key cryptography to guarantee ownership of accounts (addresses) and do all of the heavy lifting. Smart contracts need no additional authentication logic.
+	\item[Immutability] The most difficult feature to replicate without a public blockchain. The code of a deployed smart contract can never be changed. This means no one has the ability to alter the contract retroactively. Often times this also removes the need for a third party trustee and makes completely trust-less interactions possible.
+	\item[Power to enforce] Smart contracts, like any other address, can directly control digital assets built on top of the blockchain. Any coin or token sent to a contract can not be recovered  unless it is transferred by the contract logic.
+	\item[Transparency] The full contract code and every past interaction with the smart contract is stored on the blockchain and publicly available.
+\end{description}
+
+Our rental deposit account will combine a smart contract as described above with traditional off-chain contracts to create a more efficient agreement between the involved parties.
+
+\subsection{Ethereum}
+\label{sub:ethereum}
+
+Any blockchain that implements a Turing complete programming language can be used to develop smart contracts. Among these options, Ethereum is the most popular according to an ecosystem report by \cite{ElectricCapital2019}: Of all open source crypto developers, 18\% worked in the Ethereum ecosystem during the first half of 2019. This is around four times more than for the second most popular platform EOS.
+
+More reasons to develop this project on Ethereum include: The University of Basel teaches Solidity - the Ethereum specific programming language - in their courses. Ethereum has the widest array of decentralized finance products%TODO: citation
+, including a very successful stablecoin which is the cornerstone of our application. Finally, the shortcomings of Ethereum compared to its alternatives - fewer transactions per second and higher transaction costs - are mitigated since our contract will perform very few transactions over its lifetime.
+
 
 
 %%%%%%%%%%%%%%%%%%
