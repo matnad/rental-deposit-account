@@ -1,0 +1,142 @@
+.row {
+    padding-left: 64px;
+}
+
+.table {
+    color: white !important;
+}
+
+.disabled-tile, .disabled-tile:hover {
+    background-color: #aaa !important;
+    color: #777;
+}
+
+.selected-tile, .selected-tile:active, .selected-tile:hover {
+    background: #444 !important;
+    color: white !important;
+}
+
+.component-center {
+    margin: 0 auto !important;
+    justify-content: center;
+}
+
+.text-black {
+    color: black;
+}
+
+/*Toasts*/
+.toastWindow {
+    min-width: 350px;
+    color: #222;
+}
+
+@media (max-width: 600px) {
+    .toastWindow {
+        min-width: 250px;
+        max-width: 90% !important;
+        color: #222;
+    }
+}
+
+/*Cards*/
+.question-card {
+    background-color: #e5e5e5 !important;
+    color: #222;
+}
+
+.hint-card {
+    background-color: #aaa !important;
+    color: #222;
+    margin-bottom: 0.5em;
+}
+
+.hint-card-disabled {
+    background-color: #555 !important;
+    color: #222;
+    margin-bottom: 0.5em;
+}
+
+.hint-header {
+    padding: 0.5em 0.75em !important;
+}
+
+.hint-body {
+    padding: 0.5em 0.75em !important;
+    background-color: #e5e5e5 !important;
+}
+
+.hint-body-disabled {
+    padding: 0.5em 0.75em !important;
+    background-color: #777 !important;
+}
+
+
+/*Form Styles*/
+.form-control {
+    background-color: #cecece !important;
+}
+
+/*Cursor Hand*/
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/*Modal*/
+.modal-content {
+    background-color: #aaa !important;
+    color: black;
+    line-height: 26px;
+}
+
+.modal-content select, .modal-content select:focus, .modal-content textarea, .modal-content textarea:focus {
+    background-color: #777 !important;
+    color: black;
+    font-size: 14px;
+}
+
+/*Autocomplete*/
+.react-autosuggest__container {
+    position: relative;
+}
+
+.react-autosuggest__input--open {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.react-autosuggest__suggestions-container {
+    display: none;
+    color: #495057;
+    background-color: #aaaaaa;
+}
+
+.react-autosuggest__suggestions-container--open {
+    background-color: #e5e5e5 !important;
+    display: block;
+    position: absolute;
+    top: 51px;
+    width: 280px;
+    border: 1px solid #aaa;
+    font-family: Helvetica, sans-serif;
+    font-weight: 300;
+    font-size: 16px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    z-index: 2;
+}
+
+.react-autosuggest__suggestions-list {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.react-autosuggest__suggestion {
+    cursor: pointer;
+    padding: 10px 20px;
+}
+
+.react-autosuggest__suggestion--highlighted {
+    background-color: #ddd;
+}
