@@ -1,12 +1,12 @@
-import {LOGIN_FAIL, LOGIN_SUCCESS, WEB3_LOADED} from './types'
+import {LOGIN_FAIL, LOGIN_SUCCESS, METAMASK_UPDATE} from "./types"
 
 // Load Web3
-export const loadWeb3 = (web3) => dispatch => {
-  dispatch({
-    type: WEB3_LOADED,
-    payload: web3
-  })
-}
+// export const loadWeb3 = (web3) => dispatch => {
+//   dispatch({
+//     type: WEB3_LOADED,
+//     payload: web3
+//   })
+// }
 
 
 export const login = (acc) => dispatch => {
@@ -21,5 +21,11 @@ export const login = (acc) => dispatch => {
       payload: acc
     })
   }
+}
 
+export const updateMetamask = (isMM) => dispatch => {
+  dispatch({
+    type: METAMASK_UPDATE,
+    payload: isMM
+  })
 }

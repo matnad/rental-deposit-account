@@ -1,8 +1,6 @@
-import {combineReducers} from 'redux'
-import toastReducer from "./toastReducer"
+import {combineReducers} from "redux"
 import authReducer from "./authReducer"
 
 export default combineReducers({
-  toasts: toastReducer,
   auth: authReducer
 });

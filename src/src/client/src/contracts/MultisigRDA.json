@@ -32622,14 +32622,117 @@
   },
   "networks": {
     "999": {
-      "events": {},
+      "events": {
+        "0x4a504a94899432a9846e1aa406dceb1bcfd538bb839071d49d1e5e23f5be30ef": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "sender",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "txnId",
+              "type": "uint256"
+            }
+          ],
+          "name": "Confirmation",
+          "type": "event"
+        },
+        "0x33e13ecb54c3076d8e8bb8c2881800a4d972b792045ffae98fdf46df365fed75": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "txnId",
+              "type": "uint256"
+            }
+          ],
+          "name": "Execution",
+          "type": "event"
+        },
+        "0x526441bb6c1aba3c9a4a6ca1d6545da9c2333c8c48343ef398eb858d72b79236": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "txnId",
+              "type": "uint256"
+            }
+          ],
+          "name": "ExecutionFailure",
+          "type": "event"
+        },
+        "0xf6a317157440607f36269043eb55f1287a5a19ba2216afeab88cd46cbcfb88e9": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "sender",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "txnId",
+              "type": "uint256"
+            }
+          ],
+          "name": "Revocation",
+          "type": "event"
+        },
+        "0xc0ba8fe4b176c1714197d43b9cc6bcf797a4a7461c5fe8d0ef6e184ae7601e51": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "uint256",
+              "name": "txnId",
+              "type": "uint256"
+            }
+          ],
+          "name": "Submission",
+          "type": "event"
+        },
+        "0x2717ead6b9200dd235aad468c9809ea400fe33ac69b5bfaa6d3e90fc922b6398": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "initiator",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "receiver",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "value",
+              "type": "uint256"
+            }
+          ],
+          "name": "Withdrawal",
+          "type": "event"
+        }
+      },
       "links": {},
-      "address": "0xC7a7d5CdE659e327eFC5Fe68c05E88701d7f6036",
-      "transactionHash": "0x090fe795d453e17432d6400a70195f81b85382695f269154fe02b30135626932"
+      "address": "0x8F7837A587d75A1633dA07160040FA7AE7F8969C",
+      "transactionHash": "0x370d313612991263e0ed3061bd5165738b9edd07fc7d4906beb662e336d4fdf6"
     }
   },
   "schemaVersion": "3.0.23",
-  "updatedAt": "2020-03-12T16:56:22.175Z",
+  "updatedAt": "2020-03-12T17:16:28.460Z",
   "devdoc": {
     "author": "Matthias Nadler, University of Basel",
     "methods": {

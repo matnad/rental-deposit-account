@@ -1,22 +1,17 @@
-import {AUTH_ERROR, LOGIN_FAIL, LOGIN_SUCCESS, WEB3_FAILED, WEB3_LOADED} from '../actions/types'
+import {AUTH_ERROR, LOGIN_FAIL, LOGIN_SUCCESS, METAMASK_UPDATE} from "../actions/types"
 
 
 const initialState = {
-  web3: null,
-  address: null
+  address: null,
+  isMetamask: true
 }
 
 export default function (state = initialState, action) {
   switch (action.type) {
-    case WEB3_LOADED:
+    case METAMASK_UPDATE:
       return {
         ...state,
-        web3: action.payload,
-      }
-    case WEB3_FAILED:
-      return {
-        ...state,
-        web3: null
+        isMetamask: action.payload,
       }
     case LOGIN_SUCCESS:
       return {

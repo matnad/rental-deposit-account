@@ -5,10 +5,6 @@ export const AUTH_ERROR = "AUTH_ERROR"
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS"
 export const LOGIN_FAIL = "LOGIN_FAIL"
 export const LOGOUT_SUCCESS = "LOGOUT_SUCCESS"
+export const METAMASK_UPDATE = "METAMASK_UPDATE"
 
-export const SHOW_MODAL = 'SHOW_MODAL'
-export const HIDE_MODAL = 'HIDE_MODAL'
-
-export const PUSH_TOAST = 'PUSH_TOAST'
-export const TOGGLE_TOAST = 'TOGGLE_TOAST'
-export const REMOVE_TOAST = 'REMVOE_TOAST'
+export const RDAS_LOADED = "RDAS_LOADED"

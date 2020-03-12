@@ -138,7 +138,7 @@ sup {
   top: -.5em; }
 
 a {
-  color: #1c2541;
+  color: #575757;
   text-decoration: none;
   background-color: transparent; }
   a:hover {
@@ -5926,7 +5926,7 @@ button.bg-light:focus {
   background-color: #cccccc !important; }
 
 .bg-dark {
-  background-color: #222 !important; }
+  background-color: #282828 !important; }
 
 a.bg-dark:hover, a.bg-dark:focus,
 button.bg-dark:hover,

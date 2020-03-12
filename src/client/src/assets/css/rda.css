@@ -25,10 +25,10 @@
     color: black;
 }
 
-/*Toasts*/
-.toastWindow {
-    min-width: 350px;
-    color: #222;
+/*MetaMask Container*/
+.metamask-container {
+    margin-right: 70px;
+    align-content: center;
 }
 
 @media (max-width: 600px) {
