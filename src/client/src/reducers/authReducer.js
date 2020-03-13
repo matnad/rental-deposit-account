@@ -1,9 +1,11 @@
-import {AUTH_ERROR, LOGIN_FAIL, LOGIN_SUCCESS, METAMASK_UPDATE} from "../actions/types"
+import {ACCOUNT_UPDATE, CHAINID_UPDATE, METAMASK_UPDATE, MM_LOADED} from "../actions/types"
 
 
 const initialState = {
-  address: null,
-  isMetamask: true
+  isLoading: true,
+  account: null,
+  chainId: 0,
+  isMetaMask: false,
 }
 
 export default function (state = initialState, action) {
@@ -11,18 +13,24 @@ export default function (state = initialState, action) {
     case METAMASK_UPDATE:
       return {
         ...state,
-        isMetamask: action.payload,
+        account: action.payload ? state.account : null,
+        networkId: action.payload ? state.networkId : 0,
+        isMetaMask: action.payload,
       }
-    case LOGIN_SUCCESS:
+    case CHAINID_UPDATE:
       return {
         ...state,
-        address: action.payload
+        chainId: action.payload
       }
-    case AUTH_ERROR:
-    case LOGIN_FAIL:
+    case ACCOUNT_UPDATE:
       return {
         ...state,
-        address: null
+        account: action.payload
+      }
+    case MM_LOADED:
+      return {
+        ...state,
+        isLoading: false
       }
     default:
       return state

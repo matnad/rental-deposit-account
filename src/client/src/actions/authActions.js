@@ -1,31 +1,28 @@
-import {LOGIN_FAIL, LOGIN_SUCCESS, METAMASK_UPDATE} from "./types"
+import {ACCOUNT_UPDATE, CHAINID_UPDATE, METAMASK_UPDATE, MM_LOADED} from "./types"
 
-// Load Web3
-// export const loadWeb3 = (web3) => dispatch => {
-//   dispatch({
-//     type: WEB3_LOADED,
-//     payload: web3
-//   })
-// }
+export const loaded = () => dispatch => {
+  dispatch({
+    type: MM_LOADED
+  })
+}
 
-
-export const login = (acc) => dispatch => {
-  if (acc != null) {
-    dispatch({
-      type: LOGIN_SUCCESS,
-      payload: acc
-    })
-  } else {
-    dispatch({
-      type: LOGIN_FAIL,
-      payload: acc
-    })
-  }
+export const updateAccount = (account) => dispatch => {
+  dispatch({
+    type: ACCOUNT_UPDATE,
+    payload: account
+  })
 }
 
 export const updateMetamask = (isMM) => dispatch => {
   dispatch({
     type: METAMASK_UPDATE,
     payload: isMM
+  })
+}
+
+export const updateNetwork = (networkId) => dispatch => {
+  dispatch({
+    type: CHAINID_UPDATE,
+    payload: networkId
   })
 }

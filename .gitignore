@@ -9,7 +9,7 @@
 /src/node_modules/
 /src/client/node_modules/
 # dotenv
-.env
+/src/.env
 
 ## Core latex/pdflatex auxiliary files:
 *.aux

@@ -1,44 +1,39 @@
 import React, {Component} from "react"
 import {connect} from "react-redux"
-import {Card, Text} from "rimble-ui"
-import NoMetamask from "./NoMetamask"
-import {loadRdas} from "../actions/rdaActions"
+import {Card} from "rimble-ui"
+import DisplayRdas from "./DisplayRdas"
+import PageLoader from "./PageLoader"
 
 class Home extends Component {
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (prevProps.auth.address !== this.props.auth.address && this.props.auth.address != null) {
-            const {address} = this.props.auth
-            if (address) {
-                this.props.loadRdas(address)
-            }
-        }
 
+  render() {
+    const {isLoading} = this.props.auth
+    if (isLoading) {
+      return <PageLoader/>
     }
-
-    render() {
-        const {isMetamask} = this.props.auth
-        return (
-            isMetamask ?
-                <Card width={"auto"} maxWidth={"800px"} mx={"auto"} bg={"dark-gray"} px={[3, 3, 4]} border={"none"}>
-                    <Text ></Text>
-                    {/*<Box p={3} width={1} color="salmon" bg="gray">*/}
-                    {/*    Box*/}
-                    {/*</Box>*/}
-                </Card>
-                :
-                <NoMetamask/>
-        )
-    }
+    return (
+      <Card
+        width={3 / 4}
+        mx={"auto"}
+        bg={"dark-gray"}
+        px={[3, 3, 4]}
+        border={"none"}
+      >
+        <DisplayRdas/>
+      </Card>
+    )
+  }
 }
 
 const mapStateToProps = (state, ownProps) => {
-    return ({
-        auth: state.auth,
-    })
+  return ({
+    auth: state.auth,
+    rda: state.rda
+  })
 }
 
 export default connect(
-    mapStateToProps,
-    {loadRdas},
+  mapStateToProps,
+  null,
 )(Home)

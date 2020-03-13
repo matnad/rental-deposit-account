@@ -1,23 +1,36 @@
-import {} from "./types"
-import getWeb3 from "../getWeb3"
+import {RDAS_LOADED, RDAS_LOADING} from "./types"
 import RDARegistry from "../contracts/RDARegistry"
+import {getEthereum} from "../utils/getEthereum"
+import Web3 from "web3"
+import {desiredNetworks} from "../utils/settings"
 
-export const loadRdas = (address) => dispatch => {
+export const loadRdas = (account) => (dispatch) => {
+
+    dispatch({type: RDAS_LOADING})
+
     async function getRdas() {
-        console.log("rda")
-        const web3 = await getWeb3(false)
-        console.log(web3)
-        const networkId = await web3.eth.net.getId()
+        const web3 = new Web3(await getEthereum())
+        const chainId = (await web3.eth.net.getId()).toString()
 
-        const deployedNetwork = RDARegistry.networks[networkId]
+        if(!desiredNetworks.includes(chainId)) {
+            return []
+        }
+
+        const deployedNetwork = RDARegistry.networks[chainId]
         const registry = new web3.eth.Contract(
             RDARegistry.abi,
             deployedNetwork && deployedNetwork.address,
         )
-        const rdas = await registry.methods.getByParticipant(address).call()
-        console.log(rdas)
+        return await registry.methods.getByParticipant(account).call()
+
     }
 
+
     getRdas()
-        .then(res => console.log("succ"))
+        .then(rdas => {
+            dispatch({
+                type: RDAS_LOADED,
+                payload: rdas
+            })
+        })
 }
