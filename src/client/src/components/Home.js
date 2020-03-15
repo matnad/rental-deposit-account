@@ -3,6 +3,7 @@ import {connect} from "react-redux"
 import {Card} from "rimble-ui"
 import DisplayRdas from "./DisplayRdas"
 import PageLoader from "./PageLoader"
+import {selectRda} from "../actions/rdaActions"
 
 class Home extends Component {
 
@@ -35,5 +36,5 @@ const mapStateToProps = (state, ownProps) => {
 
 export default connect(
   mapStateToProps,
-  null,
+  {selectRda},
 )(Home)

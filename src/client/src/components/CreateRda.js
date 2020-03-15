@@ -42,7 +42,7 @@ class CreateRda extends Component {
 
 }
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = (state) => {
   return ({
     auth: state.auth,
     rda: state.rda,

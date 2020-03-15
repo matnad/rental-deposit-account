@@ -4,18 +4,14 @@ import {connect} from "react-redux"
 import {loadRdas} from "../actions/rdaActions"
 
 import metamaskSvg from "../assets/images/MetaMaskIcon.svg"
-import {ModalType, Status} from "../reducers/transactionReducer"
+import {getTransactionInfo, ModalType, Status} from "../utils/transactionProperties"
 import {changeModal} from "../actions/transactionActions"
 import {truncateAddress} from "../utils/string"
+import {rowColors} from "../utils/settings"
 
-const rowColors = ["#bbb", "#ccc"]
 let c = 0
 
 class TransactionConfirm extends Component {
-
-  // constructor(props) {
-  //   super(props);
-  // }
 
   getCostRow(type, eth, fiat) {
     if (eth <= 0 || !["price", "transaction"].includes(type)) {
@@ -75,10 +71,27 @@ class TransactionConfirm extends Component {
 
   closeModal = () => this.props.changeModal(ModalType.NONE)
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.txn.status !== this.props.txn.status && this.props.txn.status === Status.PENDING) {
+      // Wait 2 seconds, then change modals
+      new Promise(resolve => {
+        setTimeout(() => {
+          if(this.props.txn.showModal === ModalType.CONFIRM) {
+            this.props.changeModal(ModalType.PENDING)
+          }
+          resolve()
+        }, 2000)
+      })
+    }
+  }
+
   render() {
     const txn = this.props.txn
     const isShow = txn.showModal === ModalType.CONFIRM
     if (!isShow) return null
+
+    c = 0
+    const txnInfo = getTransactionInfo(txn.type)
 
     const status = txn.status
     const price = {
@@ -96,7 +109,7 @@ class TransactionConfirm extends Component {
 
     return (
       <Modal isOpen={isShow}>
-        <Card borderRadius={1} border={1} borderColor="gray" p={0} bg="dark-gray">
+        <Card borderRadius={1} border={1} borderColor="gray" p={0} bg="dark-gray" width={1} maxWidth="600px">
           <Flex
             justifyContent="space-between"
             alignItems="center"
@@ -105,13 +118,9 @@ class TransactionConfirm extends Component {
             p={[3, 4]}
             pb={3}
           >
-            <Image
-              src={metamaskSvg}
-              aria-label="MetaMask extension icon"
-              size="24px"
-            />
+            <Image src={metamaskSvg} aria-label="MetaMask extension icon" size="24px"/>
             <Heading textAlign="center" as="h1" fontSize={[2, 3]} px={[3, 0]}>
-              {txn.confirm}
+              {txnInfo.confirmTitle}
             </Heading>
             <Link onClick={this.closeModal}>
               <Icon name="Close" color="moon-gray" aria-label="Close"/>
@@ -119,9 +128,27 @@ class TransactionConfirm extends Component {
           </Flex>
           <Box p={[3, 4]}>
             <Flex justifyContent={"space-between"} flexDirection={"column"}>
-              <Text textAlign="center">
-                Double check the details here – this transaction can't be refunded.
+              <Text textAlign="justify" mb={2}>
+                {txnInfo.confirmSubTitle}
               </Text>
+              {txn.status === Status.WAITING ?
+                <>
+                <Text textAlign="justify">
+                  With the recommended gas price of {txn.gasPrice * Math.pow(10, 9)} GWEI,
+                  your transaction should take less than {maxMins} minute{maxMins > 1 ? "s" : null} to complete.
+                  You can adjust the gas price in MetaMask to make it faster but more expensive or slower but cheaper.
+                </Text>
+                {txn.gasPrice * Math.pow(10, 9) > 15 && txn.gasAmount > 1000000 ?
+                    <Text mt={2} color="warning">
+                      Warning: Gas costs are currently very high and your transaction requires a lot of gas.
+                      If you can wait, consider executing the transaction later or with a lower gas price.
+                      Currently {txn.gasPriceSafeLow * Math.pow(10, 9)} GWEI is a safe low gas price.{" "}
+                      <Link color="silver" href={`https://ethgasstation.info/gasrecs.php`} target={"_blank"}>Read more
+                        here.</Link>
+                    </Text> : null
+                }
+                </> : null
+              }
               <Flex
                 alignItems={"stretch"}
                 flexDirection={"column"}
@@ -207,7 +234,7 @@ class TransactionConfirm extends Component {
                             mb={[3, 0]}
                           >
                             <Box position={"absolute"} top={"0"} left={"0"}>
-                              <Icon name="Warning" color="danger" size={"2em"}/>
+                              <Icon name="CheckCircle" color="success" size={"2em"}/>
                             </Box>
                           </Box>
                           <Box>
@@ -281,12 +308,14 @@ class TransactionConfirm extends Component {
                   <Text color="near-black" fontWeight="bold">
                     Estimated time
                   </Text>
-                  <Text color={"mid-gray"}>Less than {maxMins} minutes</Text>
+                  <Text color={"mid-gray"}>
+                    Less than {maxMins} minute{maxMins > 1 ? "s" : null} remaining
+                  </Text>
                 </Flex>
               </Flex>
               {
                 status === Status.CONFIRMED || status === Status.REJECTED ?
-                <Button.Outline onClick={this.closeModal}>Close</Button.Outline> : null
+                  <Button.Outline onClick={this.closeModal}>Close</Button.Outline> : null
 
               }
             </Flex>

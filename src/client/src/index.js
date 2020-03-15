@@ -15,11 +15,12 @@ const customTheme = {
     ...theme
 }
 customTheme.colors.text = "white"
+customTheme.colors.background = '#282828 '
 
 ReactDOM.render(
     <BrowserRouter>
         <Provider store={store}>
-            <ThemeProvider theme={theme}>
+            <ThemeProvider theme={customTheme}>
                 <BaseStyles>
                     <App/>
                 </BaseStyles>

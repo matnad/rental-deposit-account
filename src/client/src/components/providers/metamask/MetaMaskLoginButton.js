@@ -8,6 +8,8 @@ import {desiredNetworks, networkNames} from "../../../utils/settings"
 
 import metamaskSvg from "../../../assets/images/MetaMaskIcon.svg"
 import {truncateAddress} from "../../../utils/string"
+import Web3 from "web3"
+import {deselectRda} from "../../../actions/rdaActions"
 
 let detect = require("detect-browser").detect
 
@@ -35,6 +37,8 @@ class MetaMaskLoginButton extends Component {
   constructor(props, context) {
     super(props, context)
 
+    this.web3 = null
+
     this.handleClick = this.handleClick.bind(this)
     this.mount = this.mount.bind(this)
     this.init = this.init.bind(this)
@@ -44,7 +48,7 @@ class MetaMaskLoginButton extends Component {
 
     this.state = {
       isLoading: true,
-      isMetaMask: false,
+      isMetaMask: null,
       account: null,
       chainId: null,
       showConnectModal: false,
@@ -63,16 +67,19 @@ class MetaMaskLoginButton extends Component {
 
     if (prevState.account !== this.state.account) {
       this.props.updateAccount(this.state.account)
-      if (prevState.account != null && this.state.account != null)
+      // console.log(prevState.account, this.state.account)
+      if (prevState.account != null && prevState.account !== "" && this.state.account != null) {
         window.toastProvider.addMessage(
           `Account switched to`,
-          {secondaryMessage: MetaMaskLoginButton.truncateAddress(this.state.account), variant: "success"},
+          {secondaryMessage: truncateAddress(this.state.account), variant: "success"},
         )
+        this.props.deselectRda()
+      }
     }
 
     if (prevState.chainId !== this.state.chainId) {
       this.props.updateNetwork(this.state.chainId)
-      if (!desiredNetworks.includes(this.state.chainId)) {
+      if (!desiredNetworks.includes(this.state.chainId) && this.state.chainID != null) {
         window.toastProvider.addMessage(
           `${networkNames[this.state.chainId]} not supported`,
           {secondaryMessage: "Use Ethereum Main Net or Custom RPC", variant: "failure"},
@@ -94,25 +101,34 @@ class MetaMaskLoginButton extends Component {
       console.log('Please connect to MetaMask.')
     } else if (accounts[0] !== null) {
       this.setState({
-        account: accounts[0]
+        account: this.web3.utils.toChecksumAddress(accounts[0])
       })
     }
   }
 
   componentWillMount = async () => {
     const ethereum = await getEthereum()
-    ethereum.autoRefreshOnNetworkChange = false
 
-    this.handleChainChanged(ethereum.networkVersion) // will be async send
-    ethereum.on('networkChanged', this.handleChainChanged) // Will be chainChanged
+    if (ethereum != null) {
+      this.web3 = new Web3(ethereum)
+      ethereum.autoRefreshOnNetworkChange = false
 
-    this.handleAccountsChanged([ethereum.selectedAddress]) // this will change a lot
-    ethereum.on('accountsChanged', this.handleAccountsChanged)
+      this.handleChainChanged(ethereum.networkVersion) // will be async send
+      ethereum.on('networkChanged', this.handleChainChanged) // Will be chainChanged
 
-    this.setState({
-      isMetaMask: ethereum.isMetaMask,
-      isLoading: false
-    })
+      this.handleAccountsChanged([ethereum.selectedAddress]) // this will change a lot
+      ethereum.on('accountsChanged', this.handleAccountsChanged)
+
+      this.setState({
+        isMetaMask: ethereum.isMetaMask,
+        isLoading: false
+      })
+    } else {
+      this.setState({
+        isMetaMask: false,
+        isLoading: false
+      })
+    }
   }
 
   handleClick() {
@@ -183,6 +199,8 @@ class MetaMaskLoginButton extends Component {
       this.setState({isConnectionError: false})
       const ethereum = await getEthereum()
       this.setState({showConnectModal: true})
+      await ethereum.enable()
+      await ethereum.enable()
       const accounts = await ethereum.enable()
       this.handleAccountsChanged(accounts)
       window.toastProvider.addMessage(
@@ -328,5 +346,5 @@ const mapStateToProps = (state) => {
 
 export default connect(
   mapStateToProps,
-  {updateAccount, updateMetamask, updateNetwork, loaded},
+  {updateAccount, updateMetamask, updateNetwork, loaded, deselectRda},
 )(MetaMaskLoginButton)

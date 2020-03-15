@@ -8,8 +8,8 @@ function RdaForm(props) {
   const [formValidated] = useState(false)
   const [validated, setValidated] = useState(false)
   const [tenantValue, setTenantValue] = useState("0x16Fb96a5fa0427Af0C8F7cF1eB4870231c8154B6")
-  const [landlordValue, setLandlordValue] = useState("0x16Fb96a5fa0427Af0C8F7cF1eB4870231c8154B6")
-  const [trusteeValue, setTrusteeValue] = useState("0x16Fb96a5fa0427Af0C8F7cF1eB4870231c8154B6")
+  const [landlordValue, setLandlordValue] = useState("0x81431b69B1e0E334d4161A13C2955e0f3599381e")
+  const [trusteeValue, setTrusteeValue] = useState("0xDa1495EBD7573D8E7f860862BaA3aBecebfa02E0")
   const [trusteeFeeValue, setTrusteeFeeValue] = useState("100")
 
   const web3 = props.web3
@@ -68,7 +68,10 @@ function RdaForm(props) {
       web3.utils.isAddress(landlordValue) &&
       web3.utils.isAddress(trusteeValue) &&
       trusteeFeeValue > 0 &&
-      props.auth.account != null
+      props.auth.account != null &&
+      tenantValue !== landlordValue &&
+      tenantValue !== trusteeValue &&
+      landlordValue !== trusteeValue
     ) {
       setValidated(true)
     } else {
@@ -87,6 +90,8 @@ function RdaForm(props) {
     }
   }
 
+  const {account} = props.auth
+
   return (
     <Box p={2}>
       <Box>
@@ -95,9 +100,20 @@ function RdaForm(props) {
             <Heading>Create a new Rental Deposit Account</Heading>
           </Box>
           <Box width={[1, 1, 1]} px={3} mb={2}>
-            <Text fontSize={".9em"}>Enter the Ethereum addresses of the three participants and the fee for the
-              trustee. <br/>
-              You can only proceed if all three addresses are valid Ethereum accounts.</Text>
+            {account ?
+              <>
+                <Text fontSize={".9em"}>Enter the Ethereum addresses of the three participants and the fee for the
+                  trustee. <br/>
+                  You can only proceed if all three addresses are different and valid Ethereum accounts.</Text>
+                {
+                  (tenantValue === landlordValue || tenantValue === trusteeValue || landlordValue === trusteeValue) ?
+                    <Text color="warning">All participants must have unique addresses!</Text> : null
+                }
+              </>
+              :
+              <Text fontSize={"1em"} fontWeight="bold">You must be logged in and connected with MetaMask to
+                continue!</Text>
+            }
           </Box>
           <hr/>
           <Flex mt={2} mb={3} flexWrap={"wrap"}>
@@ -162,9 +178,9 @@ function RdaForm(props) {
           </Flex>
           <Box>
             {/* Use the validated state to update UI */}
-              <Button type="submit" disabled={!validated}>
-                Next: Review and Confirm
-              </Button>
+            <Button type="submit" disabled={!validated}>
+              Next: Review and Confirm
+            </Button>
           </Box>
         </Form>
       </Box>

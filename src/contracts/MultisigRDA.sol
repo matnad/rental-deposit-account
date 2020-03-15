@@ -81,6 +81,10 @@ contract MultisigRDA is SavingDai {
             tenant != address(0) && landlord != address(0) && trustee != address(0),
             "RDA/empty-address"
         );
+        require(
+            tenant != landlord && tenant != trustee && landlord != trustee,
+            "RDA/duplicate-addresses"
+        );
         participants = [tenant, landlord, trustee];
         isParticipant[tenant] = true;
         isParticipant[landlord] = true;
@@ -389,6 +393,18 @@ contract MultisigRDA is SavingDai {
 
 
     // ** Web3 call functions (Public & View) **
+
+
+    function getParticipants()
+        public
+        view
+        returns (address[] memory participantsArr)
+    {
+        participantsArr = new address[](3);
+        for (uint i = 0; i < 3; i++) {
+            participantsArr[i] = participants[i];
+        }
+    }
 
     /// @dev Calculates the confirmed status for every participant of a transaction.
     /// @param txnId The unique identifier of the transaction.

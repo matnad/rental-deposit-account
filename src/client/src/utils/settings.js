@@ -8,3 +8,4 @@ export const networkNames = {
   "42": "Kovan",
   "999": "Custom RPC",
 }
+export const rowColors = ["#bbb", "#ccc"]

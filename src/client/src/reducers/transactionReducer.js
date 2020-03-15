@@ -1,50 +1,37 @@
-import {TRANSACTION_CREATED, TRANSACTION_MODAL_CHANGE, TRANSACTION_STATUS_CHANGE} from "../actions/types"
+import {
+  TRANSACTION_CREATED,
+  TRANSACTION_MODAL_CHANGE,
+  TRANSACTION_STATUS_CHANGE,
+  TRANSACTION_UPDATE
+} from "../actions/types"
 
-export const TxnType = Object.freeze({
-  INVALID: "invalid",
-  CREATE_RDA:   "createRda",
-  SUBMIT_TXN:  "submitTxn",
-  CONFIRM_TXN: "confirmTxn"
-});
+import {ModalType, Status, TxnType} from "../utils/transactionProperties"
 
-export const ModalType = Object.freeze({
-  NONE: "none",
-  CONFIRM:   "confirm",
-  PROGRESS:  "progress"
-});
-
-export const Status = Object.freeze({
-  INVALID: "invalid",
-  WAITING:   "waiting",
-  CONFIRMED: "confirmed",
-  REJECTED: "rejected",
-  PENDING: "pending",
-  REVERTED: "reverted",
-  FAILED: "failed",
-  COMPLETED: "completed"
-});
-
-const initialState = {
-  hash: null,
-  type: TxnType.INVALID,
-  payload: {}, // type specific payload
-  confirm: "Confirm your transaction in Metamask",
-  product: "Transaction",
-  title: "Transaction is on its way",
-  subtitle: "Nice! The transaction will be processed shortly",
-  progress: 0,
-  account: null,
-  price: 0,
-  gasPrice: 0,
-  gasAmount: 0,
-  startedAt: new Date(),
-  estimatedTotalTime: 0,
-  showModal: ModalType.NONE,
-  status: Status.INVALID
-}
+const initialState = localStorage.getItem('txn') ||
+  {
+    hash: null,
+    type: TxnType.INVALID,
+    payload: {}, // type specific payload
+    account: null,
+    price: 0,
+    gasPrice: 0,
+    gasAmount: 0,
+    startedAt: new Date(),
+    estimatedTotalTime: 0,
+    progress: 0,
+    remainingTime: 0,
+    showModal: ModalType.NONE,
+    status: Status.INVALID,
+    receipt: null
+  }
 
 export default function (state = initialState, action) {
   switch (action.type) {
+    case TRANSACTION_UPDATE:
+      return {
+        ...state,
+        ...action.payload
+      }
     case TRANSACTION_MODAL_CHANGE:
       return {
         ...state,

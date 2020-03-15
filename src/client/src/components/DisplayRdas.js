@@ -1,9 +1,16 @@
 import React, {Component} from "react"
 import {connect} from "react-redux"
 import {Box, Button, Flex, Loader, Text} from "rimble-ui"
-import {loadRdas} from "../actions/rdaActions"
-import {Link} from "react-router-dom"
-import {truncateAddress} from "../utils/string"
+import {loadRdas, selectRda} from "../actions/rdaActions"
+import {Link, withRouter} from "react-router-dom"
+import styled from 'styled-components'
+
+const HoverBox = styled(Box)`
+	:hover {
+		background-color: #1e1e1e;
+		cursor: pointer;
+	}
+`
 
 class DisplayRdas extends Component {
 
@@ -30,22 +37,69 @@ class DisplayRdas extends Component {
 
   renderRdas() {
     const {contracts} = this.props.rda
-    if (contracts.length === 0) {
+    if (Object.keys(contracts).length === 0) {
       return null
     }
-    return contracts.map((rda, index) => {
-      return (<Flex key={index}>
-          <Box width={1/2}>Address: {truncateAddress(rda)}</Box>
-          <Box width={1/2}>... more info ...</Box>
-        </Flex>
-      )
-    })
+    const {account, isLoading} = this.props.auth
+    return (
+      <Box borderTop={"1px solid"}>
+        {Object.values(contracts).map((rda, index) => {
+          let role = <Loader ml="auto" mr="auto"/>
+          if (rda.participants && !isLoading) {
+            switch (account) {
+              case rda.participants[0]:
+                role = "You are the tenant."
+                break
+              case rda.participants[1]:
+                role = "You are the landlord."
+                break
+              case rda.participants[2]:
+                role = "You are the trustee."
+                break
+              default:
+                role = "You are not directly involved."
+            }
+          }
+          let weight = "regular"
+          let bgColor = "none"
+          const isSelected = rda.address === this.props.rda.selected.address
+          if (isSelected) {
+            weight = "bold"
+            bgColor = "#1e1e1e"
+          }
+
+          return (
+            <HoverBox
+              key={index}
+              py={2}
+              bg={bgColor}
+              onClick={() => {
+                isSelected ?
+                  this.props.history.push("/details") :
+                  this.props.selectRda(rda.address)
+              }}
+              borderBottom={"1px solid"}
+            >
+              <Flex>
+                <Box width={1 / 2}>
+                  <Text fontWeight={weight}>{rda.address}</Text>
+                </Box>
+                <Box width={1 / 2} textAlign="center">
+                  <Text fontWeight={weight}>{role}</Text>
+                </Box>
+              </Flex>
+            </HoverBox>
+          )
+        })
+        }
+      </Box>
+    )
   }
 
   render() {
     const {account} = this.props.auth
     const {contracts, isLoading} = this.props.rda
-    const nRda = contracts.length
+    const nRda = Object.keys(contracts).length
 
     return (
       <>
@@ -58,7 +112,7 @@ class DisplayRdas extends Component {
                   nRda === 0 ?
                     <Text fontWeight={"bold"}>No open Rental Deposit Contracts found for the current account.</Text> :
                     <Text
-                      fontWeight={"bold"}>{`Your account has ${nRda} associated Rental Deposit Contract ${nRda > 1 ? 's' : ''}.`}</Text>
+                      fontWeight={"bold"}>{`Your account has ${nRda} associated Rental Deposit Contract${nRda > 1 ? 's' : ''}.`}</Text>
                 : <Text fontWeight={"bold"}>Connect your account with MetaMask to view and create Rental Deposit
                   Accounts.</Text>
             }
@@ -77,9 +131,9 @@ class DisplayRdas extends Component {
           {
             isLoading ?
               null :
-            <Box width={1} mt={4}>
-              {this.renderRdas()}
-            </Box>
+              <Box width={1} mt={4}>
+                {this.renderRdas()}
+              </Box>
           }
         </Flex>
       </>
@@ -94,7 +148,7 @@ const mapStateToProps = (state) => {
   })
 }
 
-export default connect(
+export default withRouter(connect(
   mapStateToProps,
-  {loadRdas},
-)(DisplayRdas)
+  {loadRdas, selectRda},
+)(DisplayRdas))

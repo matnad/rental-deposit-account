@@ -5,12 +5,16 @@ import NoMetamask from "./NoMetamask"
 class Wrapper extends Component {
 
   render() {
+    const {isMetaMask, isLoading} = this.props.auth
 
-    const {isMetamask, address} = this.props.auth
+    if(isLoading) {
+      return null
+    }
+
 
     return (
 
-      !isMetamask ?
+      !isMetaMask ?
         <NoMetamask/> :
         this.props.children
     )

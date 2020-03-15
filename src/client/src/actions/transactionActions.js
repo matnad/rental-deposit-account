@@ -1,5 +1,5 @@
-import {TRANSACTION_CREATED, TRANSACTION_MODAL_CHANGE, TRANSACTION_STATUS_CHANGE} from "./types"
-import {ModalType, Status, TxnType} from "../reducers/transactionReducer"
+import {TRANSACTION_CREATED, TRANSACTION_MODAL_CHANGE, TRANSACTION_STATUS_CHANGE, TRANSACTION_UPDATE} from "./types"
+import {ModalType, Status, TxnType} from "../utils/transactionProperties"
 import RDARegistry from "../contracts/RDARegistry"
 import {getEthereum} from "../utils/getEthereum"
 import Web3 from "web3"
@@ -20,25 +20,31 @@ export const changeModal = (newModal) => dispatch => {
   })
 }
 
+export const updateTransaction = (payload) => dispatch => {
+  dispatch({
+    type: TRANSACTION_UPDATE,
+    payload
+  })
+}
+
 export const createRdaTxn = (tenant, landlord, trustee, trusteeFee, sender) => dispatch => {
 
   const txn = {
     hash: null,
     type: TxnType.CREATE_RDA,
     payload: {tenant, landlord, trustee, trusteeFee},
-    confirm: "Confirm in MetaMask to open an RDA",
-    product: "Rental Deposit Account",
-    title: "Your Rental Deposit Account is being opened",
-    subtitle: "Very nice! It should be ready soon.",
-    progress: 0,
     account: sender,
     price: 0,
     gasAmount: 0,
     gasPrice: 0,
+    gasPriceSafeLow: 0,
     startedAt: new Date(),
     estimatedTotalTime: 120,
+    progress: 0,
+    remainingTime: 120,
     showModal: ModalType.CONFIRM,
-    status: Status.WAITING
+    status: Status.WAITING,
+    // receipt: null,
   }
 
 
@@ -55,7 +61,10 @@ export const createRdaTxn = (tenant, landlord, trustee, trusteeFee, sender) => d
     try {
       const gasStation = (await axios.get(`https://ethgasstation.info/json/ethgasAPI.json`)).data
       gasPriceWei = (gasStation.average * Math.pow(10, 8)).toString()
+      console.log(gasStation)
+      txn.gasPriceSafeLow = (gasStation.safeLow * Math.pow(10, -10)).toString()
       txn.estimatedTotalTime = gasStation.avgWait * 60
+      txn.remainingTime = txn.estimatedTotalTime
 
     } catch (e) {
       gasPriceWei = await web3.eth.getGasPrice()
@@ -81,6 +90,10 @@ export const createRdaTxn = (tenant, landlord, trustee, trusteeFee, sender) => d
           dispatch({
             type: TRANSACTION_STATUS_CHANGE,
             payload: Status.PENDING
+          })
+          dispatch({
+            type: TRANSACTION_UPDATE,
+            payload: {hash, startedAt: new Date()}
           })
         })
         .catch(err => {

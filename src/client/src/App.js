@@ -10,6 +10,8 @@ import {Container} from "react-bootstrap"
 import {Route, Switch} from "react-router-dom"
 import CreateRDA from "./components/CreateRda"
 import PageLoader from "./components/PageLoader"
+import Wrapper from "./components/Wrapper"
+import RdaDetails from "./components/RdaDetails"
 
 class App extends Component {
   state = {storageValue: 0, web3: null, accounts: null, contract: null}
@@ -52,15 +54,16 @@ class App extends Component {
         />
         <div style={{height: 100}}/>
         <ToastMessage.Provider delay={20000} ref={node => (window.toastProvider = node)}/>
-        {/*<Wrapper>*/}
+        <Wrapper>
           <Container>
             <Switch>
               <Route path="/create" component={CreateRDA}/>
+              <Route path="/details" component={RdaDetails}/>
               <Route path="/loader" component={PageLoader}/>
               <Route path="/" component={Home}/>
             </Switch>
           </Container>
-        {/*</Wrapper>*/}
+        </Wrapper>
       </>
     )
   }

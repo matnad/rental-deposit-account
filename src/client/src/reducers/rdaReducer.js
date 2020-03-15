@@ -1,9 +1,10 @@
-import {RDAS_LOADED, RDAS_LOADING} from "../actions/types"
+import {RDA_POPULATED, RDA_SELECTED, RDAS_LOADED, RDAS_LOADING} from "../actions/types"
 
 
 const initialState = {
   isLoading: true,
-  contracts: []
+  contracts: {},
+  selected: {}
 }
 
 export default function (state = initialState, action) {
@@ -14,10 +15,47 @@ export default function (state = initialState, action) {
         isLoading: true
       }
     case RDAS_LOADED:
+      const contractAddresses = action.payload
+      const contracts = {}
+      contractAddresses.forEach(address => {
+        contracts[address] = {address}
+      })
       return {
         ...state,
-        contracts: action.payload,
+        contracts: contracts,
         isLoading: false
+      }
+    case RDA_POPULATED:
+      const {rdaAddress, rdaParticipants} = action.payload
+      return {
+        ...state,
+        contracts: {
+          ...state.contracts,
+          [rdaAddress]: {
+            ...state.contracts[rdaAddress],
+            participants: rdaParticipants
+          }
+        }
+      }
+    case RDA_SELECTED:
+      let selected
+      if (!action.payload) {
+        selected = {}
+      } else {
+        const {participants, address, deposit, fee} = action.payload
+        selected = {
+          address,
+          participants,
+          tenant: participants[0],
+          landlord: participants[1],
+          trustee: participants[2],
+          deposit,
+          fee
+        }
+      }
+      return {
+        ...state,
+        selected
       }
     default:
       return state

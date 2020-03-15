@@ -15,11 +15,11 @@ contract RDARegistry {
     uint public rdaCount;
 
     event createdRDA(
-        address rdaAddress,
+        address indexed rdaAddress,
         uint id,
-        address indexed tenant,
-        address indexed landlord,
-        address indexed trustee
+        address tenant,
+        address landlord,
+        address trustee
     );
 
     function createRDA(address tenant, address landlord, address trustee, uint trusteeFee)
