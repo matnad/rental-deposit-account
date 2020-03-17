@@ -13,8 +13,8 @@ let c = 0
 
 class TransactionConfirm extends Component {
 
-  getCostRow(type, eth, fiat) {
-    if (eth <= 0 || !["price", "transaction"].includes(type)) {
+  getCostRow(type, amountCrypto, fiat) {
+    if (isNaN(amountCrypto) || amountCrypto <= 0 || !["dai", "eth", "transaction"].includes(type)) {
       return ''
     }
     return (
@@ -34,7 +34,7 @@ class TransactionConfirm extends Component {
             color="near-black"
             fontWeight="bold"
           >
-            {type === "price" ? "Price" : "Transaction Fee"}
+            {type === "eth" || type === "dai" ? "Price" : "Transaction Fee"}
           </Text>
           {type === "transaction" ?
             <Tooltip
@@ -59,7 +59,7 @@ class TransactionConfirm extends Component {
             fontWeight="bold"
             lineHeight={"1em"}
           >
-            {eth} ETH
+            {amountCrypto} {type === "eth" ? "ETH" : type === "dai" ? "DAI" : null}
           </Text>
           <Text color="mid-gray" fontSize={1}>
             {fiat} CHF
@@ -80,7 +80,7 @@ class TransactionConfirm extends Component {
             this.props.changeModal(ModalType.PENDING)
           }
           resolve()
-        }, 2000)
+        }, 1000)
       })
     }
   }
@@ -94,9 +94,12 @@ class TransactionConfirm extends Component {
     const txnInfo = getTransactionInfo(txn.type)
 
     const status = txn.status
+
     const price = {
-      eth: txn.price.toFixed(4),
-      fiat: (txn.price * 100).toFixed(4)
+      dai: Number.parseFloat(txn.dai).toFixed(2),
+      eth: Number.parseFloat(txn.eth).toFixed(4),
+      daiFiat: (Number.parseFloat(txn.dai) * 0.95).toFixed(4),
+      ethFiat: (Number.parseFloat(txn.eth) * 100).toFixed(4)
     }
 
     const ethFee = (txn.gasPrice * txn.gasAmount)
@@ -224,7 +227,7 @@ class TransactionConfirm extends Component {
                           </Link>
                         </Box>
                       </>
-                      : status === Status.CONFIRMED || status === Status.PENDING ?
+                      : status === Status.CONFIRMED || status === Status.PENDING || status === Status.REVERTED ?
                         <>
                           <Box
                             position={"relative"}
@@ -296,7 +299,8 @@ class TransactionConfirm extends Component {
                     </Tooltip>
                   </Link>
                 </Flex>
-                {this.getCostRow("price", price.eth, price.fiat)}
+                {this.getCostRow("dai", price.dai, price.daiFiat)}
+                {this.getCostRow("eth", price.eth, price.ethFiat)}
                 {this.getCostRow("transaction", fee.eth, fee.fiat)}
                 <Flex
                   justifyContent={"space-between"}
@@ -314,7 +318,7 @@ class TransactionConfirm extends Component {
                 </Flex>
               </Flex>
               {
-                status === Status.CONFIRMED || status === Status.REJECTED ?
+                status === Status.WAITING || status === Status.CONFIRMED || status === Status.REJECTED ?
                   <Button.Outline onClick={this.closeModal}>Close</Button.Outline> : null
 
               }

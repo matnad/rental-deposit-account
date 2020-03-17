@@ -19,7 +19,7 @@
     "redux-thunk": "^2.3.0",
     "rimble-ui": "^0.13.1",
     "styled-components": "^5.0.1",
-    "web3": "1.2.2"
+    "web3": "1.2.6"
   },
   "scripts": {
     "start": "react-scripts start",

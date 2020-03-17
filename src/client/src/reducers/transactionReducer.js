@@ -22,7 +22,9 @@ const initialState = localStorage.getItem('txn') ||
     remainingTime: 0,
     showModal: ModalType.NONE,
     status: Status.INVALID,
-    receipt: null
+    receipt: null,
+    revertReason: undefined,
+    reasonReported: false
   }
 
 export default function (state = initialState, action) {

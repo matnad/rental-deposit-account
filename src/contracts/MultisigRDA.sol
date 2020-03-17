@@ -97,6 +97,7 @@ contract MultisigRDA is SavingDai {
     /// @dev Sets the contract active and allows for further interaction. Will lock all DAI in DSR.
     ///      The deposit is equal to the DAI balance when this function is called and can never be changed.
     function start() external onlyParticipant {
+        // require sender == tenant!
         require(deposit == 0, "RDA/already-started");
         uint balance = daiToken.balanceOf(address(this));
         require(balance > 0, "RDA/no-dai-found");

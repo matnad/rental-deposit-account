@@ -129,7 +129,7 @@ class DisplayRdas extends Component {
         </Flex>
         <Flex>
           {
-            isLoading ?
+            isLoading || !account ?
               null :
               <Box width={1} mt={4}>
                 {this.renderRdas()}

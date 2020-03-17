@@ -10,6 +10,7 @@ import {Box, Flex} from "rimble-ui"
 import TransactionSuccess from "./TransactionSuccess"
 import SelectedRdaMaster from "./SelectedRdaMaster"
 import {Link} from 'react-router-dom'
+import TransactionError from "./TransactionError"
 
 
 class TopNav extends Component {
@@ -23,10 +24,15 @@ class TopNav extends Component {
                 style={{height: 70}}
         >
           <Navbar.Brand as={Link} to="/home">Rental Deposit Account</Navbar.Brand>
-          <Nav className="mr-auto">
-            {/*<Nav.Link as={Link} to="/details">Details</Nav.Link>*/}
-            <Nav.Link as={Link} to="/documents">Documents</Nav.Link>
-          </Nav>
+          {
+            this.props.rda.selected && this.props.rda.selected.address ?
+              <Nav className="mr-auto">
+                <Nav.Link as={Link} to="/details">Details</Nav.Link>
+                <Nav.Link as={Link} to="/actions">Actions</Nav.Link>
+                <Nav.Link as={Link} to="/documents">Documents</Nav.Link>
+              </Nav>
+              : null
+          }
           <Box width={1}>
             <Flex>
               <Box width={"80px"}/>
@@ -45,6 +51,7 @@ class TopNav extends Component {
         <TransactionConfirm/>
         <TransactionProcessing/>
         <TransactionSuccess/>
+        <TransactionError/>
       </>
     )
   }
@@ -58,6 +65,7 @@ TopNav.propTypes = {
 const mapStateToProps = (state, ownProps) => {
   return ({
     auth: state.auth,
+    rda: state.rda
   })
 }
 

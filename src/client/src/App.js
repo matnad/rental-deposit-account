@@ -12,6 +12,7 @@ import CreateRDA from "./components/CreateRda"
 import PageLoader from "./components/PageLoader"
 import Wrapper from "./components/Wrapper"
 import RdaDetails from "./components/RdaDetails"
+import RdaActions from "./components/Actions"
 
 class App extends Component {
   state = {storageValue: 0, web3: null, accounts: null, contract: null}
@@ -59,6 +60,7 @@ class App extends Component {
             <Switch>
               <Route path="/create" component={CreateRDA}/>
               <Route path="/details" component={RdaDetails}/>
+              <Route path="/actions" component={RdaActions}/>
               <Route path="/loader" component={PageLoader}/>
               <Route path="/" component={Home}/>
             </Switch>

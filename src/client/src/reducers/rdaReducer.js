@@ -1,4 +1,4 @@
-import {RDA_POPULATED, RDA_SELECTED, RDAS_LOADED, RDAS_LOADING} from "../actions/types"
+import {RDA_POPULATED, RDA_SELECTED, RDA_UPDATE_SELECTED, RDAS_LOADED, RDAS_LOADING} from "../actions/types"
 
 
 const initialState = {
@@ -37,12 +37,25 @@ export default function (state = initialState, action) {
           }
         }
       }
+    case RDA_UPDATE_SELECTED:
+      return {
+        ...state,
+        ...action.payload
+      }
     case RDA_SELECTED:
       let selected
       if (!action.payload) {
         selected = {}
       } else {
-        const {participants, address, deposit, fee} = action.payload
+        const {
+          participants,
+          address,
+          deposit,
+          fee,
+          recordedActions,
+          dsrBalance,
+          daiBalance
+        } = action.payload
         selected = {
           address,
           participants,
@@ -50,7 +63,10 @@ export default function (state = initialState, action) {
           landlord: participants[1],
           trustee: participants[2],
           deposit,
-          fee
+          fee,
+          recordedActions,
+          dsrBalance,
+          daiBalance
         }
       }
       return {

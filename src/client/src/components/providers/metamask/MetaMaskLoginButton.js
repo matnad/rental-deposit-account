@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import {connect} from "react-redux"
 import {MetaMaskButton, Modal, Box, Flex, Text, Loader, Button, Link, Icon, Image, Card, Heading} from "rimble-ui"
 import styled from "styled-components"
-import {loaded, updateAccount, updateMetamask, updateNetwork} from "../../../actions/authActions"
+import {loaded, updateAccount, updateDaiBalance, updateMetamask, updateNetwork} from "../../../actions/authActions"
 import {getEthereum} from "../../../utils/getEthereum"
 import {desiredNetworks, networkNames} from "../../../utils/settings"
 
@@ -67,8 +67,11 @@ class MetaMaskLoginButton extends Component {
 
     if (prevState.account !== this.state.account) {
       this.props.updateAccount(this.state.account)
+      this.props.updateDaiBalance(this.state.account)
       // console.log(prevState.account, this.state.account)
-      if (prevState.account != null && prevState.account !== "" && this.state.account != null) {
+      if (this.state.account  == null) {
+        this.props.deselectRda()
+      } else if (prevState.account != null && prevState.account !== "") {
         window.toastProvider.addMessage(
           `Account switched to`,
           {secondaryMessage: truncateAddress(this.state.account), variant: "success"},
@@ -96,9 +99,12 @@ class MetaMaskLoginButton extends Component {
   handleChainChanged = (chainId) => this.setState({chainId})
 
   handleAccountsChanged(accounts) {
-    if (accounts.length === 0) {
+    if (accounts.length <= 0 || accounts[0] == null) {
       // MetaMask is locked or the user has not connected any accounts
       console.log('Please connect to MetaMask.')
+      this.setState({
+        account: undefined
+      })
     } else if (accounts[0] !== null) {
       this.setState({
         account: this.web3.utils.toChecksumAddress(accounts[0])
@@ -346,5 +352,5 @@ const mapStateToProps = (state) => {
 
 export default connect(
   mapStateToProps,
-  {updateAccount, updateMetamask, updateNetwork, loaded, deselectRda},
+  {updateAccount, updateDaiBalance, updateMetamask, updateNetwork, loaded, deselectRda},
 )(MetaMaskLoginButton)

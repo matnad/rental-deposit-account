@@ -86,11 +86,13 @@ function RdaForm(props) {
   const handleSubmit = e => {
     e.preventDefault()
     if (props.auth.account != null) {
-      props.createRdaTxn(tenantValue, landlordValue, trusteeValue, trusteeFeeValue, props.auth.account)
+      const weiFee = web3.utils.toWei(trusteeFeeValue.toString(), "ether")
+      props.createRdaTxn(tenantValue, landlordValue, trusteeValue, weiFee.toString(), props.auth.account)
     }
   }
 
   const {account} = props.auth
+
 
   return (
     <Box p={2}>

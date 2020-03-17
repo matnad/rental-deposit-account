@@ -1,7 +1,7 @@
 import {Box, Button, Card, Flex, Heading, Icon, Link, Loader, Modal, Text, Tooltip} from "rimble-ui"
 import React, {Component} from "react"
 import {connect} from "react-redux"
-import {getTransactionInfo, ModalType} from "../utils/transactionProperties"
+import {getTransactionInfo, ModalType, Status} from "../utils/transactionProperties"
 import {rowColors} from "../utils/settings"
 import {truncateAddress} from "../utils/string"
 import {changeModal} from "../actions/transactionActions"
@@ -10,8 +10,8 @@ let c = 0
 
 class TransactionProcessing extends Component {
 
-  getCostRow(type, eth, fiat) {
-    if (eth <= 0 || !["price", "transaction"].includes(type)) {
+  getCostRow(type, amountCrypto, fiat) {
+    if (isNaN(amountCrypto) || amountCrypto <= 0 || !["dai", "eth", "transaction"].includes(type)) {
       return ''
     }
     return (
@@ -31,7 +31,7 @@ class TransactionProcessing extends Component {
             color="near-black"
             fontWeight="bold"
           >
-            {type === "price" ? "Price" : "Transaction Fee"}
+            {type === "eth" || type === "dai" ? "Price" : "Transaction Fee"}
           </Text>
           {type === "transaction" ?
             <Tooltip
@@ -56,7 +56,7 @@ class TransactionProcessing extends Component {
             fontWeight="bold"
             lineHeight={"1em"}
           >
-            {eth} ETH
+            {amountCrypto} {type === "eth" ? "ETH" : type === "dai" ? "DAI" : null}
           </Text>
           <Text color="mid-gray" fontSize={1}>
             {fiat} CHF
@@ -71,14 +71,16 @@ class TransactionProcessing extends Component {
   render() {
     c = 0
     const txn = this.props.txn
-    const isShow = txn.showModal === ModalType.PROGRESS
+    const isShow = txn.showModal === ModalType.PROGRESS && txn.status === Status.PENDING
     if (!isShow) return null
 
     const txnInfo = getTransactionInfo(txn.type)
 
     const price = {
-      eth: txn.price.toFixed(4),
-      fiat: (txn.price * 100).toFixed(4)
+      dai: Number.parseFloat(txn.dai).toFixed(2),
+      eth: Number.parseFloat(txn.eth).toFixed(4),
+      daiFiat: (Number.parseFloat(txn.dai) * 0.95).toFixed(4),
+      ethFiat: (Number.parseFloat(txn.eth) * 100).toFixed(4)
     }
 
     const ethFee = (txn.gasPrice * txn.gasAmount)
@@ -229,7 +231,8 @@ class TransactionProcessing extends Component {
                   </Link>
                 </Flex>
 
-                {this.getCostRow("price", price.eth, price.fiat)}
+                {this.getCostRow("dai", price.dai, price.daiFiat)}
+                {this.getCostRow("eth", price.eth, price.ethFiat)}
                 {this.getCostRow("transaction", fee.eth, fee.fiat)}
 
                 <Flex

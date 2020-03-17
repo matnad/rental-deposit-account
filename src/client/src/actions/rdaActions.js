@@ -1,9 +1,11 @@
-import {RDA_POPULATED, RDA_SELECTED, RDAS_LOADED, RDAS_LOADING} from "./types"
+import {RDA_POPULATED, RDA_SELECTED, RDA_UPDATE_SELECTED, RDAS_LOADED, RDAS_LOADING} from "./types"
 import RDARegistry from "../contracts/RDARegistry"
 import MultisigRDA from "../contracts/MultisigRDA"
+import GemLike from "../contracts/GemLike"
 import {getEthereum} from "../utils/getEthereum"
 import Web3 from "web3"
 import {desiredNetworks} from "../utils/settings"
+import addresses from "../utils/addresses"
 
 export const loadRdas = (account) => (dispatch) => {
   dispatch({type: RDAS_LOADING})
@@ -68,10 +70,17 @@ export const selectRda = (address) => (dispatch) => {
 
     const rda = new web3.eth.Contract(MultisigRDA.abi, address)
 
+    const dai = new web3.eth.Contract(GemLike.abi, addresses.dai)
+
     const promises = [
       await rda.methods.getParticipants().call(),
       await rda.methods.deposit().call(),
       await rda.methods.trusteeFee().call(),
+      await rda.methods.trusteeFeePaid().call(),
+      await rda.methods.landlordDamagePaid().call(),
+      await rda.methods.getTransactionIds(true, true).call(),
+      await rda.methods.dsrBalance().call(),
+      await dai.methods.balanceOf(address).call()
     ]
 
     const results = await Promise.all(Object.values(promises))
@@ -80,6 +89,11 @@ export const selectRda = (address) => (dispatch) => {
       participants: results[0],
       deposit: results[1],
       fee: results[2],
+      feePaid: results[3],
+      damagesPaid: results[4],
+      recordedActions: results[5],
+      dsrBalance: (new web3.utils.BN(results[6])).add(new web3.utils.BN(1)).toString(), //round up
+      daiBalance: results[7]
     }
 
   }
@@ -93,9 +107,17 @@ export const selectRda = (address) => (dispatch) => {
     })
 }
 
+export const updateSelected = (payload) => (dispatch) => {
+  dispatch({
+    type: RDA_UPDATE_SELECTED,
+    payload
+  })
+}
+
 export const deselectRda = () => (dispatch) => {
   dispatch({
     type: RDA_SELECTED,
     payload: null
   })
 }
+
