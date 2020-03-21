@@ -69,29 +69,33 @@ class MetaMaskLoginButton extends Component {
       this.props.updateAccount(this.state.account)
       this.props.updateDaiBalance(this.state.account)
       // console.log(prevState.account, this.state.account)
-      if (this.state.account  == null) {
+      if (this.state.account == null && !this.state.isLoading) {
+        // console.log("1")
         this.props.deselectRda()
       } else if (prevState.account != null && prevState.account !== "") {
         window.toastProvider.addMessage(
           `Account switched to`,
           {secondaryMessage: truncateAddress(this.state.account), variant: "success"},
         )
+        // console.log("2")
         this.props.deselectRda()
       }
     }
 
     if (prevState.chainId !== this.state.chainId) {
       this.props.updateNetwork(this.state.chainId)
-      if (!desiredNetworks.includes(this.state.chainId) && this.state.chainID != null) {
-        window.toastProvider.addMessage(
-          `${networkNames[this.state.chainId]} not supported`,
-          {secondaryMessage: "Use Ethereum Main Net or Custom RPC", variant: "failure"},
-        )
-      } else if (prevState.chainId != null) {
-        window.toastProvider.addMessage(
-          `Network switched to ${networkNames[this.state.chainId]}`,
-          {variant: "success"},
-        )
+      if (prevState.chainId !== null) {
+        if (!desiredNetworks.includes(this.state.chainId) && this.state.chainId != null) {
+          window.toastProvider.addMessage(
+            `${networkNames[this.state.chainId]} not supported`,
+            {secondaryMessage: "Check the network indicator on top", variant: "failure"},
+          )
+        } else if (prevState.chainId != null) {
+          window.toastProvider.addMessage(
+            `Network switched to ${networkNames[this.state.chainId]}`,
+            {variant: "success"},
+          )
+        }
       }
     }
   }
@@ -118,7 +122,6 @@ class MetaMaskLoginButton extends Component {
     if (ethereum != null) {
       this.web3 = new Web3(ethereum)
       ethereum.autoRefreshOnNetworkChange = false
-
       this.handleChainChanged(ethereum.networkVersion) // will be async send
       ethereum.on('networkChanged', this.handleChainChanged) // Will be chainChanged
 
@@ -205,8 +208,6 @@ class MetaMaskLoginButton extends Component {
       this.setState({isConnectionError: false})
       const ethereum = await getEthereum()
       this.setState({showConnectModal: true})
-      await ethereum.enable()
-      await ethereum.enable()
       const accounts = await ethereum.enable()
       this.handleAccountsChanged(accounts)
       window.toastProvider.addMessage(
@@ -278,7 +279,8 @@ class MetaMaskLoginButton extends Component {
                     <Icon name="Warning" color="danger" size={"3em"} mr={[0, 3]} mb={[2, 0]}/>
                     <Flex flexDirection="column" alignItems={["center", "flex-start"]}>
                       <Text fontWeight={4}>Connection refused</Text>
-                      <Text fontWeight={2}>Without connecting your Account, you will not be able to use this website.</Text>
+                      <Text fontWeight={2}>Without connecting your Account, you will not be able to use this
+                        website.</Text>
                     </Flex>
                   </>
                   :
@@ -321,23 +323,23 @@ class MetaMaskLoginButton extends Component {
   }
 
 
-
   render() {
     const {account, isLoading, isMetaMask} = this.state
+
     return (
       <div className={"metamask-container"}>
         {this.connectModal()}
         {
           account ?
-              <LoggedInMMButton mb={2} mt={2} onClick={this.handleClick}>
-                  {truncateAddress(account)}
-              </LoggedInMMButton>
-              :
-              isLoading ?
-                  <Loader size={"1.5em"} style={{marginRight: 130}}/> :
-                  <LoginMMButton mb={2} mt={2} onClick={this.handleClick}>
-                      {isMetaMask ? "Connect with MetaMask" : "Install MetaMask"}
-                  </LoginMMButton>
+            <LoggedInMMButton mb={2} mt={2} onClick={this.handleClick}>
+              {truncateAddress(account)}
+            </LoggedInMMButton>
+            :
+            isLoading ?
+              <Loader size={"1.5em"} style={{marginRight: 130}}/> :
+              <LoginMMButton mb={2} mt={2} onClick={this.handleClick}>
+                {isMetaMask ? "Connect with MetaMask" : "Install MetaMask"}
+              </LoginMMButton>
         }
       </div>
     )

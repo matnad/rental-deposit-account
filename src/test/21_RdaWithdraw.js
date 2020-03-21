@@ -104,7 +104,7 @@ contract("MultisigRDA: Withdraw Fee", (accounts) => {
     const gained = trusteeBalance - initialTrusteeBalance
     console.log("       Withdraw gained (Mwei): ", toMwei(gained))
     console.log("       Left   interest (Mwei): ", toMwei(remainingInterest))
-    assert.equal(remainingInterest.gt(0), true, 'could not withdraw in one step')
+    assert.equal(remainingInterest.gt(new BN(0)), true, 'could not withdraw in one step')
   })
 
   it(`C2:: send enough dai to contract to cover the fee`, async () => {

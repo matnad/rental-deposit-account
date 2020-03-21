@@ -138,7 +138,7 @@ There are a few issues and questions that arise with the implementation of smart
 
 \begin{description}
 	\item[Availability] A public blockchain is always online and accessible from everywhere. Each smart contract is deployed at a fixed address on the blockchain.
-	\item[Authentication] Blockchains use private key cryptography to guarantee ownership of accounts (addresses) and do all of the heavy lifting. Smart contracts need no additional authentication logic.
+	\item[Authentication] Blockchains use private key cryptography to guarantee ownership of accounts (getAddresses) and do all of the heavy lifting. Smart contracts need no additional authentication logic.
 	\item[Immutability] The most difficult feature to replicate without a public blockchain. The code of a deployed smart contract can never be changed. This means no one has the ability to alter the contract retroactively. Often times this also removes the need for a third party trustee and makes completely trust-less interactions possible.
 	\item[Power to enforce] Smart contracts, like any other address, can directly control digital assets built on top of the blockchain. Any coin or token sent to a contract can not be recovered  unless it is transferred by the contract logic.
 	\item[Transparency] The full contract code and every past interaction with the smart contract is stored on the blockchain and publicly available.

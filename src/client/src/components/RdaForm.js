@@ -2,15 +2,16 @@ import React, {useState} from "react"
 import {Box, Button, Field, Flex, Form, Heading, Input, Text} from "rimble-ui"
 import {connect} from "react-redux"
 import {createRdaTxn} from "../actions/transactionActions"
+import {withRouter} from "react-router-dom"
 
 
 function RdaForm(props) {
   const [formValidated] = useState(false)
   const [validated, setValidated] = useState(false)
-  const [tenantValue, setTenantValue] = useState("0x16Fb96a5fa0427Af0C8F7cF1eB4870231c8154B6")
-  const [landlordValue, setLandlordValue] = useState("0x81431b69B1e0E334d4161A13C2955e0f3599381e")
-  const [trusteeValue, setTrusteeValue] = useState("0xDa1495EBD7573D8E7f860862BaA3aBecebfa02E0")
-  const [trusteeFeeValue, setTrusteeFeeValue] = useState("100")
+  const [tenantValue, setTenantValue] = useState("")
+  const [landlordValue, setLandlordValue] = useState("")
+  const [trusteeValue, setTrusteeValue] = useState("")
+  const [trusteeFeeValue, setTrusteeFeeValue] = useState("")
 
   const web3 = props.web3
 
@@ -88,6 +89,7 @@ function RdaForm(props) {
     if (props.auth.account != null) {
       const weiFee = web3.utils.toWei(trusteeFeeValue.toString(), "ether")
       props.createRdaTxn(tenantValue, landlordValue, trusteeValue, weiFee.toString(), props.auth.account)
+      // props.history.push('/home')
     }
   }
 
@@ -167,6 +169,7 @@ function RdaForm(props) {
               <Field label="Trustee Fee in DAI" validated={validated} width={1}>
                 <Input
                   type="number"
+                  step="0.01"
                   color="near-black"
                   bg="silver"
                   required // set required attribute to use brower's HTML5 input validation
@@ -202,13 +205,13 @@ function RdaForm(props) {
   )
 }
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = (state) => {
   return ({
     auth: state.auth
   })
 }
 
-export default connect(
+export default withRouter(connect(
   mapStateToProps,
   {createRdaTxn},
-)(RdaForm)
+)(RdaForm))

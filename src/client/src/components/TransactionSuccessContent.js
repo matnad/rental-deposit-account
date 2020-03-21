@@ -58,7 +58,6 @@ class TransactionSuccessContent extends Component {
             </Card>
           </Flex>
           <Box textAlign="center" mt={4}>
-            <Text>To work with your new contract click the button below.</Text>
             {tenantInfo}
             {landlordInfo}
             {trusteeInfo}
@@ -98,7 +97,7 @@ class TransactionSuccessContent extends Component {
   getInterest() {
     const {txn} = this.props
     if (!txn) return null
-    console.log(txn)
+    // console.log(txn)
     // const txnInfo = getTransactionInfo(TxnType.CREATE_RDA)
     return (
       <>
@@ -183,9 +182,62 @@ class TransactionSuccessContent extends Component {
             </Card>
           </Flex>
           <Box textAlign="center" mt={4}>
-            <Text>Your Rental Deposit Account is now live.</Text>
             <Text>There is nothing left for you to do except to wait for the interest to pile up.</Text>
             <Text>Can can check your current interest in the details tab.</Text>
+          </Box>
+        </Box>
+        <Flex
+          pt={[4, 4]}
+          pb={[4, 4]}
+          p={[3, 4]}
+          borderTop={1}
+          borderColor="near-white"
+          justifyContent="flex-end"
+          flexDirection={["column", "row"]}
+          alignItems="center"
+        >
+          <Button width={["100%", "auto"]} onClick={this.props.closeFct}>Close</Button>
+        </Flex>
+      </>
+    )
+  }
+
+  getRequest() {
+    return (
+      <>
+        <Box px={4} py={3}>
+          <Box textAlign="center" mt={4}>
+            <Text>
+              Your request is now open.<br/>
+              Once your request is confirmed by one of the other participants, you can execute it.
+              To track the progress, navigate to "Requests".
+            </Text>
+          </Box>
+        </Box>
+        <Flex
+          pt={[4, 4]}
+          pb={[4, 4]}
+          p={[3, 4]}
+          borderTop={1}
+          borderColor="near-white"
+          justifyContent="flex-end"
+          flexDirection={["column", "row"]}
+          alignItems="center"
+        >
+          <Button width={["100%", "auto"]} onClick={this.props.closeFct}>Close</Button>
+        </Flex>
+      </>
+    )
+  }
+
+  getDocument() {
+    return (
+      <>
+        <Box px={4} py={3}>
+          <Box textAlign="center" mt={4}>
+            <Text>
+              Other participants can sign and verify it.
+            </Text>
           </Box>
         </Box>
         <Flex
@@ -208,11 +260,11 @@ class TransactionSuccessContent extends Component {
     return (
       <>
         <Box px={4} py={3}>
-          <Flex mt={2} justifyContent="center">
-            <Card p={3} borderRadius={16} bg={"gray"}>
-              <Image src={dai} size="156px"/>
-            </Card>
-          </Flex>
+          {/*<Flex mt={2} justifyContent="center">*/}
+          {/*  <Card p={3} borderRadius={16} bg={"gray"}>*/}
+          {/*    <Image src={dai} size="156px"/>*/}
+          {/*  </Card>*/}
+          {/*</Flex>*/}
           <Box textAlign="center" mt={4}>
             <Text>Transaction was successfully completed!</Text>
           </Box>
@@ -244,6 +296,12 @@ class TransactionSuccessContent extends Component {
         return this.getFunded()
       case TxnType.START:
         return this.getStarted()
+      case TxnType.RETURN_DEPOSIT:
+      case TxnType.PAY_DAMAGES:
+      case TxnType.MIGRATE:
+        return this.getRequest()
+      case TxnType.ADD_DOCUMENT:
+        return this.getDocument()
       default:
         return this.getDefault()
     }

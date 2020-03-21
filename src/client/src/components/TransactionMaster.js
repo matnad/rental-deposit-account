@@ -2,7 +2,8 @@ import React, {Component} from "react"
 import {connect} from "react-redux"
 import {getEthereum} from "../utils/getEthereum"
 import Web3 from "web3"
-import {changeModal, changeStatus, updateTransaction} from "../actions/transactionActions"
+import web3Utils from "web3-utils"
+import {changeModal, changeStatus, updateEstTime, updateTransaction} from "../actions/transactionActions"
 import {getTransactionInfo, ModalType, Status} from "../utils/transactionProperties"
 import {Box, Link, Text} from "rimble-ui"
 
@@ -103,10 +104,15 @@ class TransactionMaster extends Component {
         const remainingTime = txn.estimatedTotalTime - diffSecs
         this.props.updateTransaction({progress, remainingTime})
       }
-      if (this.reloadCounter >= 2) {
-        this.reloadCounter = 0
+      if ((this.reloadCounter % 2) === 0) {
         this.state.web3.eth.getTransaction(this.props.txn.hash)
-          .then((liveTxn) => this.setState({liveTxn}))
+          .then((liveTxn) => {
+            this.setState({liveTxn})
+          })
+      }
+      if(this.reloadCounter === 0 || (this.reloadCounter % 6) === 0) {
+        const gasPriceGwei = web3Utils.fromWei(liveTxn.gasPrice, "gwei")
+        this.props.updateEstTime(gasPriceGwei)
       }
       this.reloadCounter++
     }
@@ -137,7 +143,7 @@ class TransactionMaster extends Component {
         <Link onClick={() => {
           this.props.changeModal(modalType)
         }}>
-          <Box border="1px solid" borderColor={isCompleted ? "success" : "danger" } p={"0.5em"} bg="#1e1e1e">
+          <Box border="1px solid" borderRadius="10px" borderColor={isCompleted ? "success" : "danger" } p={"0.5em"} bg="#1e1e1e">
             <Box>
               <Text fontSize={"0.8em"} fontWeight={"bold"}>Last Transaction</Text>
               <Text fontSize={"0.7em"}>{txnInfo.progressType}</Text>
@@ -169,5 +175,5 @@ const mapStateToProps = (state) => {
 
 export default connect(
   mapStateToProps,
-  {updateTransaction, changeStatus, changeModal},
+  {updateTransaction, updateEstTime, changeStatus, changeModal},
 )(TransactionMaster)

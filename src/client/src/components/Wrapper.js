@@ -1,6 +1,7 @@
 import React, {Component} from "react"
 import {connect} from "react-redux"
 import NoMetamask from "./NoMetamask"
+import {withRouter} from "react-router-dom"
 
 class Wrapper extends Component {
 
@@ -11,10 +12,8 @@ class Wrapper extends Component {
       return null
     }
 
-
     return (
-
-      !isMetaMask ?
+      !isMetaMask && this.props.location.pathname !== "/faq" ?
         <NoMetamask/> :
         this.props.children
     )
@@ -22,13 +21,13 @@ class Wrapper extends Component {
 
 }
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = (state) => {
   return ({
     auth: state.auth
   })
 }
 
-export default connect(
+export default withRouter(connect(
   mapStateToProps,
   {},
-)(Wrapper)
+)(Wrapper))

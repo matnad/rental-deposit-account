@@ -7,19 +7,18 @@ import "./SavingDai.sol";
 /// @notice Lock a DAI deposit, gain interest and manage the deposit with help of a trustee
 contract MultisigRDA is SavingDai {
 
-    // --- Constants ---
-
     // --- Storage ---
     uint public trusteeFee;
     uint public trusteeFeePaid;
     uint public landlordDamagePaid;
     uint public deposit;
     mapping(uint => Transaction) public transactions;
+    mapping(uint => Document) public documents;
     mapping(uint => mapping(address => bool)) public confirmations;
     address[3] public participants;
     mapping(address => bool) public isParticipant;
     uint public txnCount;
-    enum TransactionType {ReturnDeposit, PayDamages, Migrate}
+    enum TransactionType {ReturnDeposit, PayDamages, Migrate, Document}
 
     struct Transaction {
         address owner;
@@ -27,6 +26,11 @@ contract MultisigRDA is SavingDai {
         address dest;
         bool executed;
         uint value;
+    }
+
+    struct Document {
+        bytes32 name;
+        bytes32 hash;
     }
 
     // --- Events ---
@@ -68,6 +72,11 @@ contract MultisigRDA is SavingDai {
         _;
     }
 
+    modifier excludeDocuments(uint txnId) {
+        require(transactions[txnId].txnType != TransactionType.Document, "RDA/illegal-for-doc");
+        _;
+    }
+
     // --- Functions ---
 
     // ** Constructor **
@@ -76,6 +85,7 @@ contract MultisigRDA is SavingDai {
     /// @param tenant The owner of the deposit that earns the interest
     /// @param landlord Can receive payments for damages up to the original deposit amount
     /// @param trustee Earns a fee for enforcing off-chain contracts via multisig
+    /// @param _trusteeFee The flat fee for the trustee that is withheld; serves as compensation
     constructor(address tenant, address landlord, address trustee, uint _trusteeFee) public {
         require(
             tenant != address(0) && landlord != address(0) && trustee != address(0),
@@ -111,6 +121,7 @@ contract MultisigRDA is SavingDai {
     /// @return txnId The unique identifier of the transaction
     function submitTransactionReturnDeposit()
         external
+        active
         onlyParticipant
         returns (uint txnId)
     {
@@ -122,6 +133,7 @@ contract MultisigRDA is SavingDai {
     /// @return txnId The unique identifier of the transaction
     function submitTransactionPayDamages(uint value)
         external
+        active
         onlyParticipant
         returns (uint txnId)
     {
@@ -137,6 +149,22 @@ contract MultisigRDA is SavingDai {
         returns (uint txnId)
     {
         txnId = submitTransaction(TransactionType.Migrate, dest, 0);
+    }
+
+    /// @dev Submit a new Document to the RDA that can be signed (confirmed)
+    /// @param name The name of the document
+    /// @param hash keccak256 hash of the document
+    /// @return txnId The unique identifier of the transaction
+    function submitTransactionDocument(bytes32 name, bytes32 hash)
+        external
+        onlyParticipant
+        returns (uint txnId)
+    {
+        txnId = submitTransaction(TransactionType.Document, address(0), 0);
+        documents[txnId] = Document({
+            name: name,
+            hash: hash
+        });
     }
 
     // ** Public Functions **
@@ -159,6 +187,7 @@ contract MultisigRDA is SavingDai {
     function revokeConfirmation(uint txnId)
         public
         onlyParticipant
+        excludeDocuments(txnId)
         transactionExists(txnId)
         confirmed(txnId, msg.sender)
         notExecuted(txnId)
@@ -172,6 +201,7 @@ contract MultisigRDA is SavingDai {
     function executeTransaction(uint txnId)
         public
         onlyParticipant // this is conservative
+        excludeDocuments(txnId)
         transactionExists(txnId)
         confirmed(txnId, msg.sender) // this is conservative
         notExecuted(txnId)
@@ -268,6 +298,7 @@ contract MultisigRDA is SavingDai {
         public
         view
         transactionExists(txnId)
+        excludeDocuments(txnId)
         returns (bool)
     {
         Transaction memory txn = transactions[txnId];
@@ -313,7 +344,6 @@ contract MultisigRDA is SavingDai {
 
     function addTransaction(TransactionType txnType, address dest, uint value)
         internal
-        active
         returns (uint txnId)
     {
         txnId = txnCount;
@@ -395,7 +425,8 @@ contract MultisigRDA is SavingDai {
 
     // ** Web3 call functions (Public & View) **
 
-
+    /// @dev Get the participants involved in this contract.
+    /// @return participantsArr An array with the three participants' addresses.
     function getParticipants()
         public
         view
@@ -407,15 +438,33 @@ contract MultisigRDA is SavingDai {
         }
     }
 
-    /// @dev Calculates the confirmed status for every participant of a transaction.
+    /// @dev Grabs all the details needed for a specific transaction (request or document)
     /// @param txnId The unique identifier of the transaction.
-    /// @return confirmationStatus as a boolean array like [true, false, true]
-    ///         where the order is [tenant, landlord, trustee]
-    function getConfirmationStatus(uint txnId)
+    function getTransactionInfo(uint txnId)
         public
         view
-        returns (bool[] memory confirmationStatus)
+        transactionExists(txnId)
+        returns (
+            address owner,
+            TransactionType txnType,
+            address dest,
+            bool executed,
+            uint value,
+            bool[] memory confirmationStatus,
+            bytes32 name,
+            bytes32 hash
+        )
     {
+        Transaction memory transaction = transactions[txnId];
+        owner = transaction.owner;
+        txnType = transaction.txnType;
+        dest = transaction.dest;
+        executed = transaction.executed;
+        value = transaction.value;
+        if(transaction.txnType == TransactionType.Document) {
+            name = documents[txnId].name;
+            hash = documents[txnId].hash;
+        }
         confirmationStatus = new bool[](3);
         for (uint i = 0; i < 3; i++) {
             if (confirmations[txnId][participants[i]]) {
@@ -446,5 +495,4 @@ contract MultisigRDA is SavingDai {
         for (i = 0; i < count; i++)
             txnIds[i] = txnIdsTemp[i];
     }
-
 }

@@ -8,6 +8,7 @@ import EthAddress, {CopyButton} from "./EthAddress"
 import {getEthereum} from "../utils/getEthereum"
 import Web3 from "web3"
 import {selectRda} from "../actions/rdaActions"
+import {weiToFixed} from "../utils/string"
 
 let c = 0
 
@@ -90,8 +91,14 @@ class RdaDetails extends Component {
     }
 
     const remainingFee = new web3.utils.BN(rda.fee).sub(new web3.utils.BN(rda.feePaid))
-    const rdaDeposit = Number.parseFloat(web3.utils.fromWei(rda.deposit, "ether")).toFixed(2)
-    const dsrBalance = Number.parseFloat(web3.utils.fromWei(rda.dsrBalance, "ether")).toFixed(2)
+    const isActive = new web3.utils.BN(rda.deposit).gt(new web3.utils.BN(0))
+    const totalDai = new web3.utils.BN(rda.dsrBalance).add(new web3.utils.BN(rda.daiBalance))
+    const damagesPaid = new web3.utils.BN(rda.damagesPaid)
+
+    let status = "Initialized"
+    if (isActive) status = "Running"
+    if (isActive && totalDai.eq(new web3.utils.BN(0))) status = "Ended"
+
 
     c = 0
     return (
@@ -114,7 +121,7 @@ class RdaDetails extends Component {
             />
           </Box>
           <Box  mb={3} textAlign="center">
-            <Box mx="auto" width={[9 / 10, 9 / 10, 1/2]}>
+            <Box mx="auto" width={[9 / 10, 9 / 10, 3/4]}>
               <Flex justifyContent="space-between">
                 <Button.Outline
                   width={["100%", "auto"]}
@@ -127,6 +134,14 @@ class RdaDetails extends Component {
                 <Button.Outline
                   width={["100%", "auto"]}
                   onClick={() => {
+                    this.props.history.push("/requests")
+                  }}
+                >
+                  Requests
+                </Button.Outline>
+                <Button.Outline
+                  width={["100%", "auto"]}
+                  onClick={() => {
                     this.props.history.push("/documents")
                   }}
                 >
@@ -135,19 +150,18 @@ class RdaDetails extends Component {
               </Flex>
             </Box>
           </Box>
-          {this.renderRow("Status", rda.deposit > 0 ? "Running" : "Initialized")}
+          {this.renderRow("Status", status)}
           <Box height="30px"/>
           {this.renderRow("Tenant", this.copiableAddress(rda.tenant))}
           {this.renderRow("Landlord", this.copiableAddress(rda.landlord))}
           {this.renderRow("Trustee", this.copiableAddress(rda.trustee))}
           <Box height="30px"/>
-          {this.renderRow(
-            "Remaining Trustee Fee",
-            web3.utils.fromWei(remainingFee, "ether") + " DAI")
-          }
-          {this.renderRow("Deposit", rdaDeposit + " DAI")}
-          {console.log(rda.dsrBalance)}
-          {this.renderRow("DSR Balance", dsrBalance + " DAI")}
+          {this.renderRow("Remaining Trustee Fee", weiToFixed(remainingFee, 2) + " DAI")}
+          {damagesPaid.gt(new web3.utils.BN(0)) ? this.renderRow("Reparations paid to landlord", weiToFixed(damagesPaid, 2) + " DAI") : null}
+          {isActive ? this.renderRow("Initial Deposit", weiToFixed(rda.deposit, 2) + " DAI") : null}
+          {this.renderRow("DAI Savings Rate", ((rda.dsrAPY - 1)*100).toFixed(2).toString() + " %")}
+          {isActive ? this.renderRow("DSR Balance", weiToFixed(rda.dsrBalance, 7) + " DAI"): null}
+          {this.renderRow("Total funds on RDA", weiToFixed(totalDai, 7)+ " DAI")}
           <Box height="40px"/>
         </Box>
       </Card>

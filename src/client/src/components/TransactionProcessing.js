@@ -2,7 +2,7 @@ import {Box, Button, Card, Flex, Heading, Icon, Link, Loader, Modal, Text, Toolt
 import React, {Component} from "react"
 import {connect} from "react-redux"
 import {getTransactionInfo, ModalType, Status} from "../utils/transactionProperties"
-import {rowColors} from "../utils/settings"
+import {getEtherscanTx, rowColors} from "../utils/settings"
 import {truncateAddress} from "../utils/string"
 import {changeModal} from "../actions/transactionActions"
 
@@ -31,7 +31,7 @@ class TransactionProcessing extends Component {
             color="near-black"
             fontWeight="bold"
           >
-            {type === "eth" || type === "dai" ? "Price" : "Transaction Fee"}
+            {type === "eth" || type === "dai" ? "Tokens Transferred" : "Transaction Fee"}
           </Text>
           {type === "transaction" ?
             <Tooltip
@@ -56,7 +56,7 @@ class TransactionProcessing extends Component {
             fontWeight="bold"
             lineHeight={"1em"}
           >
-            {amountCrypto} {type === "eth" ? "ETH" : type === "dai" ? "DAI" : null}
+            {amountCrypto} {type === "eth" ? "ETH" : type === "dai" ? "DAI" : "ETH"}
           </Text>
           <Text color="mid-gray" fontSize={1}>
             {fiat} CHF
@@ -78,9 +78,9 @@ class TransactionProcessing extends Component {
 
     const price = {
       dai: Number.parseFloat(txn.dai).toFixed(2),
-      eth: Number.parseFloat(txn.eth).toFixed(4),
-      daiFiat: (Number.parseFloat(txn.dai) * 0.95).toFixed(4),
-      ethFiat: (Number.parseFloat(txn.eth) * 100).toFixed(4)
+      eth: Number.parseFloat(txn.eth).toFixed(5),
+      daiFiat: (Number.parseFloat(txn.dai) * 0.95).toFixed(2),
+      ethFiat: (Number.parseFloat(txn.eth) * 100).toFixed(2)
     }
 
     const ethFee = (txn.gasPrice * txn.gasAmount)
@@ -90,6 +90,7 @@ class TransactionProcessing extends Component {
     }
 
     const maxMins = Math.max(1, Math.ceil(txn.remainingTime / 60))
+    const etherscanLink = getEtherscanTx(txn.hash, this.props.auth.chainId)
 
     return (
       <Modal isOpen={isShow}>
@@ -165,27 +166,30 @@ class TransactionProcessing extends Component {
                       Processing...
                     </Text>
                   </Box>
-
-                  <Box>
-                    <Flex flexDirection="row" alignItems="center">
-                      <Link
-                        color="near-white"
-                        ml={[0, 3]}
-                        fontSize={1}
-                        lineHeight={"1.25em"}
-                        href={"https://etherscan.io/tx/" + txn.hash}
-                        target="_blank"
-                      >
-                        Details
-                        <Icon
-                          ml={1}
-                          color="near-white"
-                          name="Launch"
-                          size="14px"
-                        />
-                      </Link>
-                    </Flex>
-                  </Box>
+                  {
+                    etherscanLink ?
+                      <Box>
+                        <Flex flexDirection="row" alignItems="center">
+                          <Link
+                            color="near-white"
+                            ml={[0, 3]}
+                            fontSize={1}
+                            lineHeight={"1.25em"}
+                            href={etherscanLink}
+                            target="_blank"
+                          >
+                            Details
+                            <Icon
+                              ml={1}
+                              color="near-white"
+                              name="Launch"
+                              size="14px"
+                            />
+                          </Link>
+                        </Flex>
+                      </Box>
+                      : null
+                  }
                 </Flex>
 
                 <Flex
@@ -246,7 +250,11 @@ class TransactionProcessing extends Component {
                     Estimated time
                   </Text>
                   <Text color={"mid-gray"}>
-                    Less than {maxMins} minute{maxMins > 1 ? "s" : null} remaining
+                    {
+                      maxMins >= 600 ?
+                        `Low gas price... might take very long` :
+                      `Less than ${maxMins} minute${maxMins > 1 ? "s" : null} remaining`
+                    }
                   </Text>
                 </Flex>
               </Flex>
@@ -260,7 +268,7 @@ class TransactionProcessing extends Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = (state) => {
   return ({
     auth: state.auth,
     txn: state.txn,

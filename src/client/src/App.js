@@ -1,9 +1,6 @@
 import React, {Component} from "react"
-// import SavingWrapper from "./contracts/TestWrapperSavingDai.json"
-// import getWeb3 from "./getWeb3"
 import {ToastMessage} from "rimble-ui"
 
-import "./App.css"
 import TopNav from "./components/TopNav"
 import Home from "./components/Home"
 import {Container} from "react-bootstrap"
@@ -13,38 +10,12 @@ import PageLoader from "./components/PageLoader"
 import Wrapper from "./components/Wrapper"
 import RdaDetails from "./components/RdaDetails"
 import RdaActions from "./components/Actions"
+import Requests from "./components/Requests"
+import Faq from "./components/Faq"
+import Documents from "./components/Documents"
+import DocumentAdd from "./components/DocumentAdd"
 
 class App extends Component {
-  state = {storageValue: 0, web3: null, accounts: null, contract: null}
-
-  componentDidMount = async () => {
-    try {
-      // Get network provider and web3 instance.
-      // const web3 = await getWeb3();
-      // console.log(web3)
-      // // Use web3 to get the user's accounts.
-      // const accounts = await web3.eth.getAccounts();
-      // console.log(accounts)
-
-      // Get the contract instance.
-      // const networkId = await web3.eth.net.getId();
-      // const deployedNetwork = SavingWrapper.networks[networkId];
-      // const instance = new web3.eth.Contract(
-      //   SimpleStorageContract.abi,
-      //   deployedNetwork && deployedNetwork.address,
-      // );
-
-      // Set web3, accounts, and contract to the state, and then proceed with an
-      // example of interacting with the contract's methods.
-      // this.setState({ web3, accounts });
-    } catch (error) {
-      // Catch any errors for any of the above operations.
-      alert(
-        `Failed to load web3, accounts, or contract. Check console for details.`,
-      )
-      console.error(error)
-    }
-  }
 
   render() {
     return (
@@ -54,18 +25,22 @@ class App extends Component {
         )}
         />
         <div style={{height: 100}}/>
-        <ToastMessage.Provider delay={20000} ref={node => (window.toastProvider = node)}/>
-        <Wrapper>
-          <Container>
+        <ToastMessage.Provider delay={5000} ref={node => (window.toastProvider = node)}/>
+        <Container>
+          <Wrapper>
             <Switch>
               <Route path="/create" component={CreateRDA}/>
               <Route path="/details" component={RdaDetails}/>
               <Route path="/actions" component={RdaActions}/>
+              <Route path="/requests" component={Requests}/>
+              <Route path="/documents/add" component={DocumentAdd}/>
+              <Route path="/documents" component={Documents}/>
+              <Route path="/faq" component={Faq}/>
               <Route path="/loader" component={PageLoader}/>
               <Route path="/" component={Home}/>
             </Switch>
-          </Container>
-        </Wrapper>
+          </Wrapper>
+        </Container>
       </>
     )
   }

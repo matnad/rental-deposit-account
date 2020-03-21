@@ -16,6 +16,8 @@ const customTheme = {
 }
 customTheme.colors.text = "white"
 customTheme.colors.background = '#282828 '
+customTheme.colors.primary = "#7165d7"
+customTheme.colors['primary-light'] = "#9893d7"
 
 ReactDOM.render(
     <BrowserRouter>

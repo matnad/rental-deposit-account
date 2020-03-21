@@ -11,7 +11,7 @@ class SelectedRdaMaster extends Component {
     if (selected.address) {
       return (
         <Link onClick={() => this.props.history.push("/details")}>
-          <Box border="1px solid" borderColor="success" p={"0.5em"} bg="#1e1e1e">
+          <Box border="1px solid" borderColor="success" borderRadius="10px" p={"0.5em"} bg="#1e1e1e">
             <Box>
               <Text fontSize={"0.8em"} fontWeight={"bold"}>Selected RDA</Text>
               <Text fontSize={"0.7em"}>{selected.address ? truncateAddress(selected.address) : ''}</Text>

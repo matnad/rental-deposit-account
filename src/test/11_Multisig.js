@@ -184,11 +184,6 @@ contract("MultisigRDA: Multisig", (accounts) => {
         }
         // verify isConfirmed == true
         assert.equal(await multisig.isConfirmed.call(payDamagesId), true, 'transaction should be confirmed')
-        // verify addresses and test getConfirmationStatus function
-        const status = await multisig.getConfirmationStatus.call(payDamagesId)
-        assert.equal(status[0], true, 'confirmation status mismatch')
-        assert.equal(status[1], true, 'confirmation status mismatch')
-        assert.equal(status[2], false, 'confirmation status mismatch')
     })
 
     it(`remove the added confirmation for "Pay Damages" and add it again`, async () => {

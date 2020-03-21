@@ -1,8 +1,8 @@
 import React, {Component} from "react"
 import {connect} from "react-redux"
 import {Box, Button, Card, Field, Form, Input, Text} from "rimble-ui"
-import {withdrawInterest} from "../actions/transactionActions"
 import PropTypes from 'prop-types'
+import web3Utils from "web3-utils"
 
 class ActionCard extends Component {
 
@@ -22,7 +22,16 @@ class ActionCard extends Component {
 
   validateForm() {
     // Perform advanced validation here
-    if (this.props.inputType === "number" && this.state.inputValue > 0) {
+    let isValidAddress
+    try {
+      isValidAddress = web3Utils.checkAddressChecksum(this.state.inputValue)
+    } catch (e) {
+      // ignore
+    }
+    if (
+      (this.props.inputType === "number" && this.state.inputValue > 0)
+      || (this.props.inputType === "address" && isValidAddress)
+    ) {
       this.setState({valid: true})
     } else {
       this.setState({valid: false})
@@ -59,6 +68,15 @@ class ActionCard extends Component {
         case "number":
           e.target.value > 0 ? validateInput(e) : invalidateInput(e)
           break
+        case "address":
+          try {
+            web3Utils.toChecksumAddress(e.target.value)
+            validateInput(e)
+          } catch (err) {
+            console.log("err", err)
+            invalidateInput(e)
+          }
+          break
         default:
           invalidateInput(e)
       }
@@ -75,7 +93,7 @@ class ActionCard extends Component {
     if (inputLabel) {
       form =
         <Form onSubmit={handleSubmit} validated={false}>
-          <Box width={1/2} mt={3} color={"near-black"}>
+          <Box width={inputType === "address" ? 1 : 1/2} mt={3} color={"near-black"}>
             <Field label={inputLabel} width={1} validated={this.state.valid}>
               <Input
                 type="text"
@@ -103,7 +121,7 @@ class ActionCard extends Component {
 
     const color = recommended ? 'near-black' : 'gray'
     const description = Array.isArray(descriptions) && descriptions.length === 2 ?
-      descriptions[recommended ? 0 : 1] : descriptions
+      descriptions[recommended ? 0 : 1] : descriptions[0]
 
     return (
       <Card
@@ -156,5 +174,5 @@ const mapStateToProps = (state) => {
 
 export default connect(
   mapStateToProps,
-  {withdrawInterest},
+  {},
 )(ActionCard)

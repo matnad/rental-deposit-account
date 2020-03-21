@@ -7,11 +7,78 @@ import metamaskSvg from "../assets/images/MetaMaskIcon.svg"
 import {getTransactionInfo, ModalType, Status} from "../utils/transactionProperties"
 import {changeModal} from "../actions/transactionActions"
 import {truncateAddress} from "../utils/string"
-import {rowColors} from "../utils/settings"
+import {getEtherscanAddress, rowColors} from "../utils/settings"
+
+import web3Utils from "web3-utils"
 
 let c = 0
 
 class TransactionConfirm extends Component {
+
+  getPropertyRow(description, value) {
+    let isAccount = false
+    let etherscanLink = null
+    try {
+      if (web3Utils.checkAddressChecksum(value)) {
+        isAccount = true
+        etherscanLink = getEtherscanAddress(value, this.props.auth.chainId)
+      }
+    } catch (e) {
+      //ignore
+    }
+
+    return (
+      <Flex
+        key={value}
+        justifyContent={"space-between"}
+        bg={rowColors[c++ % 2]}
+        p={[2, 3]}
+        borderBottom={"1px solid gray"}
+        borderColor={"moon-gray"}
+        flexDirection={["column", "row"]}
+      >
+        <Text
+          textAlign={["center", "left"]}
+          color="near-black"
+          fontWeight="bold"
+        >
+          {description}
+        </Text>
+        {isAccount ?
+          <Link
+            href={etherscanLink ? etherscanLink : "#"}
+            target={etherscanLink ? "_blank" : "_self"}
+          >
+            <Tooltip message={value}>
+              <Flex
+                justifyContent={["center", "auto"]}
+                alignItems={"center"}
+                flexDirection="row-reverse"
+              >
+                <Text fontWeight="bold">{truncateAddress(value)}</Text>
+                <Flex
+                  mr={2}
+                  p={1}
+                  borderRadius={"50%"}
+                  bg={"primary-extra-light"}
+                  height={"2em"}
+                  width={"2em"}
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <Icon color={"primary"} name="RemoveRedEye" size={"1em"}/>
+                </Flex>
+              </Flex>
+            </Tooltip>
+          </Link>
+          :
+          <Text color="near-black" fontWeight="bold">
+            {value}
+          </Text>
+        }
+      </Flex>
+    )
+  }
 
   getCostRow(type, amountCrypto, fiat) {
     if (isNaN(amountCrypto) || amountCrypto <= 0 || !["dai", "eth", "transaction"].includes(type)) {
@@ -34,7 +101,7 @@ class TransactionConfirm extends Component {
             color="near-black"
             fontWeight="bold"
           >
-            {type === "eth" || type === "dai" ? "Price" : "Transaction Fee"}
+            {type === "eth" || type === "dai" ? "Tokens Transferred" : "Transaction Fee"}
           </Text>
           {type === "transaction" ?
             <Tooltip
@@ -59,7 +126,7 @@ class TransactionConfirm extends Component {
             fontWeight="bold"
             lineHeight={"1em"}
           >
-            {amountCrypto} {type === "eth" ? "ETH" : type === "dai" ? "DAI" : null}
+            {amountCrypto} {type === "eth" ? "ETH" : type === "dai" ? "DAI" : "ETH"}
           </Text>
           <Text color="mid-gray" fontSize={1}>
             {fiat} CHF
@@ -76,7 +143,7 @@ class TransactionConfirm extends Component {
       // Wait 2 seconds, then change modals
       new Promise(resolve => {
         setTimeout(() => {
-          if(this.props.txn.showModal === ModalType.CONFIRM) {
+          if (this.props.txn.showModal === ModalType.CONFIRM) {
             this.props.changeModal(ModalType.PENDING)
           }
           resolve()
@@ -97,9 +164,9 @@ class TransactionConfirm extends Component {
 
     const price = {
       dai: Number.parseFloat(txn.dai).toFixed(2),
-      eth: Number.parseFloat(txn.eth).toFixed(4),
-      daiFiat: (Number.parseFloat(txn.dai) * 0.95).toFixed(4),
-      ethFiat: (Number.parseFloat(txn.eth) * 100).toFixed(4)
+      eth: Number.parseFloat(txn.eth).toFixed(5),
+      daiFiat: (Number.parseFloat(txn.dai) * 0.95).toFixed(2),
+      ethFiat: (Number.parseFloat(txn.eth) * 100).toFixed(2)
     }
 
     const ethFee = (txn.gasPrice * txn.gasAmount)
@@ -109,6 +176,7 @@ class TransactionConfirm extends Component {
     }
 
     const maxMins = Math.ceil(txn.estimatedTotalTime / 60)
+    const etherscanLink = getEtherscanAddress(txn.account, this.props.auth.chainId)
 
     return (
       <Modal isOpen={isShow}>
@@ -136,20 +204,20 @@ class TransactionConfirm extends Component {
               </Text>
               {txn.status === Status.WAITING ?
                 <>
-                <Text textAlign="justify">
-                  With the recommended gas price of {txn.gasPrice * Math.pow(10, 9)} GWEI,
-                  your transaction should take less than {maxMins} minute{maxMins > 1 ? "s" : null} to complete.
-                  You can adjust the gas price in MetaMask to make it faster but more expensive or slower but cheaper.
-                </Text>
-                {txn.gasPrice * Math.pow(10, 9) > 15 && txn.gasAmount > 1000000 ?
+                  <Text textAlign="justify">
+                    With the recommended gas price of {(txn.gasPrice * Math.pow(10, 9).toFixed(2))} GWEI,
+                    your transaction should take less than {maxMins} minute{maxMins > 1 ? "s" : null} to complete.
+                    You can adjust the gas price in MetaMask to make it faster but more expensive or slower but cheaper.
+                  </Text>
+                  {txn.gasPrice * Math.pow(10, 9) > 15 && txn.gasAmount > 1000000 ?
                     <Text mt={2} color="warning">
                       Warning: Gas costs are currently very high and your transaction requires a lot of gas.
                       If you can wait, consider executing the transaction later or with a lower gas price.
-                      Currently {txn.gasPriceSafeLow * Math.pow(10, 9)} GWEI is a safe low gas price.{" "}
+                      Currently {(txn.gasPriceSafeLow * Math.pow(10, 9)).toFixed(2)} GWEI is a safe low gas price.{" "}
                       <Link color="silver" href={`https://ethgasstation.info/gasrecs.php`} target={"_blank"}>Read more
                         here.</Link>
                     </Text> : null
-                }
+                  }
                 </> : null
               }
               <Flex
@@ -273,8 +341,8 @@ class TransactionConfirm extends Component {
                     Your account
                   </Text>
                   <Link
-                    href={`https://rinkeby.etherscan.io/${txn.account}/`}
-                    target={"_blank"}
+                    href={etherscanLink ? etherscanLink : "#"}
+                    target={etherscanLink ? "_blank" : "_self"}
                   >
                     <Tooltip message={txn.account}>
                       <Flex
@@ -299,6 +367,9 @@ class TransactionConfirm extends Component {
                     </Tooltip>
                   </Link>
                 </Flex>
+                {txnInfo.payloadTitles.map((title, ix) => {
+                  return this.getPropertyRow(title, Object.values(txn.payload)[ix])
+                })}
                 {this.getCostRow("dai", price.dai, price.daiFiat)}
                 {this.getCostRow("eth", price.eth, price.ethFiat)}
                 {this.getCostRow("transaction", fee.eth, fee.fiat)}
@@ -330,7 +401,7 @@ class TransactionConfirm extends Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = (state) => {
   return ({
     auth: state.auth,
     txn: state.txn,

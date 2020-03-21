@@ -21,7 +21,7 @@ class DisplayRdas extends Component {
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const {account} = this.props.auth
-    if (prevProps.auth.account !== account && account != null) {
+    if (prevProps.auth.account !== account && account != null  && prevProps.auth.account != null) {
       if (account) {
         this.props.loadRdas(account)
       }
@@ -36,7 +36,7 @@ class DisplayRdas extends Component {
   }
 
   renderRdas() {
-    const {contracts} = this.props.rda
+    const {selected, contracts} = this.props.rda
     if (Object.keys(contracts).length === 0) {
       return null
     }
@@ -74,9 +74,11 @@ class DisplayRdas extends Component {
               py={2}
               bg={bgColor}
               onClick={() => {
-                isSelected ?
-                  this.props.history.push("/details") :
-                  this.props.selectRda(rda.address)
+                if (!selected.isLoading) {
+                  isSelected ?
+                    this.props.history.push("/details") :
+                    this.props.selectRda(rda.address)
+                }
               }}
               borderBottom={"1px solid"}
             >
@@ -98,7 +100,7 @@ class DisplayRdas extends Component {
 
   render() {
     const {account} = this.props.auth
-    const {contracts, isLoading} = this.props.rda
+    const {selected, contracts, isLoading} = this.props.rda
     const nRda = Object.keys(contracts).length
 
     return (
@@ -120,19 +122,38 @@ class DisplayRdas extends Component {
         </Flex>
         <Flex>
           <Box width={1} textAlign="center">
-            <Link to="/create">
-              <Button.Outline width={1 / 2}>
+              <Button.Outline width={1 / 2} onClick={() => this.props.history.push("/create")}>
                 Open new Rental Deposit
               </Button.Outline>
-            </Link>
           </Box>
         </Flex>
         <Flex>
           {
             isLoading || !account ?
               null :
-              <Box width={1} mt={4}>
-                {this.renderRdas()}
+              <Box
+                width={1}
+                py={2}
+                verticalAlign="center"
+              >
+                {
+                  selected.isLoading ?
+                  <Box
+                    position="absolute"
+                    height="100%"
+                    top={0}
+                    pt="100px"
+                    width={1}
+                    verticalAlign="middle"
+                  >
+                    <Loader position="absolute" top="45%" left="45%" size="3em"/>
+                  </Box>
+                    : null
+                }
+                <Box zIndex="1" width={1} mt={4} opacity={selected.isLoading ? 0.1 : 1}>
+                  {this.renderRdas()}
+                </Box>
+
               </Box>
           }
         </Flex>

@@ -7,7 +7,10 @@ import axios from "axios"
 import {desiredNetworks} from "../utils/settings"
 import MultisigRDA from "../contracts/MultisigRDA"
 import GemLike from "../contracts/GemLike"
-import addresses from "../utils/addresses"
+import {loadConfirmations, selectRda} from "./rdaActions"
+import web3Utils from "web3-utils"
+import {updateDaiBalance} from "./authActions"
+import {getAddress} from "../utils/getAddresses"
 
 
 async function buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender, functionName, args) {
@@ -20,10 +23,11 @@ async function buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender, fu
   }
   txn = await updateGasPrice(web3, txn)
   const rda = new web3.eth.Contract(MultisigRDA.abi, rdaAddress)
-  txn.gasAmount = await rda.methods[functionName](...args).estimateGas()
-
+  txn.gasAmount = await rda.methods[functionName](...args).estimateGas({from: sender})
 
   dispatchTransaction(dispatch, txn, rda.methods[functionName], args, sender)
+
+  return rda
 }
 
 function dispatchTransaction(dispatch, txn, contractFunction, args, from) {
@@ -31,7 +35,8 @@ function dispatchTransaction(dispatch, txn, contractFunction, args, from) {
     type: TRANSACTION_CREATED,
     payload: txn
   })
-  contractFunction(...args).send({from})
+  const gasPriceWei = web3Utils.toWei(txn.gasPrice)
+  contractFunction(...args).send({from, gasPrice: gasPriceWei})
     .on('transactionHash', (hash) => {
       dispatch({
         type: TRANSACTION_STATUS_CHANGE,
@@ -98,34 +103,46 @@ export const updateTransaction = (payload) => dispatch => {
   })
 }
 
+export const updateEstTime = (gasPriceGwei) => dispatch => {
+
+  axios.get(`https://ethgasstation.info/json/predictTable.json`)
+    .then(res => {
+      const {data} = res
+      // console.log(data)
+      if (data == null ) return
+      for (let i = 1; i < data.length; i++) {
+        if (Number.parseFloat(gasPriceGwei) < data[i].gasprice) {
+          // console.log(data[i-1])
+          dispatch({
+            type: TRANSACTION_UPDATE,
+            payload : {estimatedTotalTime: data[i-1].expectedWait * 60}
+          })
+          break
+        }
+      }
+    })
+
+
+}
+
+
 export const createRdaTxn = (tenant, landlord, trustee, trusteeFee, sender) => dispatch => {
 
   const txn = {
-    hash: null,
     type: TxnType.CREATE_RDA,
-    payload: {tenant, landlord, trustee, trusteeFee},
     account: sender,
-    price: 0,
-    gasAmount: 0,
-    gasPrice: 0,
-    gasPriceSafeLow: 0,
-    startedAt: new Date(),
-    estimatedTotalTime: 120,
-    progress: 0,
-    remainingTime: 120,
     showModal: ModalType.CONFIRM,
     status: Status.WAITING,
-    // receipt: null,
+    payload: {tenant, landlord, trustee, trusteeFee},
   }
 
 
   async function getRegistry() {
     const web3 = new Web3(await getEthereum())
-    const networkId = await web3.eth.net.getId()
-    const deployedNetwork = RDARegistry.networks[networkId]
+    const chainId = (await web3.eth.net.getId()).toString()
     const registry = new web3.eth.Contract(
       RDARegistry.abi,
-      deployedNetwork && deployedNetwork.address,
+      getAddress(chainId, "reg"),
     )
 
     let gasPriceWei
@@ -153,7 +170,10 @@ export const createRdaTxn = (tenant, landlord, trustee, trusteeFee, sender) => d
         type: TRANSACTION_CREATED,
         payload: txn
       })
-      registry.methods.createRDA(...Object.values(txn.payload)).send({from: txn.account})
+      const gasPriceWei = web3Utils.toWei(txn.gasPrice)
+      registry.methods.createRDA(...Object.values(txn.payload)).send({
+        from: txn.account, gasPrice: gasPriceWei
+      })
         .on('transactionHash', (hash) => {
           dispatch({
             type: TRANSACTION_STATUS_CHANGE,
@@ -207,6 +227,91 @@ export const startRda = (rdaAddress, sender) => (dispatch) => {
     .catch(console.log)
 }
 
+export const returnDeposit = (rdaAddress, sender) => (dispatch) => {
+  const txn = {
+    type: TxnType.RETURN_DEPOSIT,
+    account: sender,
+    showModal: ModalType.CONFIRM,
+    status: Status.WAITING,
+  }
+  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender,"submitTransactionReturnDeposit", [])
+    .then((rda) => {
+      rda.once('Submission', {}, function(error, event){
+        // console.log(event)
+        const {txnId} = event.returnValues
+        // console.log(txnId)
+        dispatch(loadConfirmations(rdaAddress, txnId))
+      })
+    })
+    .catch(console.log)
+}
+
+export const payDamages = (amount, rdaAddress, sender) => (dispatch) => {
+  const txn = {
+    type: TxnType.PAY_DAMAGES,
+    account: sender,
+    showModal: ModalType.CONFIRM,
+    status: Status.WAITING,
+    payload: {amount: `${amount} DAI`}
+  }
+  const amountWei = web3Utils.toWei(amount, "ether")
+  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender,"submitTransactionPayDamages", [amountWei])
+    .then((rda) => {
+      rda.once('Submission', {}, function(error, event){
+        const {txnId} = event.returnValues
+        dispatch(loadConfirmations(rdaAddress, txnId))
+      })
+    })
+    .catch(console.log)
+}
+
+export const migrate = (newAddress, rdaAddress, sender) => (dispatch) => {
+  const txn = {
+    type: TxnType.MIGRATE,
+    account: sender,
+    showModal: ModalType.CONFIRM,
+    status: Status.WAITING,
+    payload: {newAddress}
+  }
+
+  try {
+    newAddress = web3Utils.toChecksumAddress(newAddress)
+  } catch (e) {
+    console.log("Invalid migration target:", newAddress)
+    return undefined
+  }
+
+  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender,"submitTransactionMigrate", [newAddress])
+    .then((rda) => {
+      rda.once('Submission', {}, function(error, event){
+        const {txnId} = event.returnValues
+        dispatch(loadConfirmations(rdaAddress, txnId))
+      })
+    })
+    .catch(console.log)
+
+}
+
+export const addDocument = (name, hash, rdaAddress, sender) => (dispatch) => {
+  const txn = {
+    type: TxnType.ADD_DOCUMENT,
+    account: sender,
+    showModal: ModalType.CONFIRM,
+    status: Status.WAITING,
+    payload: {name, hash}
+  }
+
+  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender,"submitTransactionDocument", [name, hash])
+    .then((rda) => {
+      rda.once('Submission', {}, function(error, event){
+        const {txnId} = event.returnValues
+        dispatch(loadConfirmations(rdaAddress, txnId))
+      })
+    })
+    .catch(console.log)
+
+}
+
 export const fundContract = (amount, rdaAddress, sender) => (dispatch) => {
   const txn = {
     type: TxnType.FUND_CONTRACT,
@@ -216,7 +321,7 @@ export const fundContract = (amount, rdaAddress, sender) => (dispatch) => {
     status: Status.WAITING,
   }
 
-  async function executeTransaction(txn, amount, sender) {
+  async function fundIt(txn, amount, sender) {
     const web3 = new Web3(await getEthereum())
     web3.eth.handleRevert = true
     const chainId = (await web3.eth.net.getId()).toString()
@@ -226,15 +331,86 @@ export const fundContract = (amount, rdaAddress, sender) => (dispatch) => {
 
     const amountWei = web3.utils.toWei(amount, "ether")
     txn = await updateGasPrice(web3, txn)
-    const dai = new web3.eth.Contract(GemLike.abi, addresses.dai)
+    const dai = new web3.eth.Contract(GemLike.abi, getAddress(chainId, "dai"))
     txn.gasAmount = await dai.methods.transfer(rdaAddress, amountWei).estimateGas()
 
-
+    // Catch event and refresh
+    dai.once('Transfer', {
+      filter: {from: sender, to: rdaAddress, value: amount},
+    }, function(error, event){
+      dispatch(selectRda(rdaAddress))
+      dispatch(updateDaiBalance(sender))
+    })
+    // execute
     dispatchTransaction(dispatch, txn, dai.methods.transfer, [rdaAddress, amountWei], sender)
+
   }
 
 
-  executeTransaction(txn, amount, sender)
+  fundIt(txn, amount, sender)
     .catch(console.err)
 
 }
+
+export const confirmTransaction = (txnId, rdaAddress, sender) => (dispatch) => {
+  const txn = {
+    type: TxnType.CONFIRM,
+    account: sender,
+    showModal: ModalType.CONFIRM,
+    status: Status.WAITING,
+  }
+  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender,"confirmTransaction", [txnId])
+    .then((rda) => {
+      rda.once('Confirmation', {
+        filter: {sender, txnId},
+        fromBlock: 0
+      }, function(error, event){
+        dispatch(loadConfirmations(rdaAddress, txnId))
+      })
+    })
+    .catch(console.log)
+}
+
+export const revokeConfirmation = (txnId, rdaAddress, sender) => (dispatch) => {
+  const txn = {
+    type: TxnType.REVOKE,
+    account: sender,
+    showModal: ModalType.CONFIRM,
+    status: Status.WAITING,
+  }
+  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender,"revokeConfirmation", [txnId])
+    .then((rda) => {
+      rda.once('Revocation', {
+        filter: {sender, txnId},
+      }, function(error, event){
+        dispatch(loadConfirmations(rdaAddress, txnId))
+      })
+    })
+    .catch(console.log)
+}
+
+export const executeTransaction = (txnId, rdaAddress, sender) => (dispatch) => {
+  const txn = {
+    type: TxnType.EXECUTE,
+    account: sender,
+    showModal: ModalType.CONFIRM,
+    status: Status.WAITING,
+  }
+  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender,"executeTransaction", [txnId])
+    .then((rda) => {
+      rda.once('Execution', {
+        filter: {txnId},
+      }, function(error, event){
+        dispatch(selectRda(rdaAddress))
+        dispatch(loadConfirmations(rdaAddress, txnId))
+      })
+      rda.once('ExecutionFailure', {
+        filter: {txnId},
+      }, function(error, event){
+        dispatch(selectRda(rdaAddress))
+        dispatch(loadConfirmations(rdaAddress, txnId))
+      })
+    })
+    .catch(console.log)
+}
+

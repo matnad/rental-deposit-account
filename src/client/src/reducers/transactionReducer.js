@@ -1,4 +1,5 @@
 import {
+  RESET_CHAIN_CHANGE,
   TRANSACTION_CREATED,
   TRANSACTION_MODAL_CHANGE,
   TRANSACTION_STATUS_CHANGE,
@@ -48,6 +49,10 @@ export default function (state = initialState, action) {
       return {
         ...initialState,
         ...action.payload
+      }
+    case RESET_CHAIN_CHANGE:
+      return {
+        ...initialState
       }
     default:
       return state

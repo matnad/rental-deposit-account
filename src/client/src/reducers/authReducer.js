@@ -15,7 +15,7 @@ export default function (state = initialState, action) {
       return {
         ...state,
         account: action.payload ? state.account : null,
-        networkId: action.payload ? state.networkId : 0,
+        chainId: action.payload ? state.chainId : 0,
         isMetaMask: action.payload,
       }
     case CHAINID_UPDATE:

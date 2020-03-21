@@ -1,10 +1,11 @@
-import {Box, Card, Flex, Heading, Icon, Link, Modal} from "rimble-ui"
+import {Box, Card, Flex, Heading, Icon, Link, Modal, Text} from "rimble-ui"
 import React, {Component} from "react"
 import {connect} from "react-redux"
 import {loadRdas, selectRda} from "../actions/rdaActions"
 import {getTransactionInfo, ModalType} from "../utils/transactionProperties"
 import {changeModal} from "../actions/transactionActions"
 import TransactionSuccessContent from "./TransactionSuccessContent"
+import {getEtherscanTx} from "../utils/settings"
 
 class TransactionSuccess extends Component {
 
@@ -17,6 +18,7 @@ class TransactionSuccess extends Component {
 
     const txnInfo = getTransactionInfo(txn.type)
 
+    const etherscanLink = getEtherscanTx(txn.hash, this.props.auth.chainId)
 
     return (
       <Modal isOpen={isShow}>
@@ -42,6 +44,18 @@ class TransactionSuccess extends Component {
               />
             </Link>
           </Flex>
+          {
+            etherscanLink ?
+              <Box pt={3} textAlign="center">
+                <Link
+                  href={etherscanLink}
+                  target={"_blank"}
+                >
+                  <Text fontWeight="bold">Check Transaction on Etherscan</Text>
+                </Link>
+              </Box>
+              : null
+          }
           <TransactionSuccessContent txnType={txn.type} closeFct={this.closeModal}/>
         </Card>
       </Modal>
@@ -49,7 +63,7 @@ class TransactionSuccess extends Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = (state) => {
   return ({
     auth: state.auth,
     txn: state.txn,
