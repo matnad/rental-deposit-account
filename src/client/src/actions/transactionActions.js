@@ -172,7 +172,8 @@ export const createRdaTxn = (tenant, landlord, trustee, trusteeFee, sender) => d
       })
       const gasPriceWei = web3Utils.toWei(txn.gasPrice)
       registry.methods.createRDA(...Object.values(txn.payload)).send({
-        from: txn.account, gasPrice: gasPriceWei
+        from: txn.account,
+        gasPrice: gasPriceWei
       })
         .on('transactionHash', (hash) => {
           dispatch({

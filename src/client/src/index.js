@@ -8,7 +8,6 @@ import {Provider} from "react-redux"
 import {store} from "./store"
 import {BaseStyles, ThemeProvider, theme} from "rimble-ui"
 
-import "./assets/css/rda.css"
 import "./assets/css/bootstrap4-charming.css"
 
 const customTheme = {

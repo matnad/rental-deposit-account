@@ -108,6 +108,7 @@ class RdaDetails extends Component {
         bg={"dark-gray"}
         px={[1, 1, 3]}
         border={"none"}
+        borderRadius={7}
       >
         <Box borderRadius={10} bg="blacks.4">
           <Box py={[1, 1, 3]} textAlign="center">

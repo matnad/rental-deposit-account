@@ -22,6 +22,7 @@ class Home extends Component {
         bg={"dark-gray"}
         px={[3, 3, 4]}
         border={"none"}
+        borderRadius={7}
       >
         {
           registryAddress ?

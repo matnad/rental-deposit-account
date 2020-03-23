@@ -83,8 +83,9 @@ class MetaMaskLoginButton extends Component {
     }
 
     if (prevState.chainId !== this.state.chainId) {
-      this.props.updateNetwork(this.state.chainId)
-      if (prevState.chainId !== null) {
+      console.log(prevState.chainId, this.state.chainId)
+      if (prevState.chainId != null) {
+        this.props.updateNetwork(this.state.chainId)
         if (!desiredNetworks.includes(this.state.chainId) && this.state.chainId != null) {
           window.toastProvider.addMessage(
             `${networkNames[this.state.chainId]} not supported`,
@@ -327,7 +328,7 @@ class MetaMaskLoginButton extends Component {
     const {account, isLoading, isMetaMask} = this.state
 
     return (
-      <div className={"metamask-container"}>
+      <Box mr={2}>
         {this.connectModal()}
         {
           account ?
@@ -341,7 +342,7 @@ class MetaMaskLoginButton extends Component {
                 {isMetaMask ? "Connect with MetaMask" : "Install MetaMask"}
               </LoginMMButton>
         }
-      </div>
+      </Box>
     )
   }
 }

@@ -2,7 +2,7 @@ import React, {Component} from "react"
 import {connect} from "react-redux"
 import {Box, Button, Flex, Loader, Text} from "rimble-ui"
 import {loadRdas, selectRda} from "../actions/rdaActions"
-import {Link, withRouter} from "react-router-dom"
+import {withRouter} from "react-router-dom"
 import styled from 'styled-components'
 
 const HoverBox = styled(Box)`

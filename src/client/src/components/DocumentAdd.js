@@ -83,8 +83,8 @@ class DocumentAdd extends Component {
         px={[3, 3, 4]}
         border={"none"}
       >
-        <Box textAlign="center">
-          <Box mb={4}>
+        <Box textAlign="blockquote">
+          <Box mb={4} textAlign="center">
             <Heading>Add a document hash to the RDA</Heading>
           </Box>
           <Box width={1} px={3}>
@@ -93,11 +93,14 @@ class DocumentAdd extends Component {
               <i>The file will not be uploaded, submitted or opened. The keccak256 hash will be created on your local
                 machine.</i>
             </Text>
-            <Input onChange={(e) => this.fileHandler(e)} type="file"/>
+            <Box textAlign="center">
+              <Input onChange={(e) => this.fileHandler(e)} type="file"/>
+            </Box>
 
             <Form onSubmit={(e) => this.handleSubmit(e)}>
               <Text mt={4} mb={3} fontSize="0.85em">
-                <i>The calculated keccak256 hash is displayed here. Alternatively, you can calculate it yourself and paste it.</i>
+                <i>The calculated keccak256 hash is displayed here. Alternatively, you can calculate it yourself and
+                  paste it.</i>
               </Text>
               {
                 this.state.isLoading ?
@@ -112,9 +115,11 @@ class DocumentAdd extends Component {
                 <Input width={1 / 2} type="text" value={this.state.name}
                        onChange={(e) => this.handleNameChange(e.target.value)}/>
               </Box>
-              <Button mt={4} type="submit" disabled={!this.isFormValid()}>
-                Attach Document to this RDA
-              </Button>
+              <Box textAlign="center">
+                <Button mt={4} type="submit" disabled={!this.isFormValid()}>
+                  Attach Document to this RDA
+                </Button>
+              </Box>
             </Form>
           </Box>
         </Box>

@@ -16,6 +16,7 @@ import {desiredNetworks} from "../utils/settings"
 import {getAddress} from "../utils/getAddresses"
 
 export const loadRdas = (account) => (dispatch) => {
+  if (account == null) return undefined
   dispatch({type: RDAS_LOADING})
 
   let web3

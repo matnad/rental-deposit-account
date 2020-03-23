@@ -168,11 +168,11 @@ function getProgressType(txnType) {
     case TxnType.START:
       return "Starting the RDA"
     case TxnType.RETURN_DEPOSIT:
-      return "Submitting Request (Return Deposit)"
+      return "Submitting Request"
     case TxnType.PAY_DAMAGES:
-      return "Submitting Request (Pay Landlord)"
+      return "Submitting Request"
     case TxnType.MIGRATE:
-      return "Submitting Request (Migrate)"
+      return "Submitting Request"
     case TxnType.CONFIRM:
       return "Confirmation"
     case TxnType.REVOKE:

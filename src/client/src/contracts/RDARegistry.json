@@ -5208,12 +5208,12 @@
         }
       },
       "links": {},
-      "address": "0xd3B1028b6E4dBE2C9834d0f4fAadaD08b12807E5",
-      "transactionHash": "0xa73a1766895ac6bc7923a66d35f87fd0c55fc58e0130f91080590d1c2987bde0"
+      "address": "0x6437782FD01B81684D4014A68B5a64bDED25F05B",
+      "transactionHash": "0xaefad83be1a060d7c412497f6ea322b571a6ee3ee3cd5a59fc69f0cbbe37fe0b"
     }
   },
   "schemaVersion": "3.0.23",
-  "updatedAt": "2020-03-21T08:37:22.408Z",
+  "updatedAt": "2020-03-23T15:08:21.686Z",
   "networkType": "ethereum",
   "devdoc": {
     "author": "Matthias Nadler, University of Basel",

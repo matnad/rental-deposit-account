@@ -11,7 +11,7 @@ class NetworkMaster extends Component {
     if (chainId !== 0) chainName = networkNames[chainId]
     if (desiredNetworks.includes(chainId)) {
       return (
-        <Box display="inline-block" width="200px">
+        <Box display="inline-block" width="140px" >
           <Flex flexDirection="column">
             <Text fontSize={1} color="silver" caps>
               Current Network

@@ -24,23 +24,25 @@ class TopNav extends Component {
                 fixed="top"
                 style={{height: 70}}
         >
-          <Navbar.Brand as={Link} to="/home">Rental Deposit Account</Navbar.Brand>
+          <Navbar.Brand as={Link} to="/">
+            {window.innerWidth < 1280 ? "Home" : "Rental Deposit Account"}
+          </Navbar.Brand>
           <Nav className="mr-auto">
             <Nav.Link as={Link} to="/faq">FAQ</Nav.Link>
-          {
-            this.props.rda.selected && this.props.rda.selected.address ?
-              <>
-                <Nav.Link as={Link} to="/details">Details</Nav.Link>
-                <Nav.Link as={Link} to="/actions">Actions</Nav.Link>
-                <Nav.Link as={Link} to="/requests">Requests</Nav.Link>
-                <Nav.Link as={Link} to="/documents">Documents</Nav.Link>
-              </>
-              : null
-          }
+          {/*{*/}
+          {/*  this.props.rda.selected && this.props.rda.selected.address ?*/}
+          {/*    <>*/}
+          {/*      <Nav.Link as={Link} to="/details">Details</Nav.Link>*/}
+          {/*      <Nav.Link as={Link} to="/actions">Actions</Nav.Link>*/}
+          {/*      <Nav.Link as={Link} to="/requests">Requests</Nav.Link>*/}
+          {/*      <Nav.Link as={Link} to="/documents">Documents</Nav.Link>*/}
+          {/*    </>*/}
+          {/*    : null*/}
+          {/*}*/}
           </Nav>
           <Box width={1}>
             <Flex>
-              <Box width={"80px"}/>
+              <Box width={"25px"}/>
               <Flex>
                 <Box mx={2}>
                   <TransactionMaster/>
