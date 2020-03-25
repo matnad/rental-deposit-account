@@ -53,10 +53,12 @@ class TransactionMaster extends Component {
       if (this.state.web3) {
         this.state.web3.eth.getTransaction(this.props.txn.hash)
           .then((liveTxn) => {
-            this.setState({intervalId, liveTxn})
-            this.props.updateTransaction({
-              gasPrice: this.state.web3.utils.fromWei(liveTxn.gasPrice, "ether")
-            })
+            if (liveTxn != null) {
+              this.setState({intervalId, liveTxn})
+              this.props.updateTransaction({
+                gasPrice: this.state.web3.utils.fromWei(liveTxn.gasPrice, "ether")
+              })
+            }
           })
       }
     }
@@ -83,7 +85,7 @@ class TransactionMaster extends Component {
             variant: "success"
           })
 
-      } else if(!liveTxn.status && !txn.reasonReported && txn.status === Status.REVERTED) {
+      } else if (!liveTxn.status && !txn.reasonReported && txn.status === Status.REVERTED) {
         window.toastProvider.addMessage(
           "Transaction Failed",
           {
@@ -110,7 +112,7 @@ class TransactionMaster extends Component {
             this.setState({liveTxn})
           })
       }
-      if(this.reloadCounter === 0 || (this.reloadCounter % 6) === 0) {
+      if (this.reloadCounter === 0 || (this.reloadCounter % 6) === 0) {
         const gasPriceGwei = web3Utils.fromWei(liveTxn.gasPrice, "gwei")
         this.props.updateEstTime(gasPriceGwei)
       }
@@ -143,7 +145,8 @@ class TransactionMaster extends Component {
         <Link onClick={() => {
           this.props.changeModal(modalType)
         }}>
-          <Box border="1px solid" borderRadius="10px" borderColor={isCompleted ? "success" : "danger" } p={"0.5em"} bg="#1e1e1e">
+          <Box border="1px solid" borderRadius="10px" borderColor={isCompleted ? "success" : "danger"} p={"0.5em"}
+               bg="#1e1e1e">
             <Box>
               <Text fontSize={"0.8em"} fontWeight={"bold"}>Last Transaction</Text>
               <Text fontSize={"0.7em"}>{txnInfo.progressType}</Text>
