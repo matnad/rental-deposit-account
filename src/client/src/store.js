@@ -20,6 +20,7 @@ store.subscribe(throttle(() => {
     txn: store.getState().txn,
     auth: store.getState().auth,
     rda: store.getState().rda,
+    oracle: store.getState().oracle,
   })
 }, 1000))
 

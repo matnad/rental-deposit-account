@@ -74,7 +74,7 @@ class TransactionSuccessContent extends Component {
           alignItems="center"
         >
           {
-            txnInfo.button ?
+            txnInfo.button && txn.type === TxnType.CREATE_RDA ?
               <Button.Outline
                 mr={[0, 3]}
                 mb={[2, 0]}
@@ -82,7 +82,7 @@ class TransactionSuccessContent extends Component {
                 onClick={() => {
                   this.props.selectRda(txn.receipt.logs[0].topics[1] || undefined)
                   this.props.closeFct()
-                  this.props.history.push("/details")
+                  // this.props.history.push("/details")
                 }}
               >
                 {txnInfo.button.text}

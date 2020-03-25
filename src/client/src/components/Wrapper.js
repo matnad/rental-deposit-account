@@ -2,8 +2,18 @@ import React, {Component} from "react"
 import {connect} from "react-redux"
 import NoMetamask from "./NoMetamask"
 import {withRouter} from "react-router-dom"
+import {loadCoinbaseRates} from "../actions/oracleActions"
 
 class Wrapper extends Component {
+
+  componentDidMount() {
+    this.props.loadCoinbaseRates()
+    this.interval = setInterval(this.props.loadCoinbaseRates, 6 * 60 * 1000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval)
+  }
 
   render() {
     const {isMetaMask, isLoading} = this.props.auth
@@ -29,5 +39,5 @@ const mapStateToProps = (state) => {
 
 export default withRouter(connect(
   mapStateToProps,
-  {},
+  {loadCoinbaseRates},
 )(Wrapper))

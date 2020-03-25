@@ -274,8 +274,8 @@ function getSuccessTitle(txnType) {
 
 function getSuccessButton(txnType) {
   switch (txnType) {
-    // case TxnType.CREATE_RDA:
-    //   return {text: "Work with the new contract"}
+    case TxnType.CREATE_RDA:
+      return {text: "Work with the new contract"}
     default:
       return null
   }

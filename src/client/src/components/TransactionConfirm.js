@@ -7,7 +7,7 @@ import metamaskSvg from "../assets/images/MetaMaskIcon.svg"
 import {getTransactionInfo, ModalType, Status} from "../utils/transactionProperties"
 import {changeModal} from "../actions/transactionActions"
 import {truncateAddress} from "../utils/string"
-import {getEtherscanAddress, rowColors} from "../utils/settings"
+import {fiatCurrency, getEtherscanAddress, rowColors} from "../utils/settings"
 
 import web3Utils from "web3-utils"
 
@@ -159,20 +159,32 @@ class TransactionConfirm extends Component {
 
     c = 0
     const txnInfo = getTransactionInfo(txn.type)
+    let ethToChf = 0
+    let daiToChf = 0
+    try {
+      ethToChf = this.props.oracle.ethTo[fiatCurrency]
+    } catch (e) {
+      console.log("Could not get ETH conversion rates")
+    }
+    try {
+      daiToChf = this.props.oracle.daiTo[fiatCurrency]
+    } catch (e) {
+      console.log("Could not get DAI conversion rates")
+    }
 
     const status = txn.status
 
     const price = {
       dai: Number.parseFloat(txn.dai).toFixed(2),
       eth: Number.parseFloat(txn.eth).toFixed(5),
-      daiFiat: (Number.parseFloat(txn.dai) * 0.95).toFixed(2),
-      ethFiat: (Number.parseFloat(txn.eth) * 100).toFixed(2)
+      daiFiat: (Number.parseFloat(txn.dai) * daiToChf).toFixed(2),
+      ethFiat: (Number.parseFloat(txn.eth) * ethToChf).toFixed(2)
     }
 
     const ethFee = (txn.gasPrice * txn.gasAmount)
     const fee = {
       eth: ethFee.toFixed(4),
-      fiat: (ethFee * 100).toFixed(4)
+      fiat: (ethFee * ethToChf).toFixed(4)
     }
 
     const maxMins = Math.ceil(txn.estimatedTotalTime / 60)
@@ -405,6 +417,7 @@ const mapStateToProps = (state) => {
   return ({
     auth: state.auth,
     txn: state.txn,
+    oracle: state.oracle,
   })
 }
 

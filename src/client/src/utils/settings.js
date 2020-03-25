@@ -32,5 +32,6 @@ export const getEtherscanTx = (txHash, chainId) => {
   }
 }
 
+export const fiatCurrency = "CHF"
 
 export const rowColors = ["#bbb", "#ccc"]

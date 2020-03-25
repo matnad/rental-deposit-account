@@ -83,7 +83,7 @@ class MetaMaskLoginButton extends Component {
     }
 
     if (prevState.chainId !== this.state.chainId) {
-      console.log(prevState.chainId, this.state.chainId)
+      // console.log(prevState.chainId, this.state.chainId)
       if (prevState.chainId != null) {
         this.props.updateNetwork(this.state.chainId)
         if (!desiredNetworks.includes(this.state.chainId) && this.state.chainId != null) {

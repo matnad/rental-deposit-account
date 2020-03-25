@@ -73,6 +73,7 @@ export const selectRda = (address) => (dispatch) => {
     }
 
     try {
+      // convert log address to regular address
       if (!web3.utils.checkAddressChecksum(address)) {
         address = web3.utils.toChecksumAddress("0x" + address.slice(-40)) // hacky?
       }
