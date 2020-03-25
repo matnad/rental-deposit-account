@@ -364,10 +364,8 @@ export const confirmTransaction = (txnId, rdaAddress, sender) => (dispatch) => {
     .then((rda) => {
       rda.once('Confirmation', {
         filter: {sender, txnId},
-        fromBlock: 0
-      }, function(error, event){
-        dispatch(loadConfirmations(rdaAddress, txnId))
-      })
+      }, () => dispatch(loadConfirmations(rdaAddress, txnId)))
+
     })
     .catch(console.log)
 }
@@ -383,9 +381,7 @@ export const revokeConfirmation = (txnId, rdaAddress, sender) => (dispatch) => {
     .then((rda) => {
       rda.once('Revocation', {
         filter: {sender, txnId},
-      }, function(error, event){
-        dispatch(loadConfirmations(rdaAddress, txnId))
-      })
+      }, () => dispatch(loadConfirmations(rdaAddress, txnId)))
     })
     .catch(console.log)
 }

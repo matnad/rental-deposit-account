@@ -285,6 +285,7 @@ const mapStateToProps = (state) => {
   return ({
     auth: state.auth,
     txn: state.txn,
+    oracle: state.oracle,
   })
 }
 

@@ -303,7 +303,7 @@ class TransactionConfirm extends Component {
                             The transaction has been rejected
                           </Text>
                           <Link fontWeight={100} lineHeight={"1.25em"} color={"primary"}>
-                            No account was opened and no funds were use.
+                            No changes were made and funds were use.
                           </Link>
                         </Box>
                       </>
