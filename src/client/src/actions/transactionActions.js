@@ -7,9 +7,7 @@ import axios from "axios"
 import {desiredNetworks} from "../utils/settings"
 import MultisigRDA from "../contracts/MultisigRDA"
 import GemLike from "../contracts/GemLike"
-import {loadConfirmations, selectRda} from "./rdaActions"
 import web3Utils from "web3-utils"
-import {updateDaiBalance} from "./authActions"
 import {getAddress} from "../utils/getAddresses"
 
 
@@ -21,6 +19,7 @@ async function buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender, fu
   if (!desiredNetworks.includes(chainId)) {
     return undefined
   }
+
   txn = await updateGasPrice(web3, txn)
   const rda = new web3.eth.Contract(MultisigRDA.abi, rdaAddress)
   txn.gasAmount = await rda.methods[functionName](...args).estimateGas({from: sender})
@@ -109,13 +108,13 @@ export const updateEstTime = (gasPriceGwei) => dispatch => {
     .then(res => {
       const {data} = res
       // console.log(data)
-      if (data == null ) return
+      if (data == null) return
       for (let i = 1; i < data.length; i++) {
         if (Number.parseFloat(gasPriceGwei) < data[i].gasprice) {
           // console.log(data[i-1])
           dispatch({
             type: TRANSACTION_UPDATE,
-            payload : {estimatedTotalTime: data[i-1].expectedWait * 60}
+            payload: {estimatedTotalTime: data[i - 1].expectedWait * 60}
           })
           break
         }
@@ -202,7 +201,7 @@ export const withdrawInterest = (rdaAddress, sender) => (dispatch) => {
     showModal: ModalType.CONFIRM,
     status: Status.WAITING,
   }
-  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender,"withdrawInterest", [])
+  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender, "withdrawInterest", [])
     .catch(console.log)
 }
 
@@ -213,7 +212,7 @@ export const withdrawTrusteeFee = (rdaAddress, sender) => (dispatch) => {
     showModal: ModalType.CONFIRM,
     status: Status.WAITING,
   }
-  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender,"withdrawTrusteeFee", [])
+  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender, "withdrawTrusteeFee", [])
     .catch(console.log)
 }
 
@@ -224,7 +223,7 @@ export const startRda = (rdaAddress, sender) => (dispatch) => {
     showModal: ModalType.CONFIRM,
     status: Status.WAITING,
   }
-  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender,"start", [])
+  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender, "start", [])
     .catch(console.log)
 }
 
@@ -235,15 +234,15 @@ export const returnDeposit = (rdaAddress, sender) => (dispatch) => {
     showModal: ModalType.CONFIRM,
     status: Status.WAITING,
   }
-  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender,"submitTransactionReturnDeposit", [])
-    .then((rda) => {
-      rda.once('Submission', {}, function(error, event){
-        // console.log(event)
-        const {txnId} = event.returnValues
-        // console.log(txnId)
-        dispatch(loadConfirmations(rdaAddress, txnId))
-      })
-    })
+  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender, "submitTransactionReturnDeposit", [])
+    // .then((rda) => {
+    //   rda.once('Submission', {}, function (error, event) {
+    //     // console.log(event)
+    //     const {txnId} = event.returnValues
+    //     // console.log(txnId)
+    //     dispatch(loadConfirmations(rdaAddress, txnId))
+    //   })
+    // })
     .catch(console.log)
 }
 
@@ -256,13 +255,13 @@ export const payDamages = (amount, rdaAddress, sender) => (dispatch) => {
     payload: {amount: `${amount} DAI`}
   }
   const amountWei = web3Utils.toWei(amount, "ether")
-  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender,"submitTransactionPayDamages", [amountWei])
-    .then((rda) => {
-      rda.once('Submission', {}, function(error, event){
-        const {txnId} = event.returnValues
-        dispatch(loadConfirmations(rdaAddress, txnId))
-      })
-    })
+  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender, "submitTransactionPayDamages", [amountWei])
+    // .then((rda) => {
+    //   rda.once('Submission', {}, function (error, event) {
+    //     const {txnId} = event.returnValues
+    //     dispatch(loadConfirmations(rdaAddress, txnId))
+    //   })
+    // })
     .catch(console.log)
 }
 
@@ -282,13 +281,13 @@ export const migrate = (newAddress, rdaAddress, sender) => (dispatch) => {
     return undefined
   }
 
-  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender,"submitTransactionMigrate", [newAddress])
-    .then((rda) => {
-      rda.once('Submission', {}, function(error, event){
-        const {txnId} = event.returnValues
-        dispatch(loadConfirmations(rdaAddress, txnId))
-      })
-    })
+  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender, "submitTransactionMigrate", [newAddress])
+    // .then((rda) => {
+    //   rda.once('Submission', {}, function (error, event) {
+    //     const {txnId} = event.returnValues
+    //     dispatch(loadConfirmations(rdaAddress, txnId))
+    //   })
+    // })
     .catch(console.log)
 
 }
@@ -302,13 +301,13 @@ export const addDocument = (name, hash, rdaAddress, sender) => (dispatch) => {
     payload: {name, hash}
   }
 
-  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender,"submitTransactionDocument", [name, hash])
-    .then((rda) => {
-      rda.once('Submission', {}, function(error, event){
-        const {txnId} = event.returnValues
-        dispatch(loadConfirmations(rdaAddress, txnId))
-      })
-    })
+  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender, "submitTransactionDocument", [name, hash])
+    // .then((rda) => {
+    //   rda.once('Submission', {}, function (error, event) {
+    //     const {txnId} = event.returnValues
+    //     dispatch(loadConfirmations(rdaAddress, txnId))
+    //   })
+    // })
     .catch(console.log)
 
 }
@@ -333,15 +332,20 @@ export const fundContract = (amount, rdaAddress, sender) => (dispatch) => {
     const amountWei = web3.utils.toWei(amount, "ether")
     txn = await updateGasPrice(web3, txn)
     const dai = new web3.eth.Contract(GemLike.abi, getAddress(chainId, "dai"))
-    txn.gasAmount = await dai.methods.transfer(rdaAddress, amountWei).estimateGas()
 
-    // Catch event and refresh
-    dai.once('Transfer', {
-      filter: {from: sender, to: rdaAddress, value: amount},
-    }, function(error, event){
-      dispatch(selectRda(rdaAddress))
-      dispatch(updateDaiBalance(sender))
-    })
+    try {
+      txn.gasAmount = await dai.methods.transfer(rdaAddress, amountWei).estimateGas({from: sender})
+    } catch (e) {
+      txn.gasAmount = 52000 // rough estimate for dai transfer if estimate function reverts
+    }
+
+    // // Catch event and refresh (need proper provider for events...)
+    // dai.once('Transfer', {
+    //   filter: {from: sender, to: rdaAddress, value: amount},
+    // }, function (error, event) {
+    //   dispatch(selectRda(rdaAddress))
+    //   dispatch(updateDaiBalance(sender))
+    // })
     // execute
     dispatchTransaction(dispatch, txn, dai.methods.transfer, [rdaAddress, amountWei], sender)
 
@@ -356,58 +360,67 @@ export const fundContract = (amount, rdaAddress, sender) => (dispatch) => {
 export const confirmTransaction = (txnId, rdaAddress, sender) => (dispatch) => {
   const txn = {
     type: TxnType.CONFIRM,
+    payload: {txnId},
     account: sender,
     showModal: ModalType.CONFIRM,
     status: Status.WAITING,
   }
-  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender,"confirmTransaction", [txnId])
-    .then((rda) => {
-      rda.once('Confirmation', {
-        filter: {sender, txnId},
-      }, () => dispatch(loadConfirmations(rdaAddress, txnId)))
-
-    })
+  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender, "confirmTransaction", [txnId])
+    // .then((rda) => {
+    //   rda.once('Confirmation', {
+    //     filter: {sender, txnId},
+    //     fromBlock: "latest"
+    //   }, (error, event) => {
+    //     dispatch(loadConfirmations(rdaAddress, txnId))
+    //   })
+    //
+    // })
     .catch(console.log)
 }
 
 export const revokeConfirmation = (txnId, rdaAddress, sender) => (dispatch) => {
   const txn = {
     type: TxnType.REVOKE,
+    payload: {txnId},
     account: sender,
     showModal: ModalType.CONFIRM,
     status: Status.WAITING,
   }
-  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender,"revokeConfirmation", [txnId])
-    .then((rda) => {
-      rda.once('Revocation', {
-        filter: {sender, txnId},
-      }, () => dispatch(loadConfirmations(rdaAddress, txnId)))
-    })
+  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender, "revokeConfirmation", [txnId])
+    // .then((rda) => {
+    //   rda.once('Revocation', {
+    //     filter: {sender, txnId},
+    //     fromBlock: "latest"
+    //   }, (error, event) => {
+    //     dispatch(loadConfirmations(rdaAddress, txnId))
+    //   })
+    // })
     .catch(console.log)
 }
 
 export const executeTransaction = (txnId, rdaAddress, sender) => (dispatch) => {
   const txn = {
     type: TxnType.EXECUTE,
+    payload: {txnId},
     account: sender,
     showModal: ModalType.CONFIRM,
     status: Status.WAITING,
   }
-  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender,"executeTransaction", [txnId])
-    .then((rda) => {
-      rda.once('Execution', {
-        filter: {txnId},
-      }, function(error, event){
-        dispatch(selectRda(rdaAddress))
-        dispatch(loadConfirmations(rdaAddress, txnId))
-      })
-      rda.once('ExecutionFailure', {
-        filter: {txnId},
-      }, function(error, event){
-        dispatch(selectRda(rdaAddress))
-        dispatch(loadConfirmations(rdaAddress, txnId))
-      })
-    })
+  buildAndDispatchTransaction(dispatch, txn, rdaAddress, sender, "executeTransaction", [txnId])
+    // .then((rda) => {
+    //   rda.once('Execution', {
+    //     filter: {txnId},
+    //   }, function (error, event) {
+    //     dispatch(selectRda(rdaAddress))
+    //     dispatch(loadConfirmations(rdaAddress, txnId))
+    //   })
+    //   rda.once('ExecutionFailure', {
+    //     filter: {txnId},
+    //   }, function (error, event) {
+    //     dispatch(selectRda(rdaAddress))
+    //     dispatch(loadConfirmations(rdaAddress, txnId))
+    //   })
+    // })
     .catch(console.log)
 }
 

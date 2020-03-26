@@ -70,21 +70,18 @@ class MetaMaskLoginButton extends Component {
       this.props.updateDaiBalance(this.state.account)
       // console.log(prevState.account, this.state.account)
       if (this.state.account == null && !this.state.isLoading) {
-        // console.log("1")
         this.props.deselectRda()
       } else if (prevState.account != null && prevState.account !== "") {
         window.toastProvider.addMessage(
           `Account switched to`,
           {secondaryMessage: truncateAddress(this.state.account), variant: "success"},
         )
-        // console.log("2")
         this.props.deselectRda()
       }
     }
 
     if (prevState.chainId !== this.state.chainId) {
-      // console.log(prevState.chainId, this.state.chainId)
-      if (prevState.chainId != null) {
+      if (prevState.chainId != null || this.props.auth.chainId == null || this.props.auth.chainId === 0) {
         this.props.updateNetwork(this.state.chainId)
         if (!desiredNetworks.includes(this.state.chainId) && this.state.chainId != null) {
           window.toastProvider.addMessage(

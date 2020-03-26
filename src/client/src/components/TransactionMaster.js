@@ -4,8 +4,10 @@ import {getEthereum} from "../utils/getEthereum"
 import Web3 from "web3"
 import web3Utils from "web3-utils"
 import {changeModal, changeStatus, updateEstTime, updateTransaction} from "../actions/transactionActions"
-import {getTransactionInfo, ModalType, Status} from "../utils/transactionProperties"
+import {getTransactionInfo, ModalType, Status, TxnType} from "../utils/transactionProperties"
 import {Box, Link, Text} from "rimble-ui"
+import {loadConfirmations, loadRdas, selectRda} from "../actions/rdaActions"
+import {updateDaiBalance} from "../actions/authActions"
 
 class TransactionMaster extends Component {
 
@@ -78,6 +80,7 @@ class TransactionMaster extends Component {
 
       if (txn.status === Status.PENDING) {
         this.props.changeStatus(Status.COMPLETED)
+        this.reloadContent(txn)
         window.toastProvider.addMessage(
           txnInfo.successToastTitle,
           {
@@ -120,6 +123,36 @@ class TransactionMaster extends Component {
     }
   }
 
+  reloadContent(txn) {
+    const rda = this.props.rda.selected
+    switch (txn.type) {
+      case TxnType.CREATE_RDA:
+        this.props.loadRdas()
+        break
+      case TxnType.FUND_CONTRACT:
+        this.props.updateDaiBalance(this.props.auth.account)
+        if (rda && rda.address != null) {
+          this.props.selectRda(rda.address)
+        }
+        break
+      case TxnType.PAY_DAMAGES:
+      case TxnType.MIGRATE:
+      case TxnType.RETURN_DEPOSIT:
+      case TxnType.ADD_DOCUMENT:
+        if (rda && rda.address != null) {
+          this.props.loadConfirmations(rda.address, "all")
+        }
+      // falls through
+      default:
+        if (rda && rda.address != null) {
+          this.props.selectRda(rda.address)
+          if (txn.payload && txn.payload.txnId) {
+            this.props.loadConfirmations(rda.address, txn.payload.txnId)
+          }
+        }
+    }
+  }
+
   getBanner() {
     const {txn} = this.props
     const txnInfo = getTransactionInfo(txn.type)
@@ -151,9 +184,6 @@ class TransactionMaster extends Component {
               <Text fontSize={"0.8em"} fontWeight={"bold"}>Last Transaction</Text>
               <Text fontSize={"0.7em"}>{txnInfo.progressType}</Text>
             </Box>
-            {/*<Box width={1} border="thin solid" borderColor="light-gray" mt={1}>*/}
-            {/*  <Box bg={"success"} width={txn.progress} px={0} py={"0.3em"}/>*/}
-            {/*</Box>*/}
           </Box>
         </Link>
       )
@@ -172,11 +202,21 @@ class TransactionMaster extends Component {
 const mapStateToProps = (state) => {
   return ({
     auth: state.auth,
-    txn: state.txn
+    txn: state.txn,
+    rda: state.rda,
   })
 }
 
 export default connect(
   mapStateToProps,
-  {updateTransaction, updateEstTime, changeStatus, changeModal},
+  {
+    loadRdas,
+    updateDaiBalance,
+    updateTransaction,
+    loadConfirmations,
+    selectRda,
+    updateEstTime,
+    changeStatus,
+    changeModal
+  },
 )(TransactionMaster)

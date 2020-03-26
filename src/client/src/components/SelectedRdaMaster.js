@@ -1,6 +1,6 @@
 import React, {Component} from "react"
 import {connect} from "react-redux"
-import {Box, Text, Link} from "rimble-ui"
+import {Box, Text, Link, Flex, Icon, Loader} from "rimble-ui"
 import {truncateAddress} from "../utils/string"
 import {withRouter} from "react-router-dom"
 import styled from "styled-components"
@@ -28,10 +28,12 @@ class SelectedRdaMaster extends Component {
         <Box
           position="absolute"
           onMouseEnter={() => {
-            this.setState({showMenu: true})
+            if (!selected.isLoading) {
+              this.setState({showMenu: true})
+            }
           }}
           onMouseLeave={() => {
-            this.setState({showMenu: false})
+              this.setState({showMenu: false})
           }}
           pb={2}
           px={2}
@@ -43,9 +45,17 @@ class SelectedRdaMaster extends Component {
 
           >
             <Box border="1px solid" borderColor="success" borderRadius="10px" p={"0.5em"} bg="#1e1e1e">
-              <Box>
-                <Text fontSize={"0.8em"} fontWeight={"bold"}>Selected RDA</Text>
-                <Text fontSize={"0.7em"}>{selected.address ? truncateAddress(selected.address) : ''}</Text>
+              <Box height="30px">
+                <Flex>
+                  <Box>
+                    <Flex>
+                      <Text fontSize={"0.8em"} fontWeight={"bold"}>Selected RDA</Text>
+                      <Box ml={2} >{selected.isLoading ? <Loader size="1em"/> : null}</Box>
+                    </Flex>
+                    <Text fontSize={"0.7em"}>{selected.address ? truncateAddress(selected.address) : ''}</Text>
+                  </Box>
+                  <Box ml={2}><Icon name="ArrowDropDown" size="1.8em"/></Box>
+                </Flex>
               </Box>
             </Box>
           </Link>
