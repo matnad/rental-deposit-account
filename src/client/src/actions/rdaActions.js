@@ -1,7 +1,9 @@
 import {
   RDA_CONFIRMATIONS_LOADED,
+  RDA_CONFIRMATIONS_LOADING,
   RDA_POPULATED,
-  RDA_SELECTED, RDA_SELECTING,
+  RDA_SELECTED,
+  RDA_SELECTING,
   RDA_UPDATE_SELECTED,
   RDAS_LOADED,
   RDAS_LOADING
@@ -36,9 +38,7 @@ export const loadRdas = (account) => (dispatch) => {
     const registry = await new web3.eth.Contract(
       RDARegistry.abi, registryAddress
     )
-
     return await registry.methods.getByParticipant(account).call()
-
   }
 
   getRdas(account)
@@ -151,11 +151,30 @@ export const loadConfirmations = (rdaAddress, transactionIds) => (dispatch) => {
       ids.push(transactionIds[i])
     }
     const results = await Promise.all(Object.values(promises))
+    const events = await rda.getPastEvents('allEvents', {
+      fromBlock: 0,
+      toBlock: 'latest'
+    })
     for (let i = 0; i < results.length; i++) {
       results[i].id = ids[i]
+      results[i].events = []
+      for (let e = 0; e < events.length; e++) {
+        if (events[e].returnValues && events[e].returnValues.txnId && events[e].returnValues.txnId === ids[i]) {
+          results[i].events.push({
+            type: events[e].event,
+            sender: events[e].returnValues.sender,
+            timestamp: (await web3.eth.getBlock(events[e].blockNumber)).timestamp,
+            txHash: events[e].transactionHash,
+          })
+        }
+      }
     }
     return results
   }
+
+  dispatch({
+    type: RDA_CONFIRMATIONS_LOADING
+  })
 
   getConfirmations(transactionIds)
     .then(results => {

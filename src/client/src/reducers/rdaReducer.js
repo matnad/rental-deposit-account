@@ -1,5 +1,5 @@
 import {
-  RDA_CONFIRMATIONS_LOADED,
+  RDA_CONFIRMATIONS_LOADED, RDA_CONFIRMATIONS_LOADING,
   RDA_POPULATED,
   RDA_SELECTED,
   RDA_SELECTING,
@@ -14,6 +14,7 @@ const initialState = {
   contracts: {},
   selected: {
     isLoading: false,
+    transactionsIsLoading: false,
     transactions: []
   }
 }
@@ -104,6 +105,14 @@ export default function (state = initialState, action) {
         ...state,
         selected
       }
+    case RDA_CONFIRMATIONS_LOADING:
+      return {
+        ...state,
+        selected: {
+          ...state.selected,
+          transactionsIsLoading: true
+        }
+      }
     case RDA_CONFIRMATIONS_LOADED:
       if (Array.isArray(action.payload)) {
         // Overwrite
@@ -111,6 +120,7 @@ export default function (state = initialState, action) {
           ...state,
           selected: {
             ...state.selected,
+            transactionsIsLoading: false,
             transactions: action.payload
           }
         }
@@ -132,6 +142,7 @@ export default function (state = initialState, action) {
           ...state,
           selected: {
             ...state.selected,
+            transactionsIsLoading: false,
             transactions: txns
           }
         }

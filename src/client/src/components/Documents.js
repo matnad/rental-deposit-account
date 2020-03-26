@@ -1,6 +1,6 @@
 import React, {Component} from "react"
 import {connect} from "react-redux"
-import {Box, Button, Card, Heading, Text} from "rimble-ui"
+import {Box, Button, Card, Heading, Loader, Text} from "rimble-ui"
 import PageLoader from "./PageLoader"
 import {Redirect, withRouter} from "react-router-dom"
 import {getEthereum} from "../utils/getEthereum"
@@ -46,7 +46,9 @@ class Documents extends Component {
     if (transactions.filter(txn => txn.txnType === ConfirmationType.DOCUMENT).length === 0) {
       return (
         <Box textAlign="center" mt={5} mb={4}>
-          <Text fontSize="1.5em" fontWeight="bold">No document has been submitted so far.</Text>
+          {this.props.rda.selected.transactionsIsLoading ?
+            <Loader size="2em" mx="auto"/> :
+            <Text fontSize="1.5em" fontWeight="bold">No document has been submitted so far.</Text>}
         </Box>
       )
     }
@@ -101,8 +103,10 @@ class Documents extends Component {
                 You can sign a document which is equal to putting your hand-written signature on a document.
                 Once signed, you can never revoke your signature again.<br/>
                 <br/>
-                The documents are not stored online. Click the "Verify Document" button to select a file from your hard drive and
-                the box will tell you if the file you selected is exactly the same as the document that was attached to this RDA.
+                The documents are not stored online. Click the "Verify Document" button to select a file from your hard
+                drive and
+                the box will tell you if the file you selected is exactly the same as the document that was attached to
+                this RDA.
 
               </Text>
             </Box>

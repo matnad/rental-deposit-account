@@ -1,6 +1,6 @@
 import React, {Component} from "react"
 import {connect} from "react-redux"
-import {Box, Card, Heading, Text} from "rimble-ui"
+import {Box, Card, Heading, Text, Loader} from "rimble-ui"
 import PageLoader from "./PageLoader"
 import {Redirect} from "react-router-dom"
 import {getEthereum} from "../utils/getEthereum"
@@ -46,7 +46,10 @@ class Requests extends Component {
     if (transactions.filter(txn => txn.txnType !== ConfirmationType.DOCUMENT).length === 0) {
       return (
         <Box textAlign="center" mt={5} mb={4}>
-          <Text fontSize="1.5em" fontWeight="bold">No request has been submitted so far.</Text>
+          {this.props.rda.selected.transactionsIsLoading ?
+            <Loader size="2em" mx="auto"/> :
+            <Text fontSize="1.5em" fontWeight="bold">No request has been submitted so far.</Text>
+          }
         </Box>
       )
     }

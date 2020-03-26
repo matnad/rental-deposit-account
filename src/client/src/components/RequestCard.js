@@ -1,11 +1,12 @@
 import React, {Component} from "react"
 import {connect} from "react-redux"
-import {Box, Button, Card, Flex, Icon, Loader, Text, Tooltip} from "rimble-ui"
+import {Box, Button, Card, Flex, Icon, Link, Loader, Text, Tooltip} from "rimble-ui"
 import {confirmTransaction, executeTransaction, revokeConfirmation} from "../actions/transactionActions"
 import PropTypes from 'prop-types'
 import {truncateAddressTo, weiToFixed} from "../utils/string"
 import {ConfirmationType} from "../utils/transactionProperties"
 import web3Utils from "web3-utils"
+import {getEtherscanTx} from "../utils/settings"
 
 class RequestCard extends Component {
 
@@ -17,8 +18,9 @@ class RequestCard extends Component {
       confirmationStatus: this.props.rda.selected.transactions[props.index].confirmationStatus,
       verify: null,
       isLoadingVerify: false,
+      showLogs: false
     }
-    this.filePicker = React.createRef();
+    this.filePicker = React.createRef()
     this.handleSelect = this.handleSelect.bind(this)
   }
 
@@ -74,7 +76,7 @@ class RequestCard extends Component {
 
   render() {
     const {index} = this.state
-    const {owner, txnType, dest, value, executed, confirmationStatus, id, name, hash} = this.props.rda.selected.transactions[index]
+    const {owner, txnType, dest, value, executed, confirmationStatus, id, name, hash, events} = this.props.rda.selected.transactions[index]
 
     let intType
     try {
@@ -92,7 +94,8 @@ class RequestCard extends Component {
     const {account} = this.props.auth
     const rda = this.props.rda.selected
 
-
+    const participants = rda.participants
+    const participantNames = ["Tenant", "Landlord", "Trustee"]
     const nameUft8 = web3.utils.hexToUtf8(name)
     const remainingFee = new web3.utils.BN(rda.fee).sub(new web3.utils.BN(rda.feePaid))
     let availableDeposit = new web3.utils.BN(rda.dsrBalance)
@@ -115,8 +118,9 @@ class RequestCard extends Component {
         Only use this when your funds are at risk. The trustee must always confirm this action before
         it can be executed.</Text>,
       <Text>This document is not stored online. You should have received a copy via e-mail or a similar
-      channel. Click the "Verify Document" button and check if the received document matches the associated one.
-      If you are happy with the document, click "Sign" to put your signature on it. Signing a document is final!</Text>
+        channel. Click the "Verify Document" button and check if the received document matches the associated one.
+        If you are happy with the document, click "Sign" to put your signature on it. Signing a document is
+        final!</Text>
     ]
     const properties = [
       [`DAI to be returned: ${weiToFixed(availableDeposit, 4)} DAI`],
@@ -149,7 +153,7 @@ class RequestCard extends Component {
     else if (owner === rda.landlord) startedBy = "Landlord"
     else if (owner === rda.trustee) startedBy = "Trustee"
     let currentProperties
-    if(txnType === ConfirmationType.DOCUMENT) {
+    if (txnType === ConfirmationType.DOCUMENT) {
       currentProperties = [
         "Added by: " + startedBy,
         confirmedBy.length > 0 ? "Signed by: " + confirmedBy.join(", ") : "Signed by: No one",
@@ -165,6 +169,28 @@ class RequestCard extends Component {
     currentProperties.push(...properties[intType])
 
     const color = executed ? 'gray' : 'near-black'
+
+    const logs = events.map((e, ix) => {
+      const date = new Date(e.timestamp * 1000)
+      const options = {year: 'numeric', month: '2-digit', day: '2-digit', hour: "2-digit", minute: "2-digit"}
+      const etherscanLink = getEtherscanTx(e.txHash, this.props.auth.chainId)
+      return (
+        <Box key={ix}>
+          <Link
+            color={color}
+            fontSize={1}
+            lineHeight={"1.25em"}
+            href={etherscanLink}
+            target="_blank"
+          >
+            <i>{txnType === ConfirmationType.DOCUMENT && e.type === "Confirmation" ? "Signed: " : e.type + ": "}</i>
+            {date.toLocaleDateString("de-DE", options) + " "}
+            {participants.includes(e.sender) ? " by the " + participantNames[participants.indexOf(e.sender)] : null}
+            <Icon ml={1} name="Launch" size="12px" />
+          </Link>
+        </Box>
+      )
+    })
 
 
     return (
@@ -184,8 +210,19 @@ class RequestCard extends Component {
             return <Text key={index} color={color} fontWeight="bold" mb={1}>{property}</Text>
           })}
           <Text color={color}>{descriptions[intType]}</Text>
+          <Box mx={2} mt={2}>
+            <Flex onClick={() => {
+              this.setState({showLogs: !this.state.showLogs})
+            }}>
+              <Text color={color} fontWeight="bold">Logs</Text>
+              <Icon name={this.state.showLogs ? "ArrowDropDown" : "ArrowDropUp"} color={color}/>
+            </Flex>
+            <Box>
+              {this.state.showLogs ? logs : null}
+            </Box>
+          </Box>
           {txnType === ConfirmationType.DOCUMENT ?
-            <Flex >
+            <Flex>
               <Button.Outline
                 mt={3}
                 width={1}
@@ -204,9 +241,9 @@ class RequestCard extends Component {
                 onClick={this.handleSelect}
               >
                 {this.state.isLoadingVerify ? <Loader mx="auto"/> :
-                this.state.verify === null ? "Verify Document" :
-                this.state.verify === true ? <Icon name="CheckCircle" color="darkgreen" size="2em"/> :
-                  <Icon name="Warning" color="danger" size="2em"/>}
+                  this.state.verify === null ? "Verify Document" :
+                    this.state.verify === true ? <Icon name="CheckCircle" color="darkgreen" size="2em"/> :
+                      <Icon name="Warning" color="danger" size="2em"/>}
               </Button.Outline>
               <input
                 ref={this.filePicker}

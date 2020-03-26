@@ -23,7 +23,7 @@ const LoginMMButton = styled(MetaMaskButton)`
 
 const LoggedInMMButton = styled(LoginMMButton)`
   & {
-    padding: 15px;
+    padding-top: 2px;
     border-radius: 150px;
     background-color: #1e1e1e;
   }
