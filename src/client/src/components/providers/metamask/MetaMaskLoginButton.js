@@ -81,7 +81,12 @@ class MetaMaskLoginButton extends Component {
     }
 
     if (prevState.chainId !== this.state.chainId) {
-      if (prevState.chainId != null || this.props.auth.chainId == null || this.props.auth.chainId === 0) {
+      if (
+        prevState.chainId != null ||
+        this.props.auth.chainId == null ||
+        this.props.auth.chainId === 0 ||
+        this.state.chainId !== this.props.auth.chainId
+      ) {
         this.props.updateNetwork(this.state.chainId)
         if (!desiredNetworks.includes(this.state.chainId) && this.state.chainId != null) {
           window.toastProvider.addMessage(
@@ -96,6 +101,7 @@ class MetaMaskLoginButton extends Component {
         }
       }
     }
+
   }
 
   handleChainChanged = (chainId) => this.setState({chainId})
