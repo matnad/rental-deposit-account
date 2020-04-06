@@ -1,6 +1,13 @@
 import RDARegistry from "../contracts/RDARegistry"
 
 const addresses = {
+  "1": {
+    vat: "0x35D1b3F3D7966A1DFe207aa4514C12a259A0492B",
+    pot: "0x197E90f9FAD81970bA7976f33CbD77088E5D7cf7",
+    join: "0x9759A6Ac90977b93B58547b4A71c78317f391A28",
+    dai: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+    // reg: "0x067E7B00FC7726B249b345609B9ECDCC8000f066",
+  },
   "42": {
     vat: "0xbA987bDB501d131f766fEe8180Da5d81b34b69d9",
     pot: "0xEA190DBDC7adF265260ec4dA6e9675Fd4f5A78bb",
@@ -17,12 +24,20 @@ const addresses = {
 }
 
 export function getAddress(chainId, type) {
+  if (chainId === "1") {
+    try {
+      return addresses["1"][type]
+    } catch (e) {
+      console.log("Address not found for chain " + chainId)
+      return "0x00"
+    }
+  }
   if (chainId === "42") {
     try {
       return addresses["42"][type]
     } catch (e) {
       console.log("Address not found for chain " + chainId)
-      return "0x0"
+      return "0x00"
     }
   } else if (chainId === "999") {
     if (type === "reg") {

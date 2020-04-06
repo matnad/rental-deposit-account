@@ -43,23 +43,25 @@ export const loadRdas = (account) => (dispatch) => {
 
   getRdas(account)
     .then(rdas => {
-      dispatch({
-        type: RDAS_LOADED,
-        payload: rdas
-      })
-      rdas.forEach(rdaAddress => {
-        const rdaContract = new web3.eth.Contract(MultisigRDA.abi, rdaAddress)
-        rdaContract.methods.getParticipants().call()
-          .then(rdaParticipants => {
-            dispatch({
-              type: RDA_POPULATED,
-              payload: {
-                rdaAddress,
-                rdaParticipants
-              }
+      if (rdas != null) {
+        dispatch({
+          type: RDAS_LOADED,
+          payload: rdas
+        })
+        rdas.forEach(rdaAddress => {
+          const rdaContract = new web3.eth.Contract(MultisigRDA.abi, rdaAddress)
+          rdaContract.methods.getParticipants().call()
+            .then(rdaParticipants => {
+              dispatch({
+                type: RDA_POPULATED,
+                payload: {
+                  rdaAddress,
+                  rdaParticipants
+                }
+              })
             })
-          })
-      })
+        })
+      }
     })
 }
 

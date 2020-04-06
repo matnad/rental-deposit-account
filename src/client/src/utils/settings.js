@@ -1,4 +1,4 @@
-export const desiredNetworks = ["42", "999"]
+export const desiredNetworks = ["1", "42", "999"]
 export const networkNames = {
   "1": "Ethereum Main Net",
   "2": "Morden",
