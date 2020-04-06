@@ -1,0 +1,39 @@
+\begin{tikzpicture}
+	\begin{pgfonlayer}{nodelayer}
+		\node [style=rect1] (4) at (0, 8) {\large DSR contract};
+		\node [style=rect2] (5) at (-11, 0.25) {Tenant};
+		\node [style=rect2] (6) at (0, -8) {Trustee};
+		\node [style=none] (8) at (-6.25, -0.5) {\small send deposit};
+		\node [style=rect1] (9) at (0, 0.25) {\large RDA contract};
+		\node [style=none] (10) at (-1, 1) {};
+		\node [style=none] (11) at (-1, 7.25) {};
+		\node [style=none] (12) at (1, 7.25) {};
+		\node [style=none] (13) at (1, 1) {};
+		\node [style=none, rotate=90] (14) at (-1.5, 4.25) {\small invest deposit};
+		\node [style=none] (15) at (0, 10.5) {\small earn interest};
+		\node [style=none] (16) at (-9.25, 0.5) {};
+		\node [style=none] (17) at (-9.25, 0) {};
+		\node [style=none] (18) at (-3.25, 0.5) {};
+		\node [style=none] (19) at (-3.25, 0) {};
+		\node [style=none] (20) at (-6.25, 1) {\small interest};
+		\node [style=rect2] (21) at (11.25, 0.25) {Landlord};
+		\node [style=none] (22) at (6.25, -0.25) {\small restitutions};
+		\node [style=none] (24) at (3.25, 0.25) {};
+		\node [style=none] (26) at (9.25, 0.25) {};
+		\node [style=none] (27) at (-1, 8.75) {};
+		\node [style=none] (28) at (1, 8.75) {};
+		\node [style=none, rotate=90] (29) at (1.5, 4.25) {\small interest};
+		\node [style=none] (30) at (0, -0.75) {};
+		\node [style=none] (31) at (0, -7) {};
+		\node [style=none, rotate=90] (32) at (0.5, -3.75) {\small trustee fee};
+	\end{pgfonlayer}
+	\begin{pgfonlayer}{edgelayer}
+		\draw [style=to] (10.center) to (11.center);
+		\draw [style=to] (12.center) to (13.center);
+		\draw [style=to] (17.center) to (19.center);
+		\draw [style=to] (18.center) to (16.center);
+		\draw [style=to, bend left=120, looseness=2.25] (27.center) to (28.center);
+		\draw [style=to] (30.center) to (31.center);
+		\draw [style=dotted, in=180, out=0] (24.center) to (26.center);
+	\end{pgfonlayer}
+\end{tikzpicture}
