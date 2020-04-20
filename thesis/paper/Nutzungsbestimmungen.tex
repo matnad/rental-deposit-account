@@ -1,0 +1,158 @@
+\documentclass[parskip=half]{scrreprt} 
+
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[ngerman]{babel} 
+\usepackage{lmodern} 
+\usepackage[juratotoc]{scrjura} 
+\usepackage[margin=2cm]{geometry} 
+
+\useshorthands{`}
+\defineshorthand{`S}{\Sentence\ignorespaces}
+  
+\makeatletter 
+\renewcommand*{\parformat}{% 
+  \global\hangindent 2em 
+  \makebox[2em][l]{(\thepar)\hfill}\hspace{-0,3cm} 
+} 
+\makeatother 
+ 
+\begin{document} 
+  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   
+% Vertragsgegenstand                          %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\addchap{Nutzungsbestimmungen für einen \\ Smart Rental Deposit Account} 
+
+% Vertragsparteien 
+\begin{tabular}{p{15cm}p{.5cm}l}
+Zwischen \dotfill  \\ 
+(Name und Identifikation des Mieters) \\  
+\medskip(ggf.: vertreten durch \dotfill)\\ 
+\medskip \hfill \textit{- nachfolgend ''Mieter'' genannt -}\\ 
+\bigskip und \dotfill\\ 
+(Name und Identifikation des Vermieters) \\  
+\medskip \hfill \textit{- nachfolgend ''Vermieter'' genannt -} \\ 
+\bigskip und \dotfill\\ 
+(Name und Identifikation des Treuhänders) \\  
+\medskip \hfill \textit{- nachfolgend ''Treuhänder'' genannt -} \\ 
+\end{tabular}% 
+
+\vspace{0,5 cm} 
+ \begin{tabular}[t]{l@{}}% 
+ wird folgendes vereinbart: 
+ \end{tabular}% 
+% Vertragstext beginnt 
+\begin{contract} 
+
+\Clause{title={Vertragsgegenstand}} 
+  
+Regelt zusätzliche Bestimmungen zum Smart Contract an der Adresse: \\
+\smallskip \hfill \\
+.\dotfill 
+
+Bei Migration der Adresse ist ein neuer Vertrag oder eine Erweiterung zu diesem Vertrag zu signieren.
+
+\Clause{title={Sicherheit der persönlichen Identifikationen}}
+
+Alle Vertragsparteien sind verpflichtet, den privaten Schlüssel ihrer persönlichen Identifikation sicher und für unauthorisierte Personen unerreichbar aufzubewahren.
+
+Verlust oder Kompromittierung des Schlüssels ist umgehend den anderen Vertragspartnern zu melden und hat eine Migration des Smart Contracts auf Kosten <des Fehlbaren?> zu Folge.
+
+Sämtliche Schäden, welche aufgrund eines kompromittierten Schlüssels entstehen, sind vollumfänglich von dieser Vertragspartei zu tragen.
+
+\Clause{title={Vertretungen und Reaktionszeiten?}}
+
+Verfügbarkeit bei Abwesenheit
+
+Wie lange Zeit um auf Anfragen zu reagieren?
+
+
+\Clause{title={Pflichten des Mieters}}
+
+Einzahlen der Sicherheit und anschliessend den Smart Contract starten.
+
+Einleiten und Bestätigen der Rückzahlung.
+
+Bestätigen einer notwendigen Migration.
+
+\Clause{title={Pflichten des Vermieters}}
+
+Einleiten und Bestätigen einer allfälligen Restitution.
+
+\Clause{title={Pflichten und Kompensation für den Treuhänder}}
+
+Wenn nicht anders geregelt, erhält der Treuhändler keine weitere Kompensation neben der Treuhänder Gebühr als Gegenleistung für die Ausführung seiner Pflichten.
+
+Tätigkeiten des Treuhänders, welche über die in diesem Vertrag geregelten Pflichten hinausgehen, können nach Absprache mit der Gegenpartei in Rechnung gestellt werden.
+
+Der Treuhänder verpflichtet sich, Transaktionen, die zum rechtsmässigen Ablauf des Depotvertrags notwendig sind zu bestätigen oder im Falle einer Migration einzuleiten. Dies beinhaltet auch verifizieren und <rechtsmässiges Reagieren> auf Zahlungsbefehle und Gerichtsurteile.
+
+
+\Clause{title={Rückzahlung der Sicherheit}}
+
+Wie im OR geregelt.
+
+\Clause{title={Zahlung aus dem Depot an Vermieter}}
+
+Wie im OR geregelt. ?
+
+\Clause{title={Migration des Depots}}
+
+Eine Migration des Smart Contracts kann vom Treuhänder und dem Mieter oder dem Vermieter beschlossen werden. Die Kosten trägt, wenn nicht anders geregelt, der Treuhänder. Diese Kosten dürfen allenfalls, in Form einer erhöten Treuhänder Gebühr, auf dem neuen Smart Contract geltend gemacht werden.
+
+Folgende Gründe haben eine zwingende Migration zur Folge:\\
+\setcounter{sentence}{0}
+`S Private Schlüssel sind verloren oder kompromittiert. \\
+`S Änderung der Vertragspartner.\\
+`S Update des Smart Contracts aus Sicherheitsgründen.\\
+`S Signifikante Unterkollateralisierung des Depots aufgrund von Wertzerfall der Kryptowährung.\\
+`S Der Smart Contract befindet sich in einem unbrauchbaren Status und kann nicht mehr verwendet werden.
+
+Falls sich der Treuhänder und der Mieter auf eine Migration zu einem Depot ausserhalb der Blockchain entscheiden, trägt der Mieter alle Kosten, welche aus der Migration entstehen.
+
+\Clause{title={Bezahlung der Trehänder Gebühr}}
+Die Treuhänder Gebühr wird bei der Erstellung des Smart Contracts festgelegt und kann - von einer Migration abgesehen - nicht nachträglich angepasst werden.
+
+Die Gebühr wird vom Treuhänder direkt über den Smart Contract bezogen und aus dem angesammelten Zins bezahlt.
+
+Sollte der angesammelte Zins am Ender der Laufzeit nicht ausreichen um die Gebühr zu decken, so wird automatisch ein Teil des Depots zur Tilgung beigezogen.
+
+Sollte der angesammelte Zins am Ender der Laufzeit nicht ausreichen um die Gebühr zu decken und das gesamte Depot dem Vermieter zugesprochen werden, so soll der Treuhänder die verbleibende Gebühr direkt beim Mieter auf dem Rechtsweg geltend machen.
+
+\Clause{title={Zinsbezüge zu Gunsten des Mieters}}
+
+Die Höhe der Zinsbezüge werden vom Smart Contract automatisch unter Berücksichtigung der Treuhänder Gebühr festgelegt. Das Depot kann nicht unter den ursprünglich einbezahlten Betrag reduziert werden.
+
+Der Mieter verpflichtet sich, alle Zinsbezüge korrekt als Zinseinkommen zu deklarieren. ?
+
+
+\end{contract} 
+  
+\addsec{Salvatorische Klausel} 
+  
+Sollte eine Bestimmung dieses Vertrages unwirksam sein, wird die Wirksamkeit der übrigen Bestimmungen davon nicht berührt. Die Parteien verpflichten sich, anstelle einer unwirksamen Bestimmung eine dieser Bestimmung möglichst nahekommende wirksame Regelung zu treffen. 
+
+\addsec{Gültigkeit}
+
+Dieses Dokument ist für eine digitale Signatur ausgelegt und ist gültig, sobald die Signaturen mit Identifikationen aller drei Vertragsparteien einsichtbar und an dieses Dokument gekoppelt abgelegt sind.
+%% Ort und Datum  
+%\vspace{1,5 cm} 
+%\begin{tabular}{p{7cm}p{.5cm}l}
+%\dotfill \\ 
+%Ort, Datum
+%\end{tabular}% 
+%
+%% Hier kommen die Unterschriten hin
+%\vspace{1,5 cm} 
+%\begin{tabular}{p{7cm}p{.5cm}l}
+%\dotfill \\ 
+%Unterschrift Auftraggeber 
+%\end{tabular}% 
+%\hfill 
+%\begin{tabular}{p{7cm}p{.5cm}l}
+%\dotfill \\ 
+%Unterschrift Auftragnehmer 
+%\end{tabular}% 
+  
+\end{document}

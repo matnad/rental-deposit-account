@@ -14,11 +14,16 @@
 
 %% Meta Data and Variables
 \input{../config/meta.tex}
-\title{WORK IN PROGRESS \\ A smart contract for rental deposit accounts}
+\title{Smart rental deposit accounts on Ethereum}
 
 %% Presentation Style Settings
 \input{../config/style.tex}
 \input{../config/titlepage.tex}
+
+%%% Tikz Styles %%%
+\input{../../assetlib/tikz/tikzit.sty}
+\input{../../assetlib/tikz/styles.tikzstyles}
+\usepackage{tikzscale}
 
 %% Document
 \begin{document}
@@ -26,40 +31,284 @@
     \titlepage
   \end{frame}
   
-\begin{frame}{Overview}{The Basic Strucutre of My Presentation}
-  \tableofcontents
+\begin{frame}{Overview}{Structure of the presentation}
+  \tableofcontents[hideallsubsections]
 \end{frame}
 
-\section{Introduction}
+\section{The Problem}
+\label{sec:introduction}
 
-\subsection{The Problem}
+\subsection{The zero-interest problem}
 
-\begin{frame}{The Problem}{Actors and incentives}
+\begin{frame}{The Problem}{Banks don't pay interest on rental deposits}
+	In Switzerland, a rental deposit needs to be placed in a (savings-) account at a bank, or in a deposit on the tenants name.\footnote{OR Art. 257e para. 1}\pause \\
+	\vspace{1em}
+	But banks don't offer interest rates on rental deposits:\footnote<2->{As of March 8th 2020, according to the official published rates.} 
   \begin{itemize}
-    \item<1->{This is a simple bullet point.}
-    \item<2->{And another one.}
+    \item<2->UBS and Credit Suisse pay 0\% interest
+   	\item Raiffeisen pays 0.05\% interest
   \end{itemize}
   \vspace{1em}
   \uncover<3->{
-    Something I'd like to uncover on slide 3.  
+    Is there a way we can earn interest on the deposited security without putting the landlord in a less favourable position?
   }
+
+\end{frame}
+
+\subsection{Smart contracts and stablecoins}
+
+\begin{frame}{Smart Contracts}{Deterministic code execution on the blockchain}
+	Attempt to solve the zero-interest problem by moving the rental deposit to a smart contract on the Ethereum blockchain. \pause \\ 
+	\vspace{1em}
+	The smart contract will safe-keep and invest the deposit to generate interest for the tenant while remaining in full control over the funds.
+	\pause \\ 
+	\vspace{1em}
+	However, not everything can be solved with the smart contract. Off-chain contracts and a trustee are still necessary.
+\end{frame}
+
+\begin{frame}{Stablecoins}{DAI instead of ETH}
+	DAI is a decentralized crypto stablecoin with its value soft-pegged to the US dollar. Over time, 1 DAI will be equal to 1 US dollar.\footnote{In the short term, the DAI can be slightly above or below the USD}\pause \\ 
+	\vspace{1em}
+	Using DAI instead of ETH will eliminate the ETH volatility risk and allows to hold the deposit in a stable currency the same way a bank would.\pause \\ 
+	\vspace{1em}
+	Most of the DeFi ecosystem is powered by stablecoins and DAI is the market leader. As of September 2019, DAI accounts for almost 90\% of all loans in the DeFi ecosystem \cite{Schaer2020}.
+	
+\end{frame}
+
+\subsection{How to invest the deposit}
+
+\begin{frame}{How to invest the deposit}{Minimize the risk!}
+	\begin{itemize}
+		\item<1->As with any investment, balance risk and return.
+		\item<1-> Deposit is a security $\rightarrow$ strong bias for low risk.
+		\vspace{1em}
+		\item<2-> DAI offers a riskless investment: The DAI saving rate (DSR).
+		\item<2-> Alternatively, invest on a DeFi platform like rDAI.
+		\vspace{1em}
+		\item<3-> The difference in return is small\footnote<3->{March 6th: DSR 8\%, rDai 8.07\%. April 19th: DSR 0\%, rDai 2.53\%.} $\rightarrow$ choose the riskless option.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{How to invest the deposit?}{Riskless DSR investment}
+	What is DSR and why is it riskless? \pause
+	\begin{itemize}
+		\item<2-> DSR is a part of the MakerDAO system.
+		\item<2-> It helps to stabilize the peg by changing the supply.
+	\end{itemize}
+	\vspace{1em}
+	\uncover<3->{How does it work?}
+	\begin{itemize}
+		\item<3-> To gain interest, your DAI is locked in a smart contract.
+		\item<4-> Higher DSR $\rightarrow$ more people lock their DAI \\
+		$\rightarrow$ less DAI on the market $\rightarrow$ higher DAI price.
+		\item<5-> Guaranteed liquidity, no dependencies and no time locks.
+	\end{itemize}
 \end{frame}
 
 
-\subsection{DAI and Interest}
-
-\begin{frame}{Dai}{Interest}
-  ...
-\end{frame}
-
-
-\section{The Contract}
+\section{The Smart Contract}
   \label{sec:contract}
+
+%\subsection{Involved parties}
+%\begin{frame}{Involved Parties}{A smart RDA has three participants}
+%	\textbf{Tenant:} Deposits the funds as a security and earns interest.\\
+%	\vspace{1em}
+%	\uncover<2->{\textbf{Landlord}: Has claims on the deposit for restitutions.\\}
+%	\vspace{1em}
+%	\uncover<3->{\textbf{Trustee}: Enforces off-chain contracts by signing transactions and is compensated with a fixed trustee fee.}
+%\end{frame}
+
+\subsection{A graphical overview}
+
+\begin{frame}{A graphical overview}{The smart contract is in control}
+	\begin{figure}[h]
+		\scalebox{0.6}{
+			\tikzfig{contractBase}
+		}
+		\label{fig:contractBase}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{A graphical overview}{The deposit is invested by the tenant}
+	\begin{figure}[h]
+		\scalebox{0.6}{
+			\tikzfig{contractInvest}
+		}
+		\label{fig:contractInvest}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{A graphical overview}{Interest is managed by the RDA contract}
+	\begin{figure}[h]
+		\scalebox{0.6}{
+			\tikzfig{contractEarn}
+		}
+		\label{fig:contractEarn}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{A graphical overview}{Dashed actions require multiple signatures}
+	\begin{figure}[h]
+		\scalebox{0.6}{
+			\tikzfig{contractMultisig}
+		}
+		\label{fig:contractMultisig}
+	\end{figure}
+\end{frame}
 
 \subsection{Multisig}
 
-\begin{frame}{Slide in Section \ref{sec:contract}}{Random Subtitle}
-  Another slide.
+\begin{frame}{Multisig}{Introduction}
+	Multisig: To execute a transaction, more than one account has to consent before it can be executed. \\
+	\vspace{1em}
+	For this contract, a multisig transaction has to be confirmed by two out of the three participants.\\
+	\vspace{1em}
+	\uncover<2->{For example: To return the deposit to the tenant, both the tenant and the landlord have to sign the transaction.}
 \end{frame}
+
+\begin{frame}{Multisig}{Trustless interaction}
+	We use on-chain multisig, heavily based on the proven and audited code base of the GNOSIS multisig wallet \cite{GNOSIS2019}. \\
+	\vspace{1em}
+	The trustee in combination with multisig ensures that off-chain agreements can be enforced on the smart contract. \\
+	\vspace{1em}
+	\uncover<2->{
+	For example: A court order to release the deposit to the landlord or another requirement specified by contract law\footnote<2->{OR Art. 257e ff.}.}
+\end{frame}
+
+\subsection{Documents}
+
+\begin{frame}{Documents}{Using multisig to sign documents}
+	We have already implemented a robust multisig for transactions. We can use the same code with very little addition to digitally sign documents! \\
+	\vspace{1em}
+    \uncover<2->{It is possible to attach the hash of a document to an RDA contract where it can be signed by any of the three participants.\\}
+	\vspace{1em}
+	\uncover<3->{For example: Attach the hash of the rental contract and have it signed by the tenant and the landlord.}
+\end{frame}
+
+\subsection{Modularity}
+
+\begin{frame}{Modularity}{Factory-child pattern and interest module}
+	New RDA contracts can be created through a factory contract which serves as a registry. Users can find all contracts involved with a specific address.\\
+	\vspace{1em}
+	\uncover<2->{The factory contract is available on the Ethereum Main Net, the Kovan Test Net and on my personal test net with instant mining.\\}
+	\vspace{1em}
+	\uncover<3->{The DSR saving contract module is separate and can be replaced by a module that invests the deposit differently. \\}
+\end{frame}
+
+\subsection{Security and testing}
+
+\begin{frame}{Security}{Security by design}
+	Every function is either internal, view or pure or requires a sender address from a participant. No account other than the three hardcoded participants can change the contract state.\\
+	\vspace{1em}
+	\uncover<2->{No dependencies on libraries or other contracts except for the MakerDAO system.\\}
+	\vspace{1em}
+	\uncover<3->{Migrate allows the participants to rescue the funds in case of an emergency or invalid state and allows for a controlled transfer to an updated contract. \\}
+	\vspace{1em}
+	\uncover<4->{Extensive truffle test suite with dozens of unit-, integration- and story driven tests.}
+\end{frame}
+
+\section{The Off-Chain Contract}
+
+\subsection{Legal document}
+
+\begin{frame}{Regulations}{An accompanying legal document}
+	In collaboration with a jurist, we are in the process of composing a Swiss legal document (in German) that specifies the rights, obligations and distribution of risks among the participants involved in a smart rental deposit account contract. \pause \\ 
+	It regulates, among other things:
+	\vspace{1em}
+	\begin{itemize}
+		\item<2-> Safekeeping of private keys
+		\item<2-> Representation through other parties
+		\item<3-> Distribution of transaction costs and fees
+		\item<3-> Reasons for migrations
+		\item<4-> Tax declaration of interest profits
+	\end{itemize}
+\end{frame}
+
+
+\section{The Interface}
+
+\subsection{smartdepos.it}
+
+\begin{frame}{smartdepos.it}{Web 3.0 dApp}
+	A powerful dApp is provided to interact with the RDA: \\ 
+	\vspace{1em}
+	\url{https://smartdepos.it} \\
+	\vspace{1em}
+	\uncover<2->{It offers: \\}
+	\begin{itemize}
+		\item<2-> Managing your involved RDAs
+		\item<3-> Metamask integration
+		\item<4-> State of the art technology: React, node, web3.js
+		\item<5-> Pure front-end dApp, blockchain is the only source of truth
+		\item<6-> Open source
+	\end{itemize}
+\end{frame}
+
+\section{The Future}
+
+\subsection{What needs to be done}
+
+\begin{frame}{What needs to be done}{Polish and legal formalities}
+	Well ahead of the schedule for the hand-in date. \\
+	Contract testing on Kovan and Main Net mostly completed.\\ \pause 
+	This leaves enough time to
+	\begin{itemize}
+		\item<2-> Polish and check legality of off-chain contract
+		\item<3-> Incorporate feedback
+		\item<4-> Finish written thesis
+	\end{itemize}
+\end{frame}
+
+\subsection{Use case for the contract}
+
+\begin{frame}{Use case for the contract I}{Use in a rental contract}
+	During April 2020 I was in the process of moving to a new house. After discussing my seminar thesis with the new landlord, my new flat mates and the jurist consultant we decided to move ahead and included the following section in the rental contract:\\ 
+	\vspace{1em}
+	\uncover<2->{
+		\begin{quote}
+			Das Mietzinsdepot wird im gegenseitigen Einverständnis unter Einbezug eines
+			Treuhänders in einem auf der Ethereum Blockchain bereitgestellten Smart
+			Contract hinterlegt. [...]
+		\end{quote}
+	}
+\end{frame}
+
+\begin{frame}{Use case for the contract II}{Use in a rental contract}
+	\begin{quote}
+		Die Einzahlung in den Smart Contract erfolgt in einem an den US-Dollar
+		gebundenen Stablecoin zu dem zum Einzahlungszeitpunkt geltenden Wechselkurs.
+		Änderungen im Wechselkurs zwischen Schweizer Franken (CHF) und
+		dem Stablecoin werden von Vermieter und Mieter in Kauf genommen und
+		haben keine Anpassung der Höhe des Mietzinsdepots zur Folge.
+		Weitere Vereinbarungen betreffend des Smart Contracts sind im Dokument
+		Nutzungsbestimmungen für einen Smart Rental Deposit Account schriftlich
+		festgehalten und gelten als Bestandteil des Mietvertrags.
+	\end{quote}
+\end{frame}
+
+\begin{frame}{Thanks!}{Q \& A}
+	\begin{columns}[T]
+		\begin{column}{.38\textwidth}
+			\begin{tikzpicture}[remember picture,overlay]
+				\fill[mint](-4,-4.5) rectangle (4.5,2.5);
+			\end{tikzpicture}
+		\end{column}
+		\hfill
+		\begin{column}{.58\textwidth}
+			I will be happy to show you a smart rental deposit account contract in action and answer your questions! \\
+			\vspace{1em}
+			Github: \url{https://github.com/matnad/rental-deposit-account}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}
+	\frametitle{References}
+	\bibliographystyle{amsalpha}
+	\bibliography{DepositAccountSlides}
+\end{frame}
+
+
+
 
 \end{document}

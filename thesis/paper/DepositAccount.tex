@@ -197,6 +197,35 @@ Interacting with a traditional rental deposit account poses significant transact
 Authenticity of the signatures is guaranteed by the blockchain technology with the additional upside that any arbitrary document can be attached to an RDA and signed by the participants. This could for example be used to digitally sign the rental contract, eliminating the need for any physical documents and signatures in a tenant-renter relationship.
 
 
+%%%%%%%%%%%%%%%%
+%%% Risks    %%%
+%%%%%%%%%%%%%%%%
+
+\section{Risks}
+In this section we discuss the most urgent risks that arise when using an RDA smart contract. The risks can be divided into Counterparty risk, foreign exchange risk and Layer 1 - Layer 4 risks as described by (cite DeFi paper Schär). The following sections assume that the RDA smart contract works as intended; the risk of smart contract failure is covered in Layer 3 risks.
+
+\subsection{Counterparty risk}
+As counterparty risk we understand the likelihood that one of the involved parties does not perform their contractual obligations, due to malicious intent or otherwise.
+Most of the counterparty risk is mitigated by the smart contract nature of the RDA. Especially the funds are kept completely secure and can't be compromised. The obligations of the trustee - confirming multisig transactions when needed - need to be backed up by a written (off-chain) contract and there remains a risk that the trustee defaults on these obligations. However, the trustee has no personal gain from this behaviour and is contractually liable. It is still vital to chose a reputable entity for this task.
+
+The tenant or landlord can not behave in a way that will compromise the smart contract as long as the trustee fulfils their obligation.
+
+\subsection{Foreign exchange risk}
+Currently the only widely available stablecoins on the Ethereum platform are pegged to the US-Dollar; therefore the rental deposit needs to be paid in US-Dollar. If the US-Dollar is not the local currency of the country where the RDA contract is settled, there exists a risk for the deposit to become undercollateralized if the US-Dollar is devalued. This risk can be mitigated with hedging or similar strategies if desired, otherwise the tenant and the landlord need to agree to absorb this risk. A further possibility would be to include a contract clause that will trigger a migration of the contract with re-collateralization should the exchange rate fall below a certain threshold.
+
+\subsection{Settlement layer risk}
+Layer 1 risks include a partial or total failure of the Ethereum protocol due to technical issues. This would most likely also default the entire rental deposit. The tenant is fully liable for this risk and needs to set up a new rental deposit on a different platform.
+
+\subsection{Asset layer risk}
+Layer 2 includes the assets built on the Ethereum protocol; relevant for this smart contract is the ERC-20 stablecoin DAI and by extension the MakerDAO ecosystem. MakerDAO is still very much a developing and experimental institution that brings the risk of a partial or complete failure. In most scenarios a total default can be prevented if the contract is migrated in time to a different platform on initiative of the trustee and the tenant. However, the tenant is responsible to re-collateralize the deposit. We try to keep the layer 2 risk minimal by not involving any other asset.
+
+\subsection{Protocol layer risk}
+The layer 3 risk is extensively described in Schär 2020, section 3. It consists of smart contract execution risk (coding errors and vulnerabilities), operational security (OpSec) risks and dependency risks (dependency on MakerDao and especially DSR). 
+OpSec risks are negligible as there exists no admin key for the smart contract. Execution risk and dependency risk is absorbed by the tenant. One significant dependency risk is a low interest rate as defined by the DSR contract.
+
+\subsection{Application layer risk}
+The layer 4 risks arises if the parties decide to use the provided dApp at https://smartdepos.it or a similar external interface which has a chance to malfunction and submit faulty data to the RDA smart contract. Every participant bears this risk for themselves, but it is highest for the tenant as they need to send DAI transactions. The risk can be mitigated by interacting directly with the smart contract.
+
 
 %%%%%%%%%%%%%%%%
 %%% Multisig %%%
@@ -226,34 +255,6 @@ Compared to an off-chain approach, more gas is needed to complete the settlement
 \subsection{Conclusion}
 Our propsed RDA smart contract will perform a very limited number of multisig transactions over its lifetime; we can therefore disregard the slightly higher costs needed for an on-chain settlement. The transparency and persistent logs in combination with a simple coordination mechanism are however very desirable. For these reasons we pursue an on-chain approach and decided to base our implementation of multisig heavily on the proven GNOSIS multisig wallet code. A more technical overview of our implementation will be presented in (reference section).
 
-%%%%%%%%%%%%%%%%
-%%% Risks    %%%
-%%%%%%%%%%%%%%%%
-
-\section{Risks}
-In this section we discuss the most urgent risks that arise when using an RDA smart contract. The risks can be divided into Counterparty risk, foreign exchange risk and Layer 1 - Layer 4 risks as described by (cite DeFi paper Schär). The following sections assume that the RDA smart contract works as intended; the risk of smart contract failure is covered in Layer 3 risks.
-
-\subsection{Counterparty risk}
-As counterparty risk we understand the likelihood that one of the involved parties does not perform their contractual obligations, due to malicious intent or otherwise.
-Most of the counterparty risk is mitigated by the smart contract nature of the RDA. Especially the funds are kept completely secure and can't be compromised. The obligations of the trustee - confirming multisig transactions when needed - need to be backed up by a written (off-chain) contract and there remains a risk that the trustee defaults on these obligations. However, the trustee has no personal gain from this behaviour and is contractually liable. It is still vital to chose a reputable entity for this task.
-
-The tenant or landlord can not behave in a way that will compromise the smart contract as long as the trustee fulfils their obligation.
-
-\subsection{Foreign exchange risk}
-Currently the only widely available stablecoins on the Ethereum platform are pegged to the US-Dollar; therefore the rental deposit needs to be paid in US-Dollar. If the US-Dollar is not the local currency of the country where the RDA contract is settled, there exists a risk for the deposit to become undercollateralized if the US-Dollar is devalued. This risk can be mitigated with hedging or similar strategies if desired, otherwise the tenant and the landlord need to agree to absorb this risk. A further possibility would be to include a contract clause that will trigger a migration of the contract with re-collateralization should the exchange rate fall below a certain value.
-
-\subsection{Layer 1 risk}
-Settlement layer risks include a partial or total failure of the Ethereum protocol due to technical issues. This would most likely also default the entire rental deposit. The tenant is fully liable for this risk and needs to set up a new rental deposit on a different platform.
-
-\subsection{Layer 2 risk}
-Layer 2 includes the assets built on the Ethereum protocol; relevant for this smart contract is the stablecoin DAI and by extension the MakerDAO ecosystem. MakerDAO is still very much a developing and experimental institution that brings the risk of a partial or complete failure. In most scenarios a total default can be prevented if the contract is migrated in time to a different platform on initiative of the trustee and the tenant. However, the tenant is responsible to re-collateralize the deposit. We try to keep the layer 2 risk minimal by not involving any other asset.
-
-\subsection{Layer 3 risk}
-The protocol layer risk is extensively described in Schär 2020, section 3. It consists of smart contract execution risk (coding errors and vulnerabilities), operational security (OpSec) risks and dependency risks (dependency on MakerDao and especially DSR). 
-OpSec risks are negligible as there exists no admin key for the smart contract. Execution risk and dependency risk is absorbed by the tenant. One significant dependency risk is a low interest rate as defined by the DSR contract.
-
-\subsection{Layer 4 risk}
-The application layer risks arises if the parties decide to use the provided dApp https://smartdepos.it or a similar, external interface which has a chance to malfunction and submit faulty data to the RDA smart contract. Every participant bears this risk for themselves, but it is highest for the tenant as they need to send DAI transactions.
 
 
 %%%%%%%%%%%%%%%%

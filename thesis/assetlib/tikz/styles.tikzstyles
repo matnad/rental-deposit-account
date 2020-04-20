@@ -8,7 +8,7 @@
 \tikzstyle{rect2}=[fill=white, draw=black, shape=rectangle, minimum height=1cm]
 
 % Edge styles
-\tikzstyle{to}=[->]
+\tikzstyle{to}=[->, draw=black]
 \tikzstyle{dotted}=[->, dashed]
 \tikzstyle{interaction}=[<->]
 \tikzstyle{distance}=[{|-|}]
